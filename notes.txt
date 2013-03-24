@@ -1,0 +1,500 @@
+Bash Notes
+
+
+execution
+	1. allways chmod the script to executable (755) or:
+	chmod u+x script.sh
+	
+	2. execution of a script in the bash:
+	bash script.sh
+
+
+debugging
+	debug all:
+	bash -x script.sh
+
+	debug in parts (can be executed as often as needed in the same
+	script):
+	set -x    # starts debugging mode
+	(...)
+	set +x    # ends debugging mode
+
+	debugging modes: 
+	set -f    # no globbing, disables filename generation
+	set -v	  # verbose
+	set -x	  # command traces
+
+	setting the modes -x and -v for the whole code:
+	#!/bin/bash -xv
+
+
+Variables:
+	env, printenv
+	shows all set global variables
+
+	set
+	shows all locally set variables
+
+	unset
+	unsets a variable
+	
+	var="value"
+	sets a variable
+
+	echo $var
+	prints the variable
+	
+	Some variables are RESERVED VARIABLES, its content can be
+	changed, but they are used in other scripts!
+
+
+Special Values:
+	$*
+	list of arguments as a simple word - when in double quotes,
+	expands to a single word with the value of each parameter
+	separated by the first character of the IFS special variable
+
+	$@
+	list of arguments as separate words - when expansion occurs
+	within double quotes, each parameter expands to a separate
+	word
+	
+	$#
+	the number of arguments in the list of arguments $@
+
+	$?
+	expands to the exit status of the most recently executed
+	function, script, etc (= foreground pipeline)
+
+	$-
+	a hyphen expands to the current option flag as specified upon
+	invocation, by the set build-in command, or those set by the
+	shell itself (such as the -i)
+
+	$$
+	the process ID of the shell
+
+	$!
+	expands to the process ID of the most recently executed
+	background (asynchronous) command
+
+	$0
+	expands to the name of the shell or shell script
+
+	$_
+	the underscore variable is set at shell startup and contains
+	the absolute file name of the shell  or script being executed
+	as passed in the argument list
+	subsequently, it expands to the last argument to the previous
+	command, after expansion
+	it is also set to the full pathname of each command executed
+	and placed in the environment exported to that command
+	when checking mail, this parameter holds the name of the mail
+	file
+
+
+Files:
+	/etc/profile
+	settings of the overall environment and global variables
+
+	~/.bash_profile
+	settings of the local environment
+
+	~/.bashrc
+	settings of the local bash shell
+
+
+input 
+        read     - reads from the user
+        read -n  - reads without linefeed
+
+
+output
+	echo     - prints to the console
+	echo -n  - prints without linefeed to the console
+	echo -e  - prints to the console using escape sequences
+	
+        pipes work in scripts: > | < 
+	&> file             - redirects all (stdou and stderr)
+	2> /dev/null        - redirects the stderr to /dev/null
+	2 >& 1 > /dev/null  - copies stderr to stdout and redirects all
+			      to null
+	make >dump.txt 2>&1 - redirects the make output to dump.txt
+
+
+filedescriptor
+	exec fd_NUMBER> FILE - opens a file to write
+	exec fd_NUMBER< FILE - opens a file to read
+	exec fd_NUMBER>&-    - close the write file descripter again
+	exec fd_NUMBER<&-    - close the read file descripter again
+	
+	e.g.:
+	open a fd:
+ 	    exec 4 > result.txt
+	and write to it:
+            filter body.txt | cat header.txt /dev/fd/0 footer.txt >& 4
+	and close the fd again:
+	    exec 4>&-
+
+if
+	if TESTEXPRESSION; then 
+	    DO_SOMETHING
+	fi
+
+	or
+
+	if TESTEXPRESSION; then 
+	        DO_SOMETHING
+	    elif TESTEXPRESSION; then 
+	        DO_SOMETHING 
+	    else 
+	fi
+
+	or 
+	
+	[ TESTEXPRESSION ] && DO_SOMETHING
+	
+	evaluation of the TESTEXPRESSION depends on flags, e.g. -lt
+	for lower than, -e for existance of file, -eq for equals etc and
+	parentheses, eg (( )) for logical expressions - often there
+	are more than one possibilities to do something
+
+
+switch/case	
+	case TESTEXPRESSION in
+	    RESULT1)
+	        DO_SOMETHING
+		;;
+	    RESULT2)
+	        DO_SOMETHING
+		;;
+	    *)
+		DO_SOMETHING_DEFAULT	
+		;;
+	esac
+
+	it is often easier to do a (switch/)case than to do an if clause!
+	;; = here means "break"
+
+
+for
+	for NAME [in LIST ]; do 
+	    COMMANDS; 
+	done
+	
+	"[in LIST ]" is optional, e.g. also - for each element, do..:
+	ls *.xml > list
+	for i in `cat list`; do cp "$i" "$i".bak ; done
+
+	
+while
+	while CONTROL-COMMAND; do 
+	    COMMANDS; 
+	done
+	
+	or
+
+	while true; do
+	    COMMANDS;
+	done
+
+	or 
+
+	while :
+	do
+	    COMMANDS;
+	done
+
+	leave by exit or break, continue - syntax can be diferente,
+	while stays while ;)
+
+
+until
+	unitl TEST-COMMAND; do 
+	    CONSEQUENT-COMMANDS; 
+	done
+	
+	uses inverse logic, do something until something else is true
+
+
+select
+       select WORD [in LIST]; do 
+           RESPECITVE-COMMANDS; 
+       done
+
+       allows easy way menu generation
+
+
+shift
+       using the "shift" statement in a while or until loop will pass
+       through all elements in the argument list $# by setting the
+       selected one each turn to $1. 
+       hence within the "while loop" always only $1 needs to be treated
+
+
+declare
+       declare the type of a variable, it is possible to declare a
+       numerical value, but not a string:
+       declare OPTION(s) VARIABLE=value
+
+       -a 
+       variable is an array
+
+       -f 
+       use function names only 
+
+       -i 
+       variable is to be treaded as an integer
+
+       -p
+       display the attributes and values of each variable (additional
+       options are ignored)
+
+       -r 
+       make variables read-only (not possible to be assined to -t and
+       -x)
+
+       -t
+       give trace attribute to each variable
+
+       -x
+       mark each variable for export to subsequent commands via the envirionment
+
+
+readonly
+       the readonly declaration is used to declare constants
+       readonly OPTION VARIABLE(s)
+
+       
+array
+       ARRAY[INDEXNR]=VALUE
+
+       it is possible to declare an array:
+       declare -a ARRAYNAME
+
+       the usage of arrays in bash scripting is mainly for
+       mathematical operations, practical usage is really rare!
+
+
+length of a variable
+       ${#VARIABLE}
+       calculates the number of characters in that variable, if
+       VARIABLE is '*' or '@' this value is substituted with the
+       number of positional parameters or number of elements in an
+       array in general
+
+
+function
+       function definition:
+
+       function FUNCTION { COMMANDS; }
+
+       or
+
+       FUNCTION () { COMMANDS; }
+
+       function call:
+       functionname foo_parameter bar_paramenter
+
+       $@, $1,2,3, etc for list of arguments or arguments by index,
+       use "shift" to switch $1 to the next argument in the list and
+       $# for the size of the argument list. 
+       $RETURN_VALUE provides an error code to be set for returns
+       (use $?). 
+
+
+Regular Expressions:
+       .
+       matches any single character
+	
+       ?
+       precedign item is optional and will be matched, at most, once
+
+       *
+       preceding item will be matched 0 or more times
+
+       +
+       preceding item will be matched 1 or more times
+
+       {N}
+       preceding item is matched exactly N times
+
+       {N,}
+       preceding item is matched N or more times
+
+       {N,M}
+       preceding item is matched at least N times, but not more than
+       M times
+
+       -
+       represents the range if it's not first or last in a list or
+       the ending point of a range in a list
+
+       ^
+       matches the empty string at the beginning of a line, also
+       represents the characters not in the range of a list
+
+       $
+       matches the empty string at the end of a line
+
+       \b
+       matches the empty string at the endge of a word
+
+       \B
+       mathces the empty string privided it's not at the edge of a
+       word
+
+       \<
+       match the empty string at the beginning of word
+
+       \>
+       match the empty string at the end of word
+
+
+
+grep
+       grep -[flag] [word/pattern in a file] [where]
+
+       -n
+       linenumbers
+
+       -v
+       verbosely
+
+       -c
+       count the occurances
+
+       -i
+       not case-sensitive
+
+       -r 
+       recursive filepath
+
+       *[1234] or *[1-4] or *[asdf]
+       means something followed by ONE figure or character contained
+       in the list
+
+       grep '\<c...h\>' /usr/share/dict/words
+       get all words with 5 characters starting with 'c' and ending
+       with 'h' in this file 
+       (use -F to display the whole lines containing that stuff)    
+	
+       grep '\<c.*h\>' /usr/share/dict/words
+       get all words starting with 'c' and ending with 'h'
+       (use -F to display the whole lines containing that stuff) 
+	
+
+Cron job:
+       crontab, cron, at, batch
+       1. write a file
+       CRONJOBNAME
+       <minute> <hour> <day> <month> <weekday> PROGRAMMNAME
+       <0 - 59> <0 - 23> <1 - 31> <1 - 12> <0 - 6> PROGRAMMNAME
+
+       e.g.
+
+       0 0 1,15 * 1 /big/dom/xdomain/cgi-bin/scriptname.cgi
+         1,15 - the first and the 15th of the month
+         *    - every, the rest are values
+       
+       2. save as cronjob.txt
+
+       3. do a:
+         crontab cronjob.txt
+
+
+Signals:
+       send signals using kill, kill -l presents a list of possible
+       signals, killall kills all related processes, and kill -9
+       definitely kills the process
+
+
+Trap:
+       trap COMMANDS SIGNALS
+
+       trap serves to catch the set signals at the given point in
+       code/script
+       trap is comparable to a signalhandler, set on special signals
+
+
+Script:
+
+#!/bin/bash
+	every script bash starts with this line!
+
+#
+	comments
+
+at
+	executes a command at a specified time
+
+batch
+	executes when system load levels permit
+
+cron
+	adds a cron job
+
+date
+	prints the relevant date
+
+dirs
+	prints the directory stack
+popd    
+	pops from the directory stack
+pushd   
+	pushes on to the directory stack
+
+output
+	output with linefeed, but variables:
+	echo 
+
+	output without linefeed (add \n), without variables:
+	printf
+
+(...) > /dev/null 2>&1
+       shut up! don't print any output while processing the command
+
+(...) 2> /dev/null
+       redirect errors and don't print
+
+(...) > foobar.log
+       print the output to a logfile
+
+
+operations on variables
+       - if defined print $VAR_A, else print "text":
+       echo ${VAR_A:-text}
+
+       - if VAR_A exists set to 77
+       [ -z "$VAR_A:-}" ] && VAR_A=77
+
+       this is a shortnotation is the same as:
+       if [ -z "$VAR_A:-}" ]; then 
+           VAR_A=77 
+       fi
+
+       - if defined print $VAR_A, else print $VAR_B
+       echo ${VAR_A:=$VAR_B}
+
+
+strip a variable
+      cut off a number of characters at the beginning and / or at the
+      end:
+      echo ${VARIABLE:CUT_OFF_AT_BEGINNING}
+      echo ${VARIABLE:START_INDEX:OFFSET}
+
+pattern operations:
+      echo ${ARRAY[*]}
+      one two one three one four
+      
+      echo ${ARRAY[*]#one}
+      two three four
+
+      echo ${ARRAY[*]#t}
+      one wo one hree one four
+
+      echo ${ARRAY[*]#t*}
+      one wo one hree one four
+
+      echo ${ARRAY[*]##t*}
+      one one one four

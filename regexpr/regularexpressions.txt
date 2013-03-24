@@ -1,0 +1,61 @@
+regular expressions
+
+Regular Expressions:
+	.
+	matches any single character
+	
+	?
+	precedign item is optional and will be matched, at most, once
+
+	*
+	preceding item will be matched 0 or more times
+
+	+
+	preceding item will be matched 1 or more times
+
+	{N}
+	preceding item is matched exactly N times
+
+	{N,}
+	preceding item is matched N or more times
+
+	{N,M}
+	preceding item is matched at least N times, but not more than
+	M times
+
+	-
+	represents the range if it's not first or last in a list or
+	the ending point of a range in a list
+
+	^
+	matches the empty string at the beginning of a line, also
+	represents the characters not in the range of a list
+
+	$
+	matches the empty string at the end of a line
+
+	\b
+	matches the empty string at the endge of a word
+
+	\B
+	mathces the empty string privided it's not at the edge of a
+	word
+
+	\<
+	match the empty string at the beginning of word
+
+	\>
+	match the empty string at the end of word
+
+
+
+characters:
+
+	ls -ld [a-cx-z]
+	list all, starting with 'a', 'b', 'c', 'x', 'y', 'z'
+
+TODO: doesn't work!!!
+	ls -ld [[:digit:]]*
+	list all, starting with a "digit" (or "alpha", "ascii",
+	"blank", "lower", "upper"...)
+
