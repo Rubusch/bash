@@ -10,7 +10,7 @@
 # box4=(4 30 4 32 5 28 5 30)
 # box5=(4 30 5 28 5 30 5 32)
 # box6=(4 32 5 28 5 30 5 32)
-box7=(4 30 5 30 6 30 7 30) # pixel coordinates (x y x y x y x y)
+box7=(4 30 5 30) # pixel coordinates (x y x y x y x y)
 # box8=(4 28 5 28 5 30 5 32)
 # box9=(4 28 4 30 5 30 5 32)
 # box10=(4 28 4 30 5 28 5 30)
@@ -33,8 +33,10 @@ box7=(4 30 5 30 6 30 7 30) # pixel coordinates (x y x y x y x y)
 mrx=[] # piece definition
 modh=3 # height of the top area
 modw=5 # width of the left area
-height=30 # height of the game area
-width=25 # width of the game area
+#height=30 # height of the game area  
+height=20 # height of the game area
+#width=25 # width of the game area
+width=20 # width of the game area
 coltab=(1\;{30..37}\;{40..47}m) # color definition of the pieces
 
                                                                                 
@@ -87,11 +89,28 @@ boundary()
 {  # the boundary of the game area
     clear
     boncol="\e[1;36m"
+
+    ## top and bottom
     for((i=modw+1; i<=2*width+modw; i+=2)); do
         echo -e "${boncol}\e[${modh};${i}H##\e[$((height+modh+1));${i}H##\e[0m"
     done
+
+    ## side walls
     for((i=modh; i<=height+modh+1; ++i)); do
-        echo -e "${boncol}\e[${i};$((modw-1))H #\e[${i};$((2*width+modw+1))H#\e[0m"
+        echo -e "${boncol}\e[${i};$((modw-1))H##\e[${i};$((2*width+modw+1))H##\e[0m"
+    done
+
+    #labyrinth
+    x_walls=( 2 2 2 2 2  2  2  2   8  8  8  8  8  10 10 12  16 16  16 18 20 22 24  16 16 18 24 24 24 24 24 16 18 20 22 24 16 16 16 18 30 30 30 30 30 30  34 34 34 34 34  34 36 38 )
+    y_walls=( 0 2 4 6 8 10 12 14  10 12 14 16 18   4  6  6   0  2   6  6  6  6  6   8 10 10  8 10 12 14 16 18 18 18 18 18 18 16 14 14  0  4  6  8 10 12  10 12 14 16 18   6  6  6 )
+    for ((idx=0; idx<${#x_walls[*]}; ++idx)) ; do
+        x=${x_walls[idx]}
+        y=${y_walls[idx]}
+#x in ${x_walls[*]}; do
+#        for y in ${y_walls[*]}; do
+            echo -e "${boncol}\e[$((modh+1+y));$((modw+1+x))H##\e[$((modh+2+y));$((modw+1+x))H##\e[0m"
+#            echo -e "${boncol}\e[$((modh+1+y));$((modw+1+x))H##\e[0m"
+#        done
     done
 }
 
@@ -131,7 +150,8 @@ getsig()
 #                D|d)  sig=${sigRight}     ;;
 #                P|p)  pause ${pid}  0     ;;
 #                R|r)  pause ${pid}  1     ;;
-                R|r)  sig=${sigRotate}    ;;  
+
+#                R|r)  sig=${sigRotate}    ;;  
                 Q|q)  Quit 0              ;;
             esac
         fi
@@ -250,7 +270,7 @@ coordinate()
    for((i=0; i<${#vor[@]}; i+=2))
    do
        cdn+="\e[${vor[i]};${vor[i+1]}H${mrx}"
-       sup+="${vor[i]} ${vor[i+1]} "  
+       sup+="${vor[i]} ${vor[i+1]} "
    done
    ${2}
 }
@@ -258,7 +278,7 @@ coordinate()
 ptbox()
 {  # draw the current pieces
    oldbox="${cdn}"
-   echo -e "\e[${colbox}${cdn}\e[0m" 
+   echo -e "\e[${colbox}${cdn}\e[0m"
 }
 
 regxy()
@@ -267,7 +287,7 @@ regxy()
    locus="${sup}"
 }
 
-
+## game loop
 
 persig()
 {  # deal with the detected signals
@@ -320,7 +340,7 @@ transform()
    local dx dy cdn smu
    dx=${1}
    dy=${2}
-   (( $# == 2 )) && parallelbox || rotate
+   (( $# == 2 )) && parallelbox # || rotate
 }
 
 parallelbox()
@@ -331,7 +351,7 @@ parallelbox()
         (( smu == 2 )) && across
         increment
 
-# TODO rm
+# TODO not chocking with x_walls y_walls
 # if lower bottom, tetris handling, etc
 #    else
 #        echo "XXX" 
@@ -368,92 +388,92 @@ increment()
    box=(${nbox[@]})
 }
 
-## rotate stuff
+# ## rotate stuff
 
-rotate()
-{  # rotate or transpose the pieces
-    local m n p q mp nq tbox mbox vbox kbox
-    centralpoint box[@] mp nq
-    procedure box[@]  equation vbox "/" m n
-    algorithm
-    mbox=(${mbox})
-    procedure mbox[@] equation tbox "*" p q
-    component
-    coordinate tbox[@] serxy
-    dx=0
-    if movebox kbox; then
-        hdbox
-        locus="${kbox}"
-        ptbox
-        box=(${kbox})
-    fi
-}
+# rotate()
+# {  # rotate or transpose the pieces
+#     local m n p q mp nq tbox mbox vbox kbox
+#     centralpoint box[@] mp nq
+#     procedure box[@]  equation vbox "/" m n
+#     algorithm
+#     mbox=(${mbox})
+#     procedure mbox[@] equation tbox "*" p q
+#     component
+#     coordinate tbox[@] serxy
+#     dx=0
+#     if movebox kbox; then
+#         hdbox
+#         locus="${kbox}"
+#         ptbox
+#         box=(${kbox})
+#     fi
+# }
 
-centralpoint()
-{  # get the central coordinates of the pieces
-   BOX=(${!1})
-   if (( ${#BOX[@]}%4 == 0 )); then
-        ((${2}=BOX[${#BOX[@]}/2]))
-        ((${3}=BOX[${#BOX[@]}/2+1]))
-   else
-        ((${3}=BOX[${#BOX[@]}/2]))
-        ((${2}=BOX[${#BOX[@]}/2-1]))
-   fi
-}
+# centralpoint()
+# {  # get the central coordinates of the pieces
+#    BOX=(${!1})
+#    if (( ${#BOX[@]}%4 == 0 )); then
+#         ((${2}=BOX[${#BOX[@]}/2]))
+#         ((${3}=BOX[${#BOX[@]}/2+1]))
+#    else
+#         ((${3}=BOX[${#BOX[@]}/2]))
+#         ((${2}=BOX[${#BOX[@]}/2-1]))
+#    fi
+# }
 
-procedure()
-{  # function invocation
-   multiple ${1} ${2} ${3} "${4}"
-   eval ${3}="(${!3})"
-   centralpoint ${3}[@] ${5} ${6}
-}
+# procedure()
+# {  # function invocation
+#    multiple ${1} ${2} ${3} "${4}"
+#    eval ${3}="(${!3})"
+#    centralpoint ${3}[@] ${5} ${6}
+# }
 
-multiple()
-{  # transformation between double and a half of the coordinates
-    local x y cy ccx ccy cdx cdy vor
-    vor=(${!1})
-    for((i=0; i<${#vor[@]}; i+=2)) ; do
-        ((x=vor[i]))
-        ((y=vor[i+1]))
-        ((ccx=x))
-        ((ccy=y))
-        ${2} ${3} "${4}"
-        ((cy=y))
-        ((cdx=ccx))
-        ((cdy=ccy))
-    done
-}
+# multiple()
+# {  # transformation between double and a half of the coordinates
+#     local x y cy ccx ccy cdx cdy vor
+#     vor=(${!1})
+#     for((i=0; i<${#vor[@]}; i+=2)) ; do
+#         ((x=vor[i]))
+#         ((y=vor[i+1]))
+#         ((ccx=x))
+#         ((ccy=y))
+#         ${2} ${3} "${4}"
+#         ((cy=y))
+#         ((cdx=ccx))
+#         ((cdy=ccy))
+#     done
+# }
 
-algorithm()
-{  # the most core algorithm used for pieces rotation and matrix transposition
-   local row col
-   for((i=0; i<${#vbox[@]}; i+=2))
-   do
-          ((row=m+vbox[i+1]-n))  # row=(x-m)*zoomx*cos(a)-(y-n)*zoomy*sin(a)+m
-       if (( dx != 1 )); then    # col=(x-m)*zoomx*sin(a)+(y-n)*zoomy*cos(a)+n
-          ((col=m-vbox[i]+n))    # a=-pi/2 zoomx=+1 zoomy=+1 dx=0 dy=0
-       else                      # a=-pi/2 zoomx=-1 zoomy=+1 dx=0 dy=0
-          ((col=vbox[i]-m+n))    # a=+pi/2 zoomx=+1 zoomy=-1 dx=0 dy=0
-       fi
-          mbox+="${row} ${col} "
-   done
-}
+# algorithm()
+# {  # the most core algorithm used for pieces rotation and matrix transposition
+#    local row col
+#    for((i=0; i<${#vbox[@]}; i+=2))
+#    do
+#           ((row=m+vbox[i+1]-n))  # row=(x-m)*zoomx*cos(a)-(y-n)*zoomy*sin(a)+m
+#        if (( dx != 1 )); then    # col=(x-m)*zoomx*sin(a)+(y-n)*zoomy*cos(a)+n
+#           ((col=m-vbox[i]+n))    # a=-pi/2 zoomx=+1 zoomy=+1 dx=0 dy=0
+#        else                      # a=-pi/2 zoomx=-1 zoomy=+1 dx=0 dy=0
+#           ((col=vbox[i]-m+n))    # a=+pi/2 zoomx=+1 zoomy=-1 dx=0 dy=0
+#        fi
+#           mbox+="${row} ${col} "
+#    done
+# }
 
-equation()
-{  # core algorithm used for doubling and halving the coordinates
-   [[ ${cdx} ]] && ((y=cy+(ccy-cdy)${2}2))
-   eval ${1}+=\"${x} ${y} \"
-}
+# equation()
+# {  # core algorithm used for doubling and halving the coordinates
+#    [[ ${cdx} ]] && ((y=cy+(ccy-cdy)${2}2))
+#    eval ${1}+=\"${x} ${y} \"
+# }
 
-component()
-{  # add the difference of two central coordinates
-   local i
-   for((i=0; i<${#tbox[@]}; i+=2))
-   do
-       ((tbox[i]+=mp-p))
-       ((tbox[i+1]+=nq-q))
-   done
-}
+# component()
+# {  # add the difference of two central coordinates
+#    local i
+#    for((i=0; i<${#tbox[@]}; i+=2))
+#    do
+#        ((tbox[i]+=mp-p))
+#        ((tbox[i+1]+=nq-q))
+#    done
+# }
 
 
         
