@@ -4,38 +4,12 @@
 ## maze shell script
 
 #box0=(4 30) # shape definition 
-#box1=(4 30 5 30)
-#box2=(4 28 4 30 4 32)
-# box3=(4 28 4 30 5 30)
-# box4=(4 30 4 32 5 28 5 30)
-# box5=(4 30 5 28 5 30 5 32)
-# box6=(4 32 5 28 5 30 5 32)
 box7=(4 30 5 30) # pixel coordinates (x y x y x y x y)
-# box8=(4 28 5 28 5 30 5 32)
-# box9=(4 28 4 30 5 30 5 32)
-# box10=(4 28 4 30 5 28 5 30)
-# box11=(4 26 4 28 4 30 4 32 4 34)
-# box12=(4 30 4 32 5 30 6 28 6 30)
-# box13=(4 30 5 28 5 30 5 32 6 30)
-# box14=(4 28 4 32 5 30 6 28 6 32)
-# box15=(4 28 4 32 5 28 5 30 5 32)
-# box16=(4 28 4 30 5 30 6 30 6 32)
-# box17=(4 28 5 28 6 28 6 30 6 32)
-# box18=(4 28 4 30 5 30 5 32 6 32)
-# box19=(4 26 4 34 5 28 5 30 5 32)
-# box20=(4 26 4 34 5 28 5 32 6 30)
-# box21=(4 26 5 28 6 30 7 32 8 34)
-# box22=(4 28 4 32 5 26 5 30 5 34)
-# box23=(4 28 4 34 5 30 5 32 6 30 6 32 7 28 7 34)
-# box24=(4 30 5 28 5 32 6 26 6 30 6 34 7 28 7 32 8 30)
-# box25=(4 30 5 28 5 30 5 32 6 26 6 28 6 30 6 32 6 34 7 28 7 30 7 32 8 30)
 
 mrx=[] # piece definition
 modh=3 # height of the top area
 modw=5 # width of the left area
-#height=30 # height of the game area  
 height=20 # height of the game area
-#width=25 # width of the game area
 width=20 # width of the game area
 coltab=(1\;{30..37}\;{40..47}m) # color definition of the pieces
 
@@ -55,6 +29,7 @@ piece(){ box=(${!1}); } # current block definition
 color(){ echo -n ${coltab[RANDOM/512]}; } # generate the randomly number between zero and sisty-three
 serxy(){ kbox="${sup}"; } # vertical and horizontal coordinates
 hdbox(){ echo -e "${oldbox//[]/  }\e[0m"; } # erase the old pieces
+check(){ (( map[(i-modh-1)*width+j/2-modh] == 0 )) && break; } # check the current row whether it's fully filled up with pieces
 
 ## function
 resume()
@@ -106,11 +81,28 @@ boundary()
     for ((idx=0; idx<${#x_walls[*]}; ++idx)) ; do
         x=${x_walls[idx]}
         y=${y_walls[idx]}
-#x in ${x_walls[*]}; do
-#        for y in ${y_walls[*]}; do
-            echo -e "${boncol}\e[$((modh+1+y));$((modw+1+x))H##\e[$((modh+2+y));$((modw+1+x))H##\e[0m"
-#            echo -e "${boncol}\e[$((modh+1+y));$((modw+1+x))H##\e[0m"
-#        done
+
+#        (x=x_walls[idx])
+#        (y=y_walls[idx])
+
+
+## paint labyrinth
+#        echo -e "${boncol}\e[$((modh+1+y));$((modw+1+x))H##\e[$((modh+2+y));$((modw+1+x))H##\e[0m"
+        echo -e "${boncol}\e[$((modh+1+y));$((modw+1+x))H##\e[0m"
+
+
+## colision detection
+# TODO wall( x, y )
+
+        echo "x $x; y $y"
+#        ((yox=(x-modh-1)*width+y/2-modh))   
+#        ((yox=(x/2) + (y) * (width-modw) +    modw + 2 )) ## only works for first line
+        ((yox=(y)*(width-modw) + (x/2) )) ## only works for first line
+
+        echo "yox ${yox}"  
+        ((map[yox]=1)) # collision detection   
+
+#        pam[yox]="${colbox}" # TODO
     done
 }
 
@@ -350,6 +342,12 @@ parallelbox()
         hdbox
         (( smu == 2 )) && across
         increment
+
+# TODO collision detection
+#             ((map[yox]=1))  
+
+#  loop check  mapbox
+
 
 # TODO not chocking with x_walls y_walls
 # if lower bottom, tetris handling, etc
