@@ -142,10 +142,14 @@ boundary()
         ((map[yox]=1)) # collision detection   
 
 #        pam[yox]="${colbox}" # TODO
+
     done
 
     ## target
-#    echo -e "${boncol}\e[$((modh+1+18));$((modw+1+19))H##\e[$((modh+2+19));$((modw+1+19))H##\e[0m"
+    x=38
+    y=18
+    echo -e "${boncol}\e[$((modh+1+y));$((modw+1+x))HGO\e[$((modh+2+y));$((modw+1+x))HAL\e[0m"
+
 }
 
 getsig()
@@ -325,12 +329,8 @@ regxy()
 
 persig()
 {  # deal with the detected signals
-#set -x  
     local sigSwap pid
     pid=${1}
-
-#   showbox 0 # preview bar
-
     drawbox 0 # draw
 
 #   for i in sigRotate sigTransf sigLeft sigRight sigDown sigAllDown ; do
@@ -362,7 +362,7 @@ persig()
 #            transform $(value $(bottom)) 0  ;;
             esac
         done
-#       transform 1  0 # falling down
+       transform 1  0 # falling down
     done
 }
 
@@ -427,96 +427,6 @@ increment()
    coordinate box[@] regxy
    box=(${nbox[@]})
 }
-
-# ## rotate stuff
-
-# rotate()
-# {  # rotate or transpose the pieces
-#     local m n p q mp nq tbox mbox vbox kbox
-#     centralpoint box[@] mp nq
-#     procedure box[@]  equation vbox "/" m n
-#     algorithm
-#     mbox=(${mbox})
-#     procedure mbox[@] equation tbox "*" p q
-#     component
-#     coordinate tbox[@] serxy
-#     dx=0
-#     if movebox kbox; then
-#         hdbox
-#         locus="${kbox}"
-#         ptbox
-#         box=(${kbox})
-#     fi
-# }
-
-# centralpoint()
-# {  # get the central coordinates of the pieces
-#    BOX=(${!1})
-#    if (( ${#BOX[@]}%4 == 0 )); then
-#         ((${2}=BOX[${#BOX[@]}/2]))
-#         ((${3}=BOX[${#BOX[@]}/2+1]))
-#    else
-#         ((${3}=BOX[${#BOX[@]}/2]))
-#         ((${2}=BOX[${#BOX[@]}/2-1]))
-#    fi
-# }
-
-# procedure()
-# {  # function invocation
-#    multiple ${1} ${2} ${3} "${4}"
-#    eval ${3}="(${!3})"
-#    centralpoint ${3}[@] ${5} ${6}
-# }
-
-# multiple()
-# {  # transformation between double and a half of the coordinates
-#     local x y cy ccx ccy cdx cdy vor
-#     vor=(${!1})
-#     for((i=0; i<${#vor[@]}; i+=2)) ; do
-#         ((x=vor[i]))
-#         ((y=vor[i+1]))
-#         ((ccx=x))
-#         ((ccy=y))
-#         ${2} ${3} "${4}"
-#         ((cy=y))
-#         ((cdx=ccx))
-#         ((cdy=ccy))
-#     done
-# }
-
-# algorithm()
-# {  # the most core algorithm used for pieces rotation and matrix transposition
-#    local row col
-#    for((i=0; i<${#vbox[@]}; i+=2))
-#    do
-#           ((row=m+vbox[i+1]-n))  # row=(x-m)*zoomx*cos(a)-(y-n)*zoomy*sin(a)+m
-#        if (( dx != 1 )); then    # col=(x-m)*zoomx*sin(a)+(y-n)*zoomy*cos(a)+n
-#           ((col=m-vbox[i]+n))    # a=-pi/2 zoomx=+1 zoomy=+1 dx=0 dy=0
-#        else                      # a=-pi/2 zoomx=-1 zoomy=+1 dx=0 dy=0
-#           ((col=vbox[i]-m+n))    # a=+pi/2 zoomx=+1 zoomy=-1 dx=0 dy=0
-#        fi
-#           mbox+="${row} ${col} "
-#    done
-# }
-
-# equation()
-# {  # core algorithm used for doubling and halving the coordinates
-#    [[ ${cdx} ]] && ((y=cy+(ccy-cdy)${2}2))
-#    eval ${1}+=\"${x} ${y} \"
-# }
-
-# component()
-# {  # add the difference of two central coordinates
-#    local i
-#    for((i=0; i<${#tbox[@]}; i+=2))
-#    do
-#        ((tbox[i]+=mp-p))
-#        ((tbox[i+1]+=nq-q))
-#    done
-# }
-
-
-        
 
 movebox()
 {  # detect whether it's possible to move the pieces to a new position
