@@ -79,17 +79,41 @@ boundary()
 #    x_walls=( 2 2 2 2 2  2  2  2   8  8  8  8  8  10 10 12  16 16  16 18 20 22 24  16 16 18 24 24 24 24 24 16 18 20 22 24 16 16 16 18 30 30 30 30 30 30  34 34 34 34 34  34 36 38 )
 #    y_walls=( 0 2 4 6 8 10 12 14  10 12 14 16 18   4  6  6   0  2   6  6  6  6  6   8 10 10  8 10 12 14 16 18 18 18 18 18 18 16 14 14  0  4  6  8 10 12  10 12 14 16 18   6  6  6 )
 
+    ## left, upper wall
     x_walls=( 2 2 2 2 2 2 2 2 2 2  2  2  2  2  2  2 )
     y_walls=( 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 )
 
-    x_walls=( ${x_walls[*]}   8  8  8  8  8  8  8  8  8  8  10 10 12  16 16  16 18 20 22 24 )
-    y_walls=( ${y_walls[*]}  10 11 12 13 14 15 16 17 18 19  4  6  6   0  2   6  6  6  6  6 )
+    ## left, bottom wall
+    x_walls=( ${x_walls[*]}  8  8  8  8  8  8  8  8  8  8 )
+    y_walls=( ${y_walls[*]} 10 11 12 13 14 15 16 17 18 19 )
 
-    x_walls=( ${x_walls[*]} 16 16 18 24 24 24 24 24 16 18 20 22 24 16 16 16 18 30 )
-    y_walls=( ${y_walls[*]}  8 10 10  8 10 12 14 16 18 18 18 18 18 18 16 14 14  0 )
+    ## L shaped wall
+    x_walls=( ${x_walls[*]} 10 10 10 10 12 12 )
+    y_walls=( ${y_walls[*]}  4  5  6  7  6  7 )
 
-    x_walls=( ${x_walls[*]} 30 30 30 30 30  34 34 34 34 34  34 36 38 )
-    y_walls=( ${y_walls[*]}  4  6  8 10 12  10 12 14 16 18   6  6  6 )
+    ## C shaped wall pt.1
+    x_walls=( ${x_walls[*]} 16 16 16 16 16 16 18 18 20 20 22 22 24 24 )
+    y_walls=( ${y_walls[*]}  0  1  2  3  6  7  6  7  6  7  6  7  6  7 )
+
+    ## pt.2
+    x_walls=( ${x_walls[*]} 16 16 16 16 18 18 24 24 24 24 24 24 24 24 24 24 16 16 18 18 20 20 22 22 24 24 16 16 16 16 )
+    y_walls=( ${y_walls[*]}  8  9 10 11 10 11  8  9 10 11 12 13 14 15 16 17 18 19 18 19 18 19 18 19 18 19 18 19 16 17 )
+
+    ## pt.3
+    x_walls=( ${x_walls[*]} 16 16 18 18 30 30 )
+    y_walls=( ${y_walls[*]} 14 15 14 15  0  1 )
+
+    ## I block wall, right
+    x_walls=( ${x_walls[*]} 30 30 30 30 30 30 30 30 30 30 )
+    y_walls=( ${y_walls[*]}  4  5  6  7  8  9 10 11 12 13 )
+
+    ## right, bottom wall
+    x_walls=( ${x_walls[*]} 34 34 34 34 34 34 34 34 34 34 )
+    y_walls=( ${y_walls[*]} 10 11 12 13 14 15 16 17 18 19 )
+
+    ## horizontal small wall, right
+    x_walls=( ${x_walls[*]} 34 34 36 36 38 38 )
+    y_walls=( ${y_walls[*]}  6  7  6  7  6  7 )
 
     for ((idx=0; idx<${#x_walls[*]}; ++idx)) ; do
         x=${x_walls[idx]}
@@ -106,7 +130,11 @@ boundary()
 ## colision detection
 # TODO wall( x, y )
 
-
+        ## 2d-array conversion: "map" contains 400 elements
+        ## for blockings (walls) contains 1, rest 0
+        ## x=0, y=0 -> map[0] 
+        ## x=1, y=0 -> map[20]
+        ## x=19, y=19 -> map[399]; max field
 #        ((yox=(x-modh-1)*width+y/2-modh))   
         ((yox=(y)*(modw + width-modw) + (x/2) )) ## only works for first line
 
@@ -115,6 +143,9 @@ boundary()
 
 #        pam[yox]="${colbox}" # TODO
     done
+
+    ## target
+#    echo -e "${boncol}\e[$((modh+1+18));$((modw+1+19))H##\e[$((modh+2+19));$((modw+1+19))H##\e[0m"
 }
 
 getsig()
