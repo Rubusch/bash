@@ -4,7 +4,8 @@
 ## maze shell script
 
 #box0=(4 30) # shape definition 
-box7=(4 30 5 30) # pixel coordinates (x y x y x y x y)
+#box7=(4 30 5 30) # pixel coordinates (x y x y x y x y)
+box7=(4 6 5 6) # pixel coordinates (x y x y x y x y)
 
 mrx=[] # piece definition
 modh=3 # height of the top area
@@ -15,9 +16,7 @@ coltab=(1\;{30..37}\;{40..47}m) # color definition of the pieces
 
                                                                                 
 ## signal traps
-#for signal in Rotate Left Right Down AllDown Exit Transf
-for signal in Rotate Left Right Down Up Exit Transf
-do
+for signal in Rotate Left Right Down Up Exit Transf ; do
     ((sig${signal}=++gis+24)) # signal definition
 done
 
@@ -362,7 +361,17 @@ persig()
 #            transform $(value $(bottom)) 0  ;;
             esac
         done
-       transform 1  0 # falling down
+        
+# TODO algorithm
+# - go right, if not possible,
+# - go down, if not possible,
+# - go up, if not possible - do bugfix, go left, then.. something
+
+        ## go down
+#       transform 1  0 # falling down
+
+        ## go right
+#       transform 0 1 # TODO algorithm
     done
 }
 
