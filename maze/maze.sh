@@ -368,7 +368,7 @@ persig()
 # - go up, if not possible - do bugfix, go left, then.. something
 
         ## go down
-#       transform 1  0 # falling down
+       transform 1  0 # falling down
 
         ## go right
 #       transform 0 1 # TODO algorithm
