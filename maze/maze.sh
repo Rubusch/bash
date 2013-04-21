@@ -79,15 +79,23 @@ boundary()
 #    x_walls=( 2 2 2 2 2  2  2  2   8  8  8  8  8  10 10 12  16 16  16 18 20 22 24  16 16 18 24 24 24 24 24 16 18 20 22 24 16 16 16 18 30 30 30 30 30 30  34 34 34 34 34  34 36 38 )
 #    y_walls=( 0 2 4 6 8 10 12 14  10 12 14 16 18   4  6  6   0  2   6  6  6  6  6   8 10 10  8 10 12 14 16 18 18 18 18 18 18 16 14 14  0  4  6  8 10 12  10 12 14 16 18   6  6  6 )
 
-    x_walls=( 2 2 2 2 2  2  2  2   8  8  8  8  8  10 10 12  16 16  16 18 20 22 24 )
-    x_walls=( ${x_walls[*]} 16 16 18 24 24 24 24 24 16 18 20 22 24 16 16 16 18 30 30 30 30 30 30  34 34 34 34 34  34 36 38 )
-    y_walls=( 0 2 4 6 8 10 12 14  10 12 14 16 18   4  6  6   0  2   6  6  6  6  6   8 10 10  8 10 12 14 16 18 18 18 18 18 18 16 14 14  0  4  6  8 10 12  10 12 14 16 18   6  6  6 )
+    x_walls=( 2 2 2 2 2 2 2 2 2 2  2  2  2  2  2  2 )
+    y_walls=( 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 )
+
+    x_walls=( ${x_walls[*]}   8  8  8  8  8  8  8  8  8  8  10 10 12  16 16  16 18 20 22 24 )
+    y_walls=( ${y_walls[*]}  10 11 12 13 14 15 16 17 18 19  4  6  6   0  2   6  6  6  6  6 )
+
+    x_walls=( ${x_walls[*]} 16 16 18 24 24 24 24 24 16 18 20 22 24 16 16 16 18 30 )
+    y_walls=( ${y_walls[*]}  8 10 10  8 10 12 14 16 18 18 18 18 18 18 16 14 14  0 )
+
+    x_walls=( ${x_walls[*]} 30 30 30 30 30  34 34 34 34 34  34 36 38 )
+    y_walls=( ${y_walls[*]}  4  6  8 10 12  10 12 14 16 18   6  6  6 )
+
     for ((idx=0; idx<${#x_walls[*]}; ++idx)) ; do
         x=${x_walls[idx]}
         y=${y_walls[idx]}
 
-#        (x=x_walls[idx])
-#        (y=y_walls[idx])
+#        echo "x $x; y $y"
 
 
 ## paint labyrinth
@@ -98,15 +106,11 @@ boundary()
 ## colision detection
 # TODO wall( x, y )
 
-        echo "x $x; y $y"
+
 #        ((yox=(x-modh-1)*width+y/2-modh))   
-#        ((yox=(x/2) + (y) * (width-modw) +    modw + 2 )) ## only works for first line
+        ((yox=(y)*(modw + width-modw) + (x/2) )) ## only works for first line
 
-        ((yox=(y)*(width-modw + modw) + (x/2) )) ## only works for first line
-
-# XXX
-
-        echo "yox ${yox}"  
+#        echo "yox ${yox}"  
         ((map[yox]=1)) # collision detection   
 
 #        pam[yox]="${colbox}" # TODO
