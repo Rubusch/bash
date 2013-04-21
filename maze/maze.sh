@@ -99,6 +99,8 @@ boundary()
 #        ((yox=(x/2) + (y) * (width-modw) +    modw + 2 )) ## only works for first line
         ((yox=(y)*(width-modw) + (x/2) )) ## only works for first line
 
+# XXX
+
         echo "yox ${yox}"  
         ((map[yox]=1)) # collision detection   
 
