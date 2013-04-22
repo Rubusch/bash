@@ -6,7 +6,7 @@
 ##
 ## game panel (maze), and navigation demo
 
-box7=(4 6 5 6) # pixel coordinates (x y x y x y x y)
+box7=(4 6 5 6) # avatar icon coordinates (x y x y x y x y)
 
 mrx=[] # piece definition
 modh=3 # height of the top area
@@ -23,7 +23,7 @@ done
 
                                                                                 
 ## tools (inline functions)
-radom(){ echo -n 7; }   
+#radom(){ echo -n 7; }    TODO rm
 kisig(){ kill -${sigExit} ${pid}; } # signal transfer for exit
 piece(){ box=(${!1}); } # current block definition
 color(){ echo -n ${coltab[RANDOM/512]}; } # generate the randomly number between zero and sisty-three
@@ -32,36 +32,42 @@ hdbox(){ echo -e "${oldbox//[]/  }\e[0m"; } # erase the old pieces
 check(){ (( map[(i-modh-1)*width+j/2-modh] == 0 )) && break; } # check the current row whether it's fully filled up with pieces
 
 ## function
+
+## restore default stty settings
 resume()
-{  # restore to the normal stty settings
+{
    stty ${STTY}
-   echo -e "\e[?25h\e[36;4H" 
+   echo -e "\e[?25h\e[36;4H"
 }
 
-
+## invocation loop
 loop()
-{  # a shared loop structure used for invocation
+{
     local i j
     for((i=modh+1; i<=height+modh; ++i))
     do
         for((j=modw+1; j<=2*(width-1)+modw+1; j+=2))
         do
+            ## first arg, per field (col)
             ${1}
         done
+        ## sec arg, per row
         ${2}
     done
 }
 
+## init of "map" and "pam" structs
 initialization()
 {  # initial all the background pieces to be empty 
     local rsyx
     ((rsyx=(i-modh-1)*width+j/2-modh))
     ((map[rsyx]=0))
-    ((pam[rsyx]=0))
+#    ((pam[rsyx]=0)) # TODO rm
 }
 
+## generate game area
 boundary()
-{  # the boundary of the game area
+{
     clear
     boncol="\e[1;36m"
 
@@ -152,6 +158,7 @@ boundary()
 
 }
 
+## user input and navigation
 getsig()
 {  # deal with the input messages
     local pid key arry pool STTY sig
@@ -170,10 +177,8 @@ getsig()
         arry[2]=${key}
         sig=0
         if   [[ ${key} == ${pool} && ${arry[1]} == ${pool} ]];then Quit 0
-#        elif [[ "[${key}]" == ${mrx} ]]; then sig=${sigAllDown}
         elif [[ ${arry[0]} == ${pool} && ${arry[1]} == "[" ]]; then
             case ${key} in
-#                A)    sig=${sigRotate}    ;;
                 A)    sig=${sigUp}        ;;
                 B)    sig=${sigDown}      ;;
                 C)    sig=${sigRight}     ;;
@@ -181,15 +186,6 @@ getsig()
             esac
         else
             case ${key} in
-#                W|w)  sig=${sigRotate}    ;;  
-#                T|t)  sig=${sigTransf}    ;;
-#                S|s)  sig=${sigDown}      ;;
-#                A|a)  sig=${sigLeft}      ;;
-#                D|d)  sig=${sigRight}     ;;
-#                P|p)  pause ${pid}  0     ;;
-#                R|r)  pause ${pid}  1     ;;
-
-#                R|r)  sig=${sigRotate}    ;;  
                 Q|q)  Quit 0              ;;
             esac
         fi
@@ -197,8 +193,9 @@ getsig()
     done
 }
 
+## terminate
 Quit()
-{  # function used for exiting invocation
+{
    case $# in
         0) echo "Quit() - 0)" ;;                                  
 # \e[0m reset shell colors
@@ -212,55 +209,12 @@ Quit()
            exit
 }
 
-# showbox()
-# {  # draw the pieces used for preview
-#    local smobox
-#    colbox="${srmcbox}"
-#    olbox=(${rmcbox[@]})
-#    invoke ${#}
-#    smobox=""
-#    piece box$(radom)[@]
-#    rmhbox=(${box[@]})
-#    srmhbox="$(color)"
-#    preview box[@] crsbox -36 srmhbox
-#    crsbox="${smobox}"
-#    box=(${olbox[@]})
-# }
-
-# invoke() 
-# {  # a highly abstracted  function intended for invoking the pipebox
-#    local aryA aryB aryC i
-#    aryA=(m{c..h}box)
-#    for((i=0; i<5; ++i))
-#    do
-#         aryB=(r${aryA[i]} r${aryA[i+1]}[@] ${aryA[i]})
-#         aryC=($((12*(2-i))) ${1} s${aryB[0]} sr${aryA[i+1]})
-#         pipebox ${aryB[@]} ${aryC[@]}
-#    done
-# }
-
-# pipebox() 
-# {  # core function used for piping the output of one preview to the input of the next one
-#    smobox=""
-#    (( ${5} != 0 )) && {
-#    piece box$(radom)[@]
-#    eval ${1}="(${box[@]})"
-#    colbox="$(color)"
-#    eval ${6}=\"${colbox}\"
-#    preview box[@] ${3} ${4} colbox
-#    } || {
-#    eval ${1}="(${!2})"
-#    eval ${6}=\"${!7}\"
-#    preview ${2} ${3} ${4} ${7}
-#    }
-#    eval ${3}=\"${smobox}\"
-# }
-
-
+## draw avatar
 drawbox()
-{   # draw the current pieces
+{
     (( $# == 1 )) && {
-        piece box$(radom)[@]
+#        piece box$(radom)[@]
+        piece box7[*]
         colbox="$(color)"
         coordinate box[@] regxy
     } || {
@@ -275,8 +229,9 @@ drawbox()
     fi
 }
 
+## detect if movement is possible
 movebox()
-{  # detect whether it's possible to move the pieces to a new position
+{
     local x y i j xoy vor boolx booly
     vor=(${!1})
     smu=${#vor[@]}
@@ -300,9 +255,9 @@ movebox()
     return 0
 }
 
-
+## get coordinates of the avatar
 coordinate()
-{  # locate the coordinates of the pieces on the terminal
+{
    local i sup vor
    vor=(${!1})
    for((i=0; i<${#vor[@]}; i+=2))
@@ -313,11 +268,13 @@ coordinate()
    ${2}
 }
 
+# draw avatar path
 ptbox()
-{  # draw the current pieces
-   oldbox="${cdn}"
+{
+   oldbox="${cdn}" # comment out for displaying the track
    echo -e "\e[${colbox}${cdn}\e[0m"
 }
+
 
 regxy()
 {  # invoke the ptbox function and get the coordinates
@@ -392,7 +349,7 @@ parallelbox()
     # move the pieces or generate new one when the bottom is the current position
     if movebox locus; then
         hdbox
-        (( smu == 2 )) && across
+#        (( smu == 2 )) && across ## TODO rm
         increment
 
 # TODO collision detection
@@ -415,15 +372,16 @@ parallelbox()
     fi
 }
 
-across()
-{  # move the 1x1 block in a special manner
-   local i j m one
-   one=(${locus})
-   ((i=one[0]))
-   ((j=one[1]))
-   ((m=(i-modh-1)*width+j/2-modh))
-   (( map[m] == 1 )) && echo -e "\e[${i};${j}H\e[${pam[m]}${mrx}\e[0m"
-}
+## TODO rm
+#across()
+#{  # move the 1x1 block in a special manner
+#   local i j m one
+#   one=(${locus})
+#   ((i=one[0]))
+#   ((j=one[1]))
+#   ((m=(i-modh-1)*width+j/2-modh))
+#   (( map[m] == 1 )) && echo -e "\e[${i};${j}H\e[${pam[m]}${mrx}\e[0m"  
+#}
 
 increment()
 {  # add the increment of the coordinates according to the direction that pieces will move to
