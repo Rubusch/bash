@@ -4,6 +4,8 @@
 ## @email: L.Rubusch@gmx.ch
 ## @license: GPLv3
 ##
+## resources: YongYe <expertshell@gmail.com> BeiJing China
+##
 ## game panel (maze), and navigation demo
 
 box7=(4 6 5 6) # avatar icon coordinates (x y x y x y x y)
@@ -268,6 +270,7 @@ coordinate()
    ${2}
 }
 
+# TODO rm
 # draw avatar path
 # ptbox()
 # {
@@ -276,24 +279,22 @@ coordinate()
 # }
 
 
+## hide track (or turn it on), and collision detection
 regxy()
-{  # invoke the ptbox function and get the coordinates
-#   ptbox
+{
+#   ptbox # TODO rm
    oldbox="${cdn}" # comment out for displaying the track
    echo -e "\e[${colbox}${cdn}\e[0m"
-
-   locus="${sup}"
+   locus="${sup}" # collision detection
 }
 
-## game loop
-
+## game loop, handle user control input
 persig()
-{  # deal with the detected signals
+{
     local sigSwap pid
     pid=${1}
     drawbox 0 # draw
 
-#   for i in sigRotate sigTransf sigLeft sigRight sigDown sigAllDown ; do
     for i in sigRotate sigTransf sigLeft sigRight sigDown sigUp ; do
         trap "sig=${!i}" ${!i}
     done
