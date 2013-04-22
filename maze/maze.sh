@@ -198,24 +198,20 @@ getsig()
 ## terminate
 Quit()
 {
-   case $# in
-        0) echo "Quit() - 0)" ;;                                  
-# \e[0m reset shell colors
-#       0) echo -e "\e[?25h\e[36;26HGame Over!\e[0m" ;;
-        1) echo "Quit() - 1)"  
-           kisig
-           resume ;;
-        2) echo "Quit() - 2)"  
-           resume ;;
-   esac
-           exit
+    case $# in
+        0 ) ;;
+        1) kisig
+            resume ;;
+        2) resume ;;
+    esac
+    exit
 }
 
 ## draw avatar
 drawbox()
 {
     (( $# == 1 )) && {
-#        piece box$(radom)[@]
+#        piece box$(radom)[@] # TODO rm
         piece box7[*]
         colbox="$(color)"
         coordinate box[@] regxy
@@ -340,17 +336,18 @@ persig()
 
 ## move piece
 
+## user controlled movement
 transform()
-{  # function invocation
+{
    local dx dy cdn smu
    dx=${1}
    dy=${2}
    (( $# == 2 )) && parallelbox # || rotate
 }
 
+## move straight within bounderies
 parallelbox()
-{   # move straight within bounderies
-    # move the pieces or generate new one when the bottom is the current position
+{
     if movebox locus; then
         hdbox
 #        (( smu == 2 )) && across ## TODO rm
@@ -387,6 +384,7 @@ parallelbox()
 #   (( map[m] == 1 )) && echo -e "\e[${i};${j}H\e[${pam[m]}${mrx}\e[0m"  
 #}
 
+## TODO  
 increment()
 {  # add the increment of the coordinates according to the direction that pieces will move to
    local v
@@ -400,32 +398,33 @@ increment()
    box=(${nbox[@]})
 }
 
-movebox()
-{  # detect whether it's possible to move the pieces to a new position
-   local x y i j xoy vor boolx booly
-   vor=(${!1})
-   smu=${#vor[@]}
-   for((i=0; i<${#vor[@]}; i+=2))
-   do
-        ((x=vor[i]+dx))
-        ((y=vor[i+1]+dy))
-        ((xoy=(x-modh-1)*width+y/2-modh))
-        (( xoy < 0 )) && return 1
-        boolx="x <= modh || x > height+modh"
-        booly="y > 2*width+modw || y <= modw"
-        (( boolx || booly )) && return 1
-        if (( map[xoy] == 1 )); then
-           if (( smu == 2 )); then
-              for((j=height+modh; j>x; --j))
-              do
-                   (( map[(j-modh-1)*width+y/2-modh] == 0 )) && return 0
-              done
-           fi
-           return 1
-        fi
-   done
-   return 0
-}
+# ## TODO 
+# movebox()
+# {  # detect whether it's possible to move the pieces to a new position
+#    local x y i j xoy vor boolx booly
+#    vor=(${!1})
+#    smu=${#vor[@]}
+#    for((i=0; i<${#vor[@]}; i+=2))
+#    do
+#         ((x=vor[i]+dx))
+#         ((y=vor[i+1]+dy))
+#         ((xoy=(x-modh-1)*width+y/2-modh))
+#         (( xoy < 0 )) && return 1
+#         boolx="x <= modh || x > height+modh"
+#         booly="y > 2*width+modw || y <= modw"
+#         (( boolx || booly )) && return 1
+#         if (( map[xoy] == 1 )); then
+#            if (( smu == 2 )); then
+#               for((j=height+modh; j>x; --j))
+#               do
+#                    (( map[(j-modh-1)*width+y/2-modh] == 0 )) && return 0
+#               done
+#            fi
+#            return 1
+#         fi
+#    done
+#    return 0
+# }
 
 
                                                                                 
