@@ -269,16 +269,19 @@ coordinate()
 }
 
 # draw avatar path
-ptbox()
-{
-   oldbox="${cdn}" # comment out for displaying the track
-   echo -e "\e[${colbox}${cdn}\e[0m"
-}
+# ptbox()
+# {
+#    oldbox="${cdn}" # comment out for displaying the track
+#    echo -e "\e[${colbox}${cdn}\e[0m"
+# }
 
 
 regxy()
 {  # invoke the ptbox function and get the coordinates
-   ptbox
+#   ptbox
+   oldbox="${cdn}" # comment out for displaying the track
+   echo -e "\e[${colbox}${cdn}\e[0m"
+
    locus="${sup}"
 }
 
