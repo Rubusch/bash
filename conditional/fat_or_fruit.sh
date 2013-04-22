@@ -1,5 +1,9 @@
 #!/bin/bash
-
+##
+## @author: Lothar Rubusch
+## @email: L.Rubusch@gmx.ch
+## @license: GPLv3
+##
 ## if-else-example
 ## uses arguments:
 ## ./fatorfruit.sh <weight> <height>

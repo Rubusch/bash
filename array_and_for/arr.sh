@@ -1,4 +1,8 @@
 #!/bin/bash
+##
+## @author: Lothar Rubusch
+## @email: L.Rubusch@gmx.ch
+## @license: GPLv3
 
 
 TARGET_EXCLUDE_LIST=""

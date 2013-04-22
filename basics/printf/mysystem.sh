@@ -1,4 +1,9 @@
 #!/bin/bash
+##
+## @author: Lothar Rubusch
+## @email: L.Rubusch@gmx.ch
+## @license: GPLv3
+
 clear
 printf "This is information provided by mysystem.sh. Program starts now.\n"
 

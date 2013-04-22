@@ -1,6 +1,10 @@
 #!/bin/bash
 ##
-## sets some variables 
+## @author: Lothar Rubusch
+## @email: L.Rubusch@gmx.ch
+## @license: GPLv3
+##
+## sets some variables
 ##
 ##
 ## ATTENTION: don't use whitespaces in the asignment!!!

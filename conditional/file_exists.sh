@@ -1,6 +1,10 @@
 #!/bin/bash
+##
+## @author: Lothar Rubusch
+## @email: L.Rubusch@gmx.ch
+## @license: GPLv3
 
-## check if a given file (as argument $1) exists 
+## check if a given file (as argument $1) exists
 
 if [ ! $# -eq 1 ] ; then
     echo "filename missing error"

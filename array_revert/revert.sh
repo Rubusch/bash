@@ -1,4 +1,8 @@
 #!/bin/bash
+##
+## @author: Lothar Rubusch
+## @email: L.Rubusch@gmx.ch
+## @license: GPLv3
 
 TARGET_EXCLUDE_LIST=""
 
@@ -72,7 +76,7 @@ undo_function()
         undo_move_from_exp_to_root ${srcname_toroot_revert[$idx]} ${dstname_toroot_revert[$idx]} ${rwflash_name}
     done
 
-    
+
     ## undo toexp
     srcname_toexp_revert=(`echo ${srcname_toexp[@]} | tac -s ' '`)
     dstname_toexp_revert=(`echo ${dstname_toexp[@]} | tac -s ' '`)
@@ -86,4 +90,4 @@ undo_function
 
 echo "READY."
 echo ""
-  
+

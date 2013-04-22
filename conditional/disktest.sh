@@ -1,4 +1,9 @@
 #!/bin/bash
+##
+## @author: Lothar Rubusch
+## @email: L.Rubusch@gmx.ch
+## @license: GPLv3
+##
 ## disktest.sh
 ##
 ## prints the space of the disk
@@ -11,7 +16,7 @@ echo "check disk space"
 
 if [ "$space" -ge "$alertvalue" ]; then
     echo "at least one of my disks is nearly fill!" | mail -s "daily diskcheck" root
-else 
+else
     echo "disk space normal."
 fi
 

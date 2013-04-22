@@ -1,14 +1,17 @@
 #!/bin/bash
-
+##
+## @author: Lothar Rubusch
+## @email: L.Rubusch@gmx.ch
+## @license: GPLv3
+##
 ## checks if a certain file exists
 ##
 
 echo "checking..."
 
 ## checking existence of regular file: -f
-if [ -f /data/foobar.txt ] 
-    then 
-    echo "file exists" 
+if [ -f /data/foobar.txt ]; then
+    echo "file exists"
 
     else
     echo "file foobar does not exist"
@@ -18,8 +21,7 @@ echo
 echo "checking if globbing is set:"
 
 ## checking variable set: -o
-if [ -o noglobber ]
-    then 
+if [ -o noglobber ]; then
     echo "files are protected against accidental overwriting using redirection"
     else
     echo "files are NOT protected against accidental overwriting using redirection"
@@ -33,6 +35,5 @@ if [ $? -eq 0 ]
     then echo "that was easy"
 fi
 echo
-
 
 echo "READY."

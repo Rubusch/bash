@@ -1,4 +1,9 @@
 #!/bin/bash
+##
+## @author: Lothar Rubusch
+## @email: L.Rubusch@gmx.ch
+## @license: GPLv3
+##
 ## leapyear_clumsy.sh
 ##
 ##
@@ -17,7 +22,7 @@ elif [ $[$year % 4] -eq 0 ]; then
        echo "this is not a leap year, february has 28 days (inner control)"
    fi
 
-else 
+else
     echo "this is not a leap year, feburary has 28 days (outer control)"
 fi
 

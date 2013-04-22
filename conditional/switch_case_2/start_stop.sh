@@ -1,4 +1,9 @@
 #!/bin/bash
+##
+## @author: Lothar Rubusch
+## @email: L.Rubusch@gmx.ch
+## @license: GPLv3
+##
 ## Makefile to demonstrates switch / case clauses
 ## in form of an initscript
 ##
@@ -20,15 +25,15 @@ case "$1" in
     start)
 	echo "case start"
 	;;
-    
+
     stop)
 	echo "case stop"
 	;;
-    
+
     status)
 	echo "case status"
 	;;
-    
+
     restart)
 	echo "case restart"
 	echo "stop"
