@@ -345,14 +345,25 @@ transform()
    (( $# == 2 )) && parallelbox # || rotate
 }
 
-## move straight within bounderies
+## move the avatar within the boundaries
 parallelbox()
 {
     if movebox locus; then
         hdbox
 #        (( smu == 2 )) && across ## TODO rm
-        increment
-
+        
+#        increment # TODO rm
+        
+   local v
+   for((v=0; v<${#box[@]}; v+=2))
+   do
+      ((box[v]+=dx))
+      ((box[v+1]+=dy))
+   done
+   nbox=(${box[@]})
+   coordinate box[@] regxy
+   box=(${nbox[@]})
+        
 # TODO collision detection
 #             ((map[yox]=1))  
 
@@ -384,21 +395,21 @@ parallelbox()
 #   (( map[m] == 1 )) && echo -e "\e[${i};${j}H\e[${pam[m]}${mrx}\e[0m"  
 #}
 
-## TODO  
-increment()
-{  # add the increment of the coordinates according to the direction that pieces will move to
-   local v
-   for((v=0; v<${#box[@]}; v+=2))
-   do
-      ((box[v]+=dx))
-      ((box[v+1]+=dy))
-   done
-   nbox=(${box[@]})
-   coordinate box[@] regxy
-   box=(${nbox[@]})
-}
+# ## TODO  
+# increment()
+# {  # add the increment of the coordinates according to the direction that pieces will move to
+#    local v
+#    for((v=0; v<${#box[@]}; v+=2))
+#    do
+#       ((box[v]+=dx))
+#       ((box[v+1]+=dy))
+#    done
+#    nbox=(${box[@]})
+#    coordinate box[@] regxy
+#    box=(${nbox[@]})
+# }
 
-# ## TODO 
+# ## TODO rm
 # movebox()
 # {  # detect whether it's possible to move the pieces to a new position
 #    local x y i j xoy vor boolx booly
