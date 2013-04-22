@@ -1,5 +1,9 @@
 #!/bin/bash
 ##
+## @author: Lothar Rubusch
+## @email: L.Rubusch@gmx.ch
+## @license: GPLv3
+##
 ## keeps an addressbook up to date
 ##
 ## echo -n = doesn't print linefeeds

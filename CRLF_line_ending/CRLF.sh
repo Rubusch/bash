@@ -1,8 +1,12 @@
 #!/bin/bash
 ##
+## @author: Lothar Rubusch
+## @email: L.Rubusch@gmx.ch
+## @license: GPLv3
+##
 ## find CRLF (dos) lineendings
 
-## get \r 
+## get \r
 CR="$(printf "\r")"
 
 ## then grep for this character within '/', also binaries may appear!!!

@@ -1,5 +1,9 @@
 #!/bin/bash
 ##
+## @author: Lothar Rubusch
+## @email: L.Rubusch@gmx.ch
+## @license: GPLv3
+##
 ## demonstrates the for loop in doing a backup of .txt files
 ##
 

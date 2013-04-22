@@ -1,6 +1,11 @@
 #!/bin/bash
-#set -x
+##
+## @author: Lothar Rubusch
+## @email: L.Rubusch@gmx.ch
+## @license: GPLv3
+##
 
+#set -x
 
 PREV_TOTAL=0
 PREV_IDLE=0

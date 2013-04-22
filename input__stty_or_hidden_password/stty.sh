@@ -1,4 +1,9 @@
 #!/bin/bash
+##
+## @author: Lothar Rubusch
+## @email: L.Rubusch@gmx.ch
+## @license: GPLv3
+##
 ## demonstrates how to turn off console output when writing with stty
 
 read -p "Username: " username

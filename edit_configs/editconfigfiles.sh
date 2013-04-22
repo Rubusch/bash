@@ -1,5 +1,9 @@
 #!/bin/bash
 ##
+## @author: Lothar Rubusch
+## @email: L.Rubusch@gmx.ch
+## @license: GPLv3
+##
 ## check entry in config file
 ## in case append
 ## if present, reset value

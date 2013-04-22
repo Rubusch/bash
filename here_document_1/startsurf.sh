@@ -1,5 +1,9 @@
 #!/bin/bash
 ##
+## @author: Lothar Rubusch
+## @email: L.Rubusch@gmx.ch
+## @license: GPLv3
+##
 ## provides a list of browsers and permits to start one of those
 ##
 ## demonstrates the "here documents" pipe <<

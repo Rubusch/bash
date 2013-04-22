@@ -1,5 +1,9 @@
 #!/bin/bash
 ##
+## @author: Lothar Rubusch
+## @email: L.Rubusch@gmx.ch
+## @license: GPLv3
+##
 ## demonstrates a fork of a process running in parallel, but being terminated on
 ## termination of the running main script
 ##

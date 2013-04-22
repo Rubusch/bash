@@ -1,10 +1,11 @@
-## ASSIGNMENT08
-## Lothar Rubusch
+#!/bin/bash
 ##
-## maze shell script
+## @author: Lothar Rubusch
+## @email: L.Rubusch@gmx.ch
+## @license: GPLv3
+##
+## game panel (maze), and navigation demo
 
-#box0=(4 30) # shape definition 
-#box7=(4 30 5 30) # pixel coordinates (x y x y x y x y)
 box7=(4 6 5 6) # pixel coordinates (x y x y x y x y)
 
 mrx=[] # piece definition
