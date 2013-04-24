@@ -276,7 +276,7 @@ coordinate()
 regxy()
 {
    oldbox="${cdn}" # comment out for displaying the track
-   echo -e "\e[${colbox}${cdn}\e[0m"
+#   echo -e "\e[${colbox}${cdn}\e[0m"
    locus="${sup}" # collision detection
 }
 
