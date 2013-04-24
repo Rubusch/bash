@@ -8,7 +8,9 @@
 ##
 ## game panel (maze), and navigation demo
 
-box7=(4 6 5 6) # avatar icon coordinates (x y x y x y x y)
+# TODO rm
+#box7=(4 6 5 6)
+avatar=(4 6 5 6) # avatar icon coordinates (x y x y x y x y)
 
 mrx=[] # piece definition
 modh=3 # height of the top area
@@ -27,7 +29,7 @@ done
 ## tools (inline functions)
 #radom(){ echo -n 7; }    TODO rm
 sendsig(){ kill -${sigExit} ${pid}; } # signal transfer for exit
-piece(){ box=(${!1}); } # current block definition
+setavatar(){ box=(${!1}); } # current block definition
 color(){ echo -n ${coltab[RANDOM/512]}; } # generate the randomly number between zero and sisty-three
 serxy(){ kbox="${sup}"; } # vertical and horizontal coordinates
 hdbox(){ echo -e "${oldbox//[]/  }\e[0m"; } # erase the old pieces
@@ -208,15 +210,16 @@ Quit()
 drawbox()
 {
     (( $# == 1 )) && {
-#        piece box$(radom)[@] # TODO rm
-        piece box7[*]
-        colbox="$(color)"
+#        setavatar box$(radom)[@] # TODO rm
+#        setavatar box7[*] # TODO rm
+        setavatar avatar[*]
+        colbox="$(echo -n ${coltab[RANDOM/512]})"
         coordinate box[@] repaint
     } || {
         colbox="${srmcbox}"
         coordinate rmcbox[@] repaint
     }
-    oldbox="${cdn}"
+    oldbox="${cursor}"
     if ! movebox locus; then
         kill -${sigExit} ${PPID}
         sendsig
@@ -257,29 +260,21 @@ coordinate()
    vor=(${!1})
    for((i=0; i<${#vor[@]}; i+=2))
    do
-       cdn+="\e[${vor[i]};${vor[i+1]}H${mrx}"
+       cursor+="\e[${vor[i]};${vor[i+1]}H${mrx}"
        sup+="${vor[i]} ${vor[i+1]} "
    done
    ${2}
 }
-
-# TODO rm
-# draw avatar path
-# ptbox()
-# {
-#    oldbox="${cdn}" # comment out for displaying the track
-#    echo -e "\e[${colbox}${cdn}\e[0m"
-# }
 
 
 ## hide track (or turn it on), and collision detection
 repaint()
 {
     ## repaint background - comment out for displaying the track
-    oldbox="${cdn}"
+    oldbox="${cursor}"
 
     ## show cursor
-    echo -e "\e[${colbox}${cdn}\e[0m"
+    echo -e "\e[${colbox}${cursor}\e[0m"
 
     ## collision detection
     locus="${sup}"
@@ -338,7 +333,7 @@ persig()
 ## perform type of movement
 transform()
 {
-   local dx dy cdn smu
+   local dx dy cursor smu
    dx=${1}
    dy=${2}
    (( $# == 2 )) && move_straight # || rotate
