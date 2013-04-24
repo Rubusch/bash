@@ -45,29 +45,32 @@ resume()
 }
 
 ## invocation loop
-loop()
-{
-    local i j
-    for((i=modh+1; i<=height+modh; ++i))
-    do
-        for((j=modw+1; j<=2*(width-1)+modw+1; j+=2))
-        do
-            ## first arg, per field (col)
-            ${1}
-        done
-        ## sec arg, per row
-        ${2}
-    done
-}
+# loop()
+# {
+#     local i j
+#     for((i=modh+1; i<=height+modh; ++i))
+#     do
+#         for((j=modw+1; j<=2*(width-1)+modw+1; j+=2))
+#         do
+#             ## first arg, per field (col)
+#             ${1}
+#         done
+#         ## sec arg, per row
+#         ${2}
+#     done
+# }
 
-## init of "map" and "pam" structs
-initialization()
-{  # initial all the background pieces to be empty 
-    local rsyx
-    ((rsyx=(i-modh-1)*width+j/2-modh))
-    ((map[rsyx]=0))
-#    ((pam[rsyx]=0)) # TODO rm
-}
+# ## init of "map" and "pam" structs
+# initialization()
+# {
+#     local rsyx
+#     ((rsyx=(i-modh-1)*width+j/2-modh)) ## TODO - not used?
+
+#     ## map of fields
+#     ((map[rsyx]=0)) # TODO - not used?
+
+# #    ((pam[rsyx]=0)) # TODO rm
+# }
 
 ## generate game area
 boundary()
@@ -384,7 +387,9 @@ move_straight()
 [[ "x${1}" == "xRun" ]] && {
     echo "restarted xRun"  
 
-    loop initialization # init each field (col), per line (row)
+# TODO rm - not used?
+#    loop initialization # init each field (col), per line (row)
+
     boundary # paint game panel
     persig $! # game loop
 
