@@ -8,9 +8,7 @@
 ##
 ## game panel (maze), and navigation demo
 
-# TODO rm
-#box7=(4 6 5 6)
-AVATARCOORDS=(4 6 5 6) # avatar coordinates (x y x y x y x y)
+AVATARCOORDS=(4 6 5 6) # avatar coordinates (y x y x y x)
 AVATARICON=[] # avatar icon
 
 INDENTY=3 # indentation of the top area
@@ -246,7 +244,7 @@ drawbox()
 
 
     ## TODO rm - necessary? seems to be filled up tetris terminate condition
-    # if ! movebox locus; then
+    # if ! movebox pose; then
     #     kill -${sigExit} ${PPID}
     #     sendkill
     #     Quit
@@ -304,18 +302,23 @@ repaint()
     echo -e "\e[${colbox}${cursor}\e[0m"
 
     ## collision detection
-    locus="${sup}"
+    pose="${sup}"
 }
 
-bucula()
+direction()
 {
+    local dx dy currxy
+
     ## GOALX - current x
-    
+    currxy=( $pose )
+    echo "$pose"
+
+    (( dx=GOALX - currxy[2] ))
+    echo "x = $dx" 
+    echo "y = ${currxy[3]}"
+
 
     ## GOALY - current y
-    
-
-
 }
 
 
@@ -368,15 +371,8 @@ gameloop()
 # - go up, if not possible - do bugfix, go left, then.. something
 
         ## go down
-
-#       transform 1  0 # falling down
-#set -x
-        bucula
+        direction
         transform $(move)
-#        movements=
-#        echo ${movements[*]}
-#set +x
-#        transform ${movements[*]}
 
 
         ## go right
@@ -400,7 +396,7 @@ transform()
 ## move the avatar within the boundaries
 move_straight()
 {
-    if movebox locus; then
+    if movebox pose; then
         echo -e "${oldbox//[]/  }\e[0m"
 
 #        hdbox # TODO rm
