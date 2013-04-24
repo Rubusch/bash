@@ -91,16 +91,17 @@ resume()
 boundary()
 {
     clear
-    boncol="\e[1;36m"
+#    wallcol="\e[1;36m"
+    local wallcol="\e[1;34m"
 
     ## top and bottom
     for((i=INDENTX+1; i<=2*PANELX+INDENTX; i+=2)); do
-        echo -e "${boncol}\e[${INDENTY};${i}H##\e[$((PANELY+INDENTY+1));${i}H##\e[0m"
+        echo -e "${wallcol}\e[${INDENTY};${i}H##\e[$((PANELY+INDENTY+1));${i}H##\e[0m"
     done
 
     ## side walls
     for((i=INDENTY; i<=PANELY+INDENTY+1; ++i)); do
-        echo -e "${boncol}\e[${i};$((INDENTX-1))H##\e[${i};$((2*PANELX+INDENTX+1))H##\e[0m"
+        echo -e "${wallcol}\e[${i};$((INDENTX-1))H##\e[${i};$((2*PANELX+INDENTX+1))H##\e[0m"
     done
 
     ## maze
@@ -144,12 +145,10 @@ boundary()
         x=${x_walls[idx]}
         y=${y_walls[idx]}
 
-#        echo "x $x; y $y"
 
-
-## paint labyrinth
-#        echo -e "${boncol}\e[$((INDENTY+1+y));$((INDENTX+1+x))H##\e[$((INDENTY+2+y));$((INDENTX+1+x))H##\e[0m"
-        echo -e "${boncol}\e[$((INDENTY+1+y));$((INDENTX+1+x))H##\e[0m"
+## draw maze
+#        echo -e "${wallcol}\e[$((INDENTY+1+y));$((INDENTX+1+x))H##\e[$((INDENTY+2+y));$((INDENTX+1+x))H##\e[0m"
+        echo -e "${wallcol}\e[$((INDENTY+1+y));$((INDENTX+1+x))H##\e[0m"
 
 
 ## colision detection
@@ -174,7 +173,7 @@ boundary()
 # TODO rm
 #    x=38
 #    y=18
-    echo -e "${boncol}\e[1;33m\e[$((INDENTY+1+GOALY));$((INDENTX+1+GOALX))HGO\e[$((INDENTY+2+GOALY));$((INDENTX+1+GOALX))HAL\e[0m"
+    echo -e "${wallcol}\e[1;33m\e[$((INDENTY+1+GOALY));$((INDENTX+1+GOALX))HGO\e[$((INDENTY+2+GOALY));$((INDENTX+1+GOALX))HAL\e[0m"
 }
 
 ## user input and navigation
@@ -305,6 +304,12 @@ repaint()
     pose="${sup}"
 }
 
+isblocked()
+{
+    # map[(j-INDENTY-1)*PANELX+y/2-INDENTY]
+    echo -n "1";
+}
+
 direction()
 {
     local dx dy currxy sizegoalx sizegoaly headings idx
@@ -384,8 +389,6 @@ gameloop()
             sigSwap=${sig}
             sig=0
             case ${sigSwap} in
-#                ${sigRotate} )  transform 0     ;;
-#                ${sigTransf} )  transform 1     ;;
                 ${sigLeft}   )  transform 0 -2  ;;
                 ${sigRight}  )  transform 0  2  ;;
                 ${sigDown}   )  transform 1  0  ;;
@@ -419,11 +422,11 @@ transform()
     local dx dy cursor smu
     dx=${1}
     dy=${2}
-    (( $# == 2 )) && move_straight # || rotate
+    (( $# == 2 )) && moveon # || rotate
 }
 
 ## move the avatar within the boundaries
-move_straight()
+moveon()
 {
     if movebox pose; then
         echo -e "${oldbox//[]/  }\e[0m"
