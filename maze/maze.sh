@@ -10,8 +10,8 @@
 
 # TODO rm
 #box7=(4 6 5 6)
-avatarcoords=(4 6 5 6) # avatar coordinates (x y x y x y x y)
-avataricon=[] # avatar icon
+AVATARCOORDS=(4 6 5 6) # avatar coordinates (x y x y x y x y)
+AVATARICON=[] # avatar icon
 
 indenty=3 # indentation of the top area
 indentx=5 # indentation of the left area
@@ -19,16 +19,20 @@ panely=20 # num y coords of the game area
 panelx=20 # num x coords of the game area
 coltab=(1\;{30..37}\;{40..47}m) # color definition of the pieces
 
+GOALX=38
+GOALY=18
+
+
                                                                                 
 ## signal traps
 
 # TODO rm - check
 #for signal in Rotate Left Right Down Up Exit Transf ; do
 #for signal in Left Right Down Up Exit Transf ; do
-#for signal in Left Right Down Up Exit ; do
+for signal in Left Right Down Up Exit ; do
 #    ((sig${signal}=++gis+24)) # signal definition
 
-for signal in Left Right Down Up ; do
+#for signal in Left Right Down Up ; do
     ((sig${signal}=++gis+24)) # signal definition
 done
 
@@ -169,9 +173,10 @@ boundary()
     done
 
     ## target
-    x=38
-    y=18
-    echo -e "${boncol}\e[1;33m\e[$((indenty+1+y));$((indentx+1+x))HGO\e[$((indenty+2+y));$((indentx+1+x))HAL\e[0m"
+# TODO rm
+#    x=38
+#    y=18
+    echo -e "${boncol}\e[1;33m\e[$((indenty+1+GOALY));$((indentx+1+GOALX))HGO\e[$((indenty+2+GOALY));$((indentx+1+GOALX))HAL\e[0m"
 }
 
 ## user input and navigation
@@ -183,7 +188,7 @@ control()
     pool=$(echo -ne "\e")
     STTY=$(stty -g) # change terminal line settings
     trap "Quit 0" INT TERM
-#    trap "Quit 0 0" ${sigExit}
+    trap "Quit 0 0" ${sigExit}
     echo -ne "\e[?25l"
     while :
     do
@@ -230,7 +235,7 @@ drawbox()
     (( $# == 1 )) && {
 #        setavatar box$(radom)[@] # TODO rm
 #        setavatar box7[*] # TODO rm
-        setavatar avatarcoords[*]
+        setavatar AVATARCOORDS[*]
         colbox="$(echo -n ${coltab[RANDOM/512]})"
         coordinate box[@] repaint
     } || {
@@ -251,6 +256,7 @@ drawbox()
 ## detect if movement is possible
 movebox()
 {
+                                                
     local x y i j xoy vor boolx booly
     vor=(${!1})
     smu=${#vor[@]}
@@ -281,7 +287,7 @@ coordinate()
    vor=(${!1})
    for((i=0; i<${#vor[@]}; i+=2))
    do
-       cursor+="\e[${vor[i]};${vor[i+1]}H${avataricon}"
+       cursor+="\e[${vor[i]};${vor[i+1]}H${AVATARICON}"
        sup+="${vor[i]} ${vor[i+1]} "
    done
    ${2}
@@ -301,6 +307,19 @@ repaint()
     locus="${sup}"
 }
 
+
+HEADING="right"
+move()
+{
+    case $HEADING in
+        "down" ) echo -n "1 0"; ;;
+        "up" ) echo -n "-1 0"; ;;
+        "left" ) echo -n "0 -2"; ;;
+        "right" ) echo -n "0 2"; ;;
+# TODO default action
+    esac
+}
+
 ## game loop, handle user control input
 gameloop()
 {
@@ -314,17 +333,10 @@ gameloop()
         trap "sig=${!i}" ${!i}
     done
 
-# TODO rm - check?
-#    trap "sendkill; Quit" ${sigExit}
+    trap "sendkill; Quit" ${sigExit}
 
     while :
     do
-
-# TODO rm
-#set +x
-#Quit
-#continue   
-
         for ((i=0; i<20-level; ++i)); do
             sleep 0.02
             sigSwap=${sig}
@@ -338,6 +350,7 @@ gameloop()
                 ${sigUp}     )  transform -1 0  ;;
             esac
         done
+
         
 # TODO algorithm
 # - go right, if not possible,
@@ -345,10 +358,19 @@ gameloop()
 # - go up, if not possible - do bugfix, go left, then.. something
 
         ## go down
+
 #       transform 1  0 # falling down
+#set -x
+        transform $(move)
+#        movements=
+#        echo ${movements[*]}
+#set +x
+#        transform ${movements[*]}
+
 
         ## go right
 #       transform 0 1 # TODO algorithm
+#        break   
     done
 }
 
@@ -358,10 +380,10 @@ gameloop()
 ## perform type of movement
 transform()
 {
-   local dx dy cursor smu
-   dx=${1}
-   dy=${2}
-   (( $# == 2 )) && move_straight # || rotate
+    local dx dy cursor smu
+    dx=${1}
+    dy=${2}
+    (( $# == 2 )) && move_straight # || rotate
 }
 
 ## move the avatar within the boundaries
