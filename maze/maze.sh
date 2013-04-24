@@ -21,14 +21,22 @@ coltab=(1\;{30..37}\;{40..47}m) # color definition of the pieces
 
                                                                                 
 ## signal traps
+
+# TODO rm - check
 #for signal in Rotate Left Right Down Up Exit Transf ; do
-for signal in Left Right Down Up Exit Transf ; do
+#for signal in Left Right Down Up Exit Transf ; do
+#for signal in Left Right Down Up Exit ; do
+#    ((sig${signal}=++gis+24)) # signal definition
+
+for signal in Left Right Down Up ; do
     ((sig${signal}=++gis+24)) # signal definition
 done
 
                                                                                 
 ## tools (inline functions)
-sendsig(){ kill -${sigExit} ${pid}; } # signal transfer for exit
+
+#sendkill(){ kill -${sigExit} ${pid}; } # signal transfer for exit
+sendkill(){ kill -15 ${pid}; } # signal transfer for exit
 setavatar(){ box=(${!1}); } # current block definition
 
 # TODO rm
@@ -176,7 +184,7 @@ control()
     pool=$(echo -ne "\e")
     STTY=$(stty -g) # change terminal line settings
     trap "Quit 0" INT TERM
-    trap "Quit 0 0" ${sigExit}
+#    trap "Quit 0 0" ${sigExit}
     echo -ne "\e[?25l"
     while :
     do
@@ -185,7 +193,7 @@ control()
         arry[1]=${arry[2]}
         arry[2]=${key}
         sig=0
-        if   [[ ${key} == ${pool} && ${arry[1]} == ${pool} ]];then Quit 0
+        if [[ ${key} == ${pool} && ${arry[1]} == ${pool} ]]; then Quit 0
         elif [[ ${arry[0]} == ${pool} && ${arry[1]} == "[" ]]; then
             case ${key} in
                 A)    sig=${sigUp}        ;;
@@ -207,7 +215,10 @@ Quit()
 {
     case $# in
         0 ) ;;
-        1) sendsig
+        1)
+#            set -x
+#            kill -15 ${pid};
+            sendkill
             resume ;;
         2) resume ;;
     esac
@@ -228,11 +239,14 @@ drawbox()
         coordinate rmcbox[@] repaint
     }
     oldbox="${cursor}"
-    if ! movebox locus; then
-        kill -${sigExit} ${PPID}
-        sendsig
-        Quit
-    fi
+
+
+    ## TODO rm - necessary? seems to be filled up tetris terminate condition
+    # if ! movebox locus; then
+    #     kill -${sigExit} ${PPID}
+    #     sendkill
+    #     Quit
+    # fi
 }
 
 ## detect if movement is possible
@@ -296,12 +310,15 @@ gameloop()
     drawbox 0 # draw
 
 #    for i in sigRotate sigTransf sigLeft sigRight sigDown sigUp ; do
-    for i in sigTransf sigLeft sigRight sigDown sigUp ; do
+#    for i in sigTransf sigLeft sigRight sigDown sigUp ; do
+    for i in sigLeft sigRight sigDown sigUp ; do
         trap "sig=${!i}" ${!i}
     done
-    trap "sendsig; Quit" ${sigExit}
 
-    while : # game loop
+# TODO rm - check?
+#    trap "sendkill; Quit" ${sigExit}
+
+    while :
     do
 
 # TODO rm
@@ -315,7 +332,7 @@ gameloop()
             sig=0
             case ${sigSwap} in
 #                ${sigRotate} )  transform 0     ;;
-                ${sigTransf} )  transform 1     ;;
+#                ${sigTransf} )  transform 1     ;;
                 ${sigLeft}   )  transform 0 -2  ;;
                 ${sigRight}  )  transform 0  2  ;;
                 ${sigDown}   )  transform 1  0  ;;
