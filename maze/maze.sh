@@ -83,10 +83,7 @@ boundary()
         echo -e "${boncol}\e[${i};$((modw-1))H##\e[${i};$((2*width+modw+1))H##\e[0m"
     done
 
-    #labyrinth
-#    x_walls=( 2 2 2 2 2  2  2  2   8  8  8  8  8  10 10 12  16 16  16 18 20 22 24  16 16 18 24 24 24 24 24 16 18 20 22 24 16 16 16 18 30 30 30 30 30 30  34 34 34 34 34  34 36 38 )
-#    y_walls=( 0 2 4 6 8 10 12 14  10 12 14 16 18   4  6  6   0  2   6  6  6  6  6   8 10 10  8 10 12 14 16 18 18 18 18 18 18 16 14 14  0  4  6  8 10 12  10 12 14 16 18   6  6  6 )
-
+    ## maze
     ## left, upper wall
     x_walls=( 2 2 2 2 2 2 2 2 2 2  2  2  2  2  2  2 )
     y_walls=( 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 )
@@ -161,7 +158,7 @@ boundary()
 }
 
 ## user input and navigation
-getsig()
+control()
 {  # deal with the input messages
     local pid key arry pool STTY sig
     pid=${1}
@@ -278,7 +275,6 @@ coordinate()
 ## hide track (or turn it on), and collision detection
 regxy()
 {
-#   ptbox # TODO rm
    oldbox="${cdn}" # comment out for displaying the track
    echo -e "\e[${colbox}${cdn}\e[0m"
    locus="${sup}" # collision detection
@@ -315,8 +311,6 @@ persig()
                 ${sigRight}  )  transform 0  2  ;;
                 ${sigDown}   )  transform 1  0  ;;
                 ${sigUp}     )  transform -1 0  ;;
-#            ${sigAllDown})
-#            transform $(value $(bottom)) 0  ;;
             esac
         done
         
@@ -336,17 +330,17 @@ persig()
 
 ## move piece
 
-## user controlled movement
+## perform type of movement
 transform()
 {
    local dx dy cdn smu
    dx=${1}
    dy=${2}
-   (( $# == 2 )) && parallelbox # || rotate
+   (( $# == 2 )) && move_straight # || rotate
 }
 
 ## move the avatar within the boundaries
-parallelbox()
+move_straight()
 {
     if movebox locus; then
         hdbox
@@ -384,66 +378,13 @@ parallelbox()
     fi
 }
 
-## TODO rm
-#across()
-#{  # move the 1x1 block in a special manner
-#   local i j m one
-#   one=(${locus})
-#   ((i=one[0]))
-#   ((j=one[1]))
-#   ((m=(i-modh-1)*width+j/2-modh))
-#   (( map[m] == 1 )) && echo -e "\e[${i};${j}H\e[${pam[m]}${mrx}\e[0m"  
-#}
-
-# ## TODO  
-# increment()
-# {  # add the increment of the coordinates according to the direction that pieces will move to
-#    local v
-#    for((v=0; v<${#box[@]}; v+=2))
-#    do
-#       ((box[v]+=dx))
-#       ((box[v+1]+=dy))
-#    done
-#    nbox=(${box[@]})
-#    coordinate box[@] regxy
-#    box=(${nbox[@]})
-# }
-
-# ## TODO rm
-# movebox()
-# {  # detect whether it's possible to move the pieces to a new position
-#    local x y i j xoy vor boolx booly
-#    vor=(${!1})
-#    smu=${#vor[@]}
-#    for((i=0; i<${#vor[@]}; i+=2))
-#    do
-#         ((x=vor[i]+dx))
-#         ((y=vor[i+1]+dy))
-#         ((xoy=(x-modh-1)*width+y/2-modh))
-#         (( xoy < 0 )) && return 1
-#         boolx="x <= modh || x > height+modh"
-#         booly="y > 2*width+modw || y <= modw"
-#         (( boolx || booly )) && return 1
-#         if (( map[xoy] == 1 )); then
-#            if (( smu == 2 )); then
-#               for((j=height+modh; j>x; --j))
-#               do
-#                    (( map[(j-modh-1)*width+y/2-modh] == 0 )) && return 0
-#               done
-#            fi
-#            return 1
-#         fi
-#    done
-#    return 0
-# }
-
 
                                                                                 
 ## START
 [[ "x${1}" == "xRun" ]] && {
     echo "restarted xRun"  
 
-    loop initialization # init each field, per line
+    loop initialization # init each field (col), per line (row)
     boundary # paint game panel
     persig $! # game loop
 
@@ -453,5 +394,5 @@ parallelbox()
     bash $0 Run ${1} &
 
     ## continue with navigation
-    getsig $!
+    control $!
 }
