@@ -21,19 +21,22 @@ coltab=(1\;{30..37}\;{40..47}m) # color definition of the pieces
 
                                                                                 
 ## signal traps
-for signal in Rotate Left Right Down Up Exit Transf ; do
+#for signal in Rotate Left Right Down Up Exit Transf ; do
+for signal in Left Right Down Up Exit Transf ; do
     ((sig${signal}=++gis+24)) # signal definition
 done
 
                                                                                 
 ## tools (inline functions)
-#radom(){ echo -n 7; }    TODO rm
 sendsig(){ kill -${sigExit} ${pid}; } # signal transfer for exit
 setavatar(){ box=(${!1}); } # current block definition
-color(){ echo -n ${coltab[RANDOM/512]}; } # generate the randomly number between zero and sisty-three
-serxy(){ kbox="${sup}"; } # vertical and horizontal coordinates
-hdbox(){ echo -e "${oldbox//[]/  }\e[0m"; } # erase the old pieces
-check(){ (( map[(i-modh-1)*width+j/2-modh] == 0 )) && break; } # check the current row whether it's fully filled up with pieces
+
+# TODO rm
+#radom(){ echo -n 7; }    TODO rm
+#color(){ echo -n ${coltab[RANDOM/512]}; } # generate the randomly number between zero and sisty-three
+#serxy(){ kbox="${sup}"; } # vertical and horizontal coordinates
+#hdbox(){ echo -e "${oldbox//[]/  }\e[0m"; } # erase the old pieces
+#check(){ (( map[(i-modh-1)*width+j/2-modh] == 0 )) && break; } # check the current row whether it's fully filled up with pieces
 
 ## function
 
@@ -44,6 +47,7 @@ resume()
    echo -e "\e[?25h\e[36;4H"
 }
 
+## TODO - check not used??
 ## invocation loop
 # loop()
 # {
@@ -71,6 +75,7 @@ resume()
 
 # #    ((pam[rsyx]=0)) # TODO rm
 # }
+
 
 ## generate game area
 boundary()
@@ -284,13 +289,14 @@ repaint()
 }
 
 ## game loop, handle user control input
-persig()
+gameloop()
 {
     local sigSwap pid
     pid=${1}
     drawbox 0 # draw
 
-    for i in sigRotate sigTransf sigLeft sigRight sigDown sigUp ; do
+#    for i in sigRotate sigTransf sigLeft sigRight sigDown sigUp ; do
+    for i in sigTransf sigLeft sigRight sigDown sigUp ; do
         trap "sig=${!i}" ${!i}
     done
     trap "sendsig; Quit" ${sigExit}
@@ -308,7 +314,7 @@ persig()
             sigSwap=${sig}
             sig=0
             case ${sigSwap} in
-                ${sigRotate} )  transform 0     ;;
+#                ${sigRotate} )  transform 0     ;;
                 ${sigTransf} )  transform 1     ;;
                 ${sigLeft}   )  transform 0 -2  ;;
                 ${sigRight}  )  transform 0  2  ;;
@@ -346,7 +352,9 @@ transform()
 move_straight()
 {
     if movebox locus; then
-        hdbox
+        echo -e "${oldbox//[]/  }\e[0m"
+
+#        hdbox # TODO rm
 #        (( smu == 2 )) && across ## TODO rm
         
 #        increment # TODO rm
@@ -364,7 +372,7 @@ move_straight()
 # TODO collision detection
 #             ((map[yox]=1))  
 
-#  loop check  mapbox
+#  loop check mapbox
 
 
 # TODO not chocking with x_walls y_walls
@@ -391,7 +399,7 @@ move_straight()
 #    loop initialization # init each field (col), per line (row)
 
     boundary # paint game panel
-    persig $! # game loop
+    gameloop $!
 
 } || {
     echo "Run"  
