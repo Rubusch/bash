@@ -22,7 +22,7 @@ COLTAB=(1\;{30..37}\;{40..47}m) # color definition of the pieces
 GOALX=38
 GOALY=18
 
-
+HEADING="right"
                                                                                 
 ## signal traps
 
@@ -307,8 +307,18 @@ repaint()
     locus="${sup}"
 }
 
+bucula()
+{
+    ## GOALX - current x
+    
 
-HEADING="right"
+    ## GOALY - current y
+    
+
+
+}
+
+
 move()
 {
     case $HEADING in
@@ -361,6 +371,7 @@ gameloop()
 
 #       transform 1  0 # falling down
 #set -x
+        bucula
         transform $(move)
 #        movements=
 #        echo ${movements[*]}
