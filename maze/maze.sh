@@ -307,17 +307,54 @@ repaint()
 
 direction()
 {
-    local dx dy currxy
+    local dx dy currxy sizegoalx sizegoaly headings idx
+    sizegoalx=2
+    sizegoaly=2
 
     ## GOALX - current x
     currxy=( $pose )
-    echo "$pose"
+#    echo "$pose"
 
-    (( dx=GOALX - currxy[2] ))
-    echo "x = $dx" 
-    echo "y = ${currxy[3]}"
+    ((dx=GOALX/2+1+sizegoalx - currxy[3]/2))
+    ((dy=GOALY+1+2*sizegoaly - currxy[2]))
 
+    
 
+#    (( dy=dy*dy ))
+#    (( dx=dx*dx ))
+#    echo "dx = $dx"
+#    echo "dy = $dy"
+
+    if (( 0 <= dx && 0 <= dy )); then
+        if (( dx > dy )); then
+#            headings=("down" "right" "left" "up")  
+            headings=("right" "down" "up" "left")  
+        else
+#            headings=("right" "down" "up" "left")  
+            headings=("down" "right" "left" "up")  
+        fi
+    elif (( 0 <= dx && 0 > dy )); then
+        if (( dx > -dy )); then
+            headings=("right" "up" "down" "left")
+        else
+            headings=("up" "right" "left" "down")
+        fi
+    elif (( 0 > dx && 0 <= dy )); then
+        if (( -dx > dy )); then
+            headings=("left" "down" "up" "right")
+        else
+            headings=("down" "left" "right" "up")
+        fi
+    elif (( 0 > dx && 0 > dy )); then
+        if (( -dx > -dy )); then
+            headings=("left" "up" "down" "right")
+        else
+            headings=("up" "left" "right" "down")
+        fi
+    fi
+
+    idx=0
+    HEADING=${headings[$idx]}
     ## GOALY - current y
 }
 
