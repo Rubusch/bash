@@ -318,20 +318,12 @@ direction()
     ((dx=GOALX/2+1+sizegoalx - currxy[3]/2))
     ((dy=GOALY+1+2*sizegoaly - currxy[2]))
 
-    
-
-#    (( dy=dy*dy ))
-#    (( dx=dx*dx ))
-#    echo "dx = $dx"
-#    echo "dy = $dy"
-
+    ## orientation priority
     if (( 0 <= dx && 0 <= dy )); then
         if (( dx > dy )); then
-#            headings=("down" "right" "left" "up")  
-            headings=("right" "down" "up" "left")  
+            headings=("right" "down" "up" "left")
         else
-#            headings=("right" "down" "up" "left")  
-            headings=("down" "right" "left" "up")  
+            headings=("down" "right" "left" "up")
         fi
     elif (( 0 <= dx && 0 > dy )); then
         if (( dx > -dy )); then
