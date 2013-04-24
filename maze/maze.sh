@@ -275,9 +275,14 @@ coordinate()
 ## hide track (or turn it on), and collision detection
 regxy()
 {
-   oldbox="${cdn}" # comment out for displaying the track
-#   echo -e "\e[${colbox}${cdn}\e[0m"
-   locus="${sup}" # collision detection
+    ## repaint background - comment out for displaying the track
+    oldbox="${cdn}"
+
+    ## show cursor
+    echo -e "\e[${colbox}${cdn}\e[0m"
+
+    ## collision detection
+    locus="${sup}"
 }
 
 ## game loop, handle user control input
