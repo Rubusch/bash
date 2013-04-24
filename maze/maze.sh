@@ -10,13 +10,13 @@
 
 # TODO rm
 #box7=(4 6 5 6)
-avatar=(4 6 5 6) # avatar icon coordinates (x y x y x y x y)
+avatarcoords=(4 6 5 6) # avatar coordinates (x y x y x y x y)
+avataricon=[] # avatar icon
 
-mrx=[] # piece definition
-modh=3 # height of the top area
-modw=5 # width of the left area
-height=20 # height of the game area
-width=20 # width of the game area
+indenty=3 # indentation of the top area
+indentx=5 # indentation of the left area
+panely=20 # num y coords of the game area
+panelx=20 # num x coords of the game area
 coltab=(1\;{30..37}\;{40..47}m) # color definition of the pieces
 
                                                                                 
@@ -44,7 +44,7 @@ setavatar(){ box=(${!1}); } # current block definition
 #color(){ echo -n ${coltab[RANDOM/512]}; } # generate the randomly number between zero and sisty-three
 #serxy(){ kbox="${sup}"; } # vertical and horizontal coordinates
 #hdbox(){ echo -e "${oldbox//[]/  }\e[0m"; } # erase the old pieces
-#check(){ (( map[(i-modh-1)*width+j/2-modh] == 0 )) && break; } # check the current row whether it's fully filled up with pieces
+#check(){ (( map[(i-indenty-1)*panelx+j/2-indenty] == 0 )) && break; } # check the current row whether it's fully filled up with pieces
 
 ## function
 
@@ -60,9 +60,9 @@ resume()
 # loop()
 # {
 #     local i j
-#     for((i=modh+1; i<=height+modh; ++i))
+#     for((i=indenty+1; i<=panely+indenty; ++i))
 #     do
-#         for((j=modw+1; j<=2*(width-1)+modw+1; j+=2))
+#         for((j=indentx+1; j<=2*(panelx-1)+indentx+1; j+=2))
 #         do
 #             ## first arg, per field (col)
 #             ${1}
@@ -76,7 +76,7 @@ resume()
 # initialization()
 # {
 #     local rsyx
-#     ((rsyx=(i-modh-1)*width+j/2-modh)) ## TODO - not used?
+#     ((rsyx=(i-indenty-1)*panelx+j/2-indenty)) ## TODO - not used?
 
 #     ## map of fields
 #     ((map[rsyx]=0)) # TODO - not used?
@@ -92,13 +92,13 @@ boundary()
     boncol="\e[1;36m"
 
     ## top and bottom
-    for((i=modw+1; i<=2*width+modw; i+=2)); do
-        echo -e "${boncol}\e[${modh};${i}H##\e[$((height+modh+1));${i}H##\e[0m"
+    for((i=indentx+1; i<=2*panelx+indentx; i+=2)); do
+        echo -e "${boncol}\e[${indenty};${i}H##\e[$((panely+indenty+1));${i}H##\e[0m"
     done
 
     ## side walls
-    for((i=modh; i<=height+modh+1; ++i)); do
-        echo -e "${boncol}\e[${i};$((modw-1))H##\e[${i};$((2*width+modw+1))H##\e[0m"
+    for((i=indenty; i<=panely+indenty+1; ++i)); do
+        echo -e "${boncol}\e[${i};$((indentx-1))H##\e[${i};$((2*panelx+indentx+1))H##\e[0m"
     done
 
     ## maze
@@ -146,8 +146,8 @@ boundary()
 
 
 ## paint labyrinth
-#        echo -e "${boncol}\e[$((modh+1+y));$((modw+1+x))H##\e[$((modh+2+y));$((modw+1+x))H##\e[0m"
-        echo -e "${boncol}\e[$((modh+1+y));$((modw+1+x))H##\e[0m"
+#        echo -e "${boncol}\e[$((indenty+1+y));$((indentx+1+x))H##\e[$((indenty+2+y));$((indentx+1+x))H##\e[0m"
+        echo -e "${boncol}\e[$((indenty+1+y));$((indentx+1+x))H##\e[0m"
 
 
 ## colision detection
@@ -158,8 +158,8 @@ boundary()
         ## x=0, y=0 -> map[0] 
         ## x=1, y=0 -> map[20]
         ## x=19, y=19 -> map[399]; max field
-#        ((yox=(x-modh-1)*width+y/2-modh))   
-        ((yox=(y)*(modw + width-modw) + (x/2) )) ## only works for first line
+#        ((yox=(x-indenty-1)*panelx+y/2-indenty))   
+        ((yox=(y)*(indentx + panelx-indentx) + (x/2) )) ## only works for first line
 
 #        echo "yox ${yox}"  
         ((map[yox]=1)) # collision detection   
@@ -171,8 +171,7 @@ boundary()
     ## target
     x=38
     y=18
-    echo -e "${boncol}\e[$((modh+1+y));$((modw+1+x))HGO\e[$((modh+2+y));$((modw+1+x))HAL\e[0m"
-
+    echo -e "${boncol}\e[1;33m\e[$((indenty+1+y));$((indentx+1+x))HGO\e[$((indenty+2+y));$((indentx+1+x))HAL\e[0m"
 }
 
 ## user input and navigation
@@ -231,7 +230,7 @@ drawbox()
     (( $# == 1 )) && {
 #        setavatar box$(radom)[@] # TODO rm
 #        setavatar box7[*] # TODO rm
-        setavatar avatar[*]
+        setavatar avatarcoords[*]
         colbox="$(echo -n ${coltab[RANDOM/512]})"
         coordinate box[@] repaint
     } || {
@@ -258,15 +257,15 @@ movebox()
     for((i=0; i<${#vor[@]}; i+=2)); do
         ((x=vor[i]+dx))
         ((y=vor[i+1]+dy))
-        ((xoy=(x-modh-1)*width+y/2-modh))
+        ((xoy=(x-indenty-1)*panelx+y/2-indenty))
         (( xoy < 0 )) && return 1
-        boolx="x <= modh || x > height+modh"
-        booly="y > 2*width+modw || y <= modw"
+        boolx="x <= indenty || x > panely+indenty"
+        booly="y > 2*panelx+indentx || y <= indentx"
         (( boolx || booly )) && return 1
         if (( map[xoy] == 1 )); then
             if (( smu == 2 )); then
-                for((j=height+modh; j>x; --j)); do
-                    (( map[(j-modh-1)*width+y/2-modh] == 0 )) && return 0
+                for((j=panely+indenty; j>x; --j)); do
+                    (( map[(j-indenty-1)*panelx+y/2-indenty] == 0 )) && return 0
                 done
             fi
             return 1
@@ -282,7 +281,7 @@ coordinate()
    vor=(${!1})
    for((i=0; i<${#vor[@]}; i+=2))
    do
-       cursor+="\e[${vor[i]};${vor[i+1]}H${mrx}"
+       cursor+="\e[${vor[i]};${vor[i+1]}H${avataricon}"
        sup+="${vor[i]} ${vor[i+1]} "
    done
    ${2}
