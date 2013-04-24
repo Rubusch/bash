@@ -15,9 +15,9 @@ AVATARICON=[] # avatar icon
 
 INDENTY=3 # indentation of the top area
 INDENTX=5 # indentation of the left area
-panely=20 # num y coords of the game area
-panelx=20 # num x coords of the game area
-coltab=(1\;{30..37}\;{40..47}m) # color definition of the pieces
+PANELY=20 # num y coords of the game area
+PANELX=20 # num x coords of the game area
+COLTAB=(1\;{30..37}\;{40..47}m) # color definition of the pieces
 
 GOALX=38
 GOALY=18
@@ -45,10 +45,10 @@ setavatar(){ box=(${!1}); } # current block definition
 
 # TODO rm
 #radom(){ echo -n 7; }    TODO rm
-#color(){ echo -n ${coltab[RANDOM/512]}; } # generate the randomly number between zero and sisty-three
+#color(){ echo -n ${COLTAB[RANDOM/512]}; } # generate the randomly number between zero and sisty-three
 #serxy(){ kbox="${sup}"; } # vertical and horizontal coordinates
 #hdbox(){ echo -e "${oldbox//[]/  }\e[0m"; } # erase the old pieces
-#check(){ (( map[(i-INDENTY-1)*panelx+j/2-INDENTY] == 0 )) && break; } # check the current row whether it's fully filled up with pieces
+#check(){ (( map[(i-INDENTY-1)*PANELX+j/2-INDENTY] == 0 )) && break; } # check the current row whether it's fully filled up with pieces
 
 ## function
 
@@ -64,9 +64,9 @@ resume()
 # loop()
 # {
 #     local i j
-#     for((i=INDENTY+1; i<=panely+INDENTY; ++i))
+#     for((i=INDENTY+1; i<=PANELY+INDENTY; ++i))
 #     do
-#         for((j=INDENTX+1; j<=2*(panelx-1)+INDENTX+1; j+=2))
+#         for((j=INDENTX+1; j<=2*(PANELX-1)+INDENTX+1; j+=2))
 #         do
 #             ## first arg, per field (col)
 #             ${1}
@@ -80,7 +80,7 @@ resume()
 # initialization()
 # {
 #     local rsyx
-#     ((rsyx=(i-INDENTY-1)*panelx+j/2-INDENTY)) ## TODO - not used?
+#     ((rsyx=(i-INDENTY-1)*PANELX+j/2-INDENTY)) ## TODO - not used?
 
 #     ## map of fields
 #     ((map[rsyx]=0)) # TODO - not used?
@@ -96,13 +96,13 @@ boundary()
     boncol="\e[1;36m"
 
     ## top and bottom
-    for((i=INDENTX+1; i<=2*panelx+INDENTX; i+=2)); do
-        echo -e "${boncol}\e[${INDENTY};${i}H##\e[$((panely+INDENTY+1));${i}H##\e[0m"
+    for((i=INDENTX+1; i<=2*PANELX+INDENTX; i+=2)); do
+        echo -e "${boncol}\e[${INDENTY};${i}H##\e[$((PANELY+INDENTY+1));${i}H##\e[0m"
     done
 
     ## side walls
-    for((i=INDENTY; i<=panely+INDENTY+1; ++i)); do
-        echo -e "${boncol}\e[${i};$((INDENTX-1))H##\e[${i};$((2*panelx+INDENTX+1))H##\e[0m"
+    for((i=INDENTY; i<=PANELY+INDENTY+1; ++i)); do
+        echo -e "${boncol}\e[${i};$((INDENTX-1))H##\e[${i};$((2*PANELX+INDENTX+1))H##\e[0m"
     done
 
     ## maze
@@ -162,8 +162,8 @@ boundary()
         ## x=0, y=0 -> map[0] 
         ## x=1, y=0 -> map[20]
         ## x=19, y=19 -> map[399]; max field
-#        ((yox=(x-INDENTY-1)*panelx+y/2-INDENTY))   
-        ((yox=(y)*(INDENTX + panelx-INDENTX) + (x/2) )) ## only works for first line
+#        ((yox=(x-INDENTY-1)*PANELX+y/2-INDENTY))   
+        ((yox=(y)*(INDENTX + PANELX-INDENTX) + (x/2) )) ## only works for first line
 
 #        echo "yox ${yox}"  
         ((map[yox]=1)) # collision detection   
@@ -236,7 +236,7 @@ drawbox()
 #        setavatar box$(radom)[@] # TODO rm
 #        setavatar box7[*] # TODO rm
         setavatar AVATARCOORDS[*]
-        colbox="$(echo -n ${coltab[RANDOM/512]})"
+        colbox="$(echo -n ${COLTAB[RANDOM/512]})"
         coordinate box[@] repaint
     } || {
         colbox="${srmcbox}"
@@ -263,15 +263,15 @@ movebox()
     for((i=0; i<${#vor[@]}; i+=2)); do
         ((x=vor[i]+dx))
         ((y=vor[i+1]+dy))
-        ((xoy=(x-INDENTY-1)*panelx+y/2-INDENTY))
+        ((xoy=(x-INDENTY-1)*PANELX+y/2-INDENTY))
         (( xoy < 0 )) && return 1
-        boolx="x <= INDENTY || x > panely+INDENTY"
-        booly="y > 2*panelx+INDENTX || y <= INDENTX"
+        boolx="x <= INDENTY || x > PANELY+INDENTY"
+        booly="y > 2*PANELX+INDENTX || y <= INDENTX"
         (( boolx || booly )) && return 1
         if (( map[xoy] == 1 )); then
             if (( smu == 2 )); then
-                for((j=panely+INDENTY; j>x; --j)); do
-                    (( map[(j-INDENTY-1)*panelx+y/2-INDENTY] == 0 )) && return 0
+                for((j=PANELY+INDENTY; j>x; --j)); do
+                    (( map[(j-INDENTY-1)*PANELX+y/2-INDENTY] == 0 )) && return 0
                 done
             fi
             return 1
