@@ -26,7 +26,7 @@ done
                                                                                 
 ## tools (inline functions)
 #radom(){ echo -n 7; }    TODO rm
-kisig(){ kill -${sigExit} ${pid}; } # signal transfer for exit
+sendsig(){ kill -${sigExit} ${pid}; } # signal transfer for exit
 piece(){ box=(${!1}); } # current block definition
 color(){ echo -n ${coltab[RANDOM/512]}; } # generate the randomly number between zero and sisty-three
 serxy(){ kbox="${sup}"; } # vertical and horizontal coordinates
@@ -197,7 +197,7 @@ Quit()
 {
     case $# in
         0 ) ;;
-        1) kisig
+        1) sendsig
             resume ;;
         2) resume ;;
     esac
@@ -211,15 +211,15 @@ drawbox()
 #        piece box$(radom)[@] # TODO rm
         piece box7[*]
         colbox="$(color)"
-        coordinate box[@] regxy
+        coordinate box[@] repaint
     } || {
         colbox="${srmcbox}"
-        coordinate rmcbox[@] regxy
+        coordinate rmcbox[@] repaint
     }
     oldbox="${cdn}"
     if ! movebox locus; then
         kill -${sigExit} ${PPID}
-        kisig
+        sendsig
         Quit
     fi
 }
@@ -273,7 +273,7 @@ coordinate()
 
 
 ## hide track (or turn it on), and collision detection
-regxy()
+repaint()
 {
     ## repaint background - comment out for displaying the track
     oldbox="${cdn}"
@@ -295,7 +295,7 @@ persig()
     for i in sigRotate sigTransf sigLeft sigRight sigDown sigUp ; do
         trap "sig=${!i}" ${!i}
     done
-    trap "kisig; Quit" ${sigExit}
+    trap "sendsig; Quit" ${sigExit}
 
     while : # game loop
     do
@@ -360,7 +360,7 @@ move_straight()
       ((box[v+1]+=dy))
    done
    nbox=(${box[@]})
-   coordinate box[@] regxy
+   coordinate box[@] repaint
    box=(${nbox[@]})
         
 # TODO collision detection
