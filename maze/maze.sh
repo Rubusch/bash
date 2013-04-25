@@ -21,8 +21,8 @@ COLTAB=(1\;{30..37}\;{40..47}m) # color definition of the pieces
 GOALX=38
 GOALY=18
 
-TRACKYX=( $AVATARCOORDS )
-TRACKIDX=3
+TRACKING=()
+TRACKIDX=0
 
 HEADING="right"
                                                                                 
@@ -259,7 +259,7 @@ Quit()
 {
     case $# in
         0 ) ;;
-        1) echo "XXX ${TRACKYX[*]}"
+        1) echo "XXX ${TRACKING[*]}"
 #            set -x
 #            kill -15 ${pid};
             sendkill
@@ -352,6 +352,44 @@ repaint()
     ## collision detection
     pose="${sup}"
 }
+
+chckposup(){
+    echo -n "0";
+}
+chckposdown(){
+    echo -n "0";
+}
+chckposleft(){
+    echo -n "0";
+}
+
+
+chckposright(){
+    local heady headx currxy blocked position
+    currxy=($pose)
+    blocked=0
+
+    ((heady=currxy[0]))
+    position="${heady}_"
+    ((headx=currxy[1]+2))
+    position="${position}${headx}_"
+    blocked=$(isblocked $heady $headx)
+    ((0 != $blocked)) && echo -n "1" && return;
+
+    ((heady=currxy[2]))
+    position="${heady}_"
+    ((headx=currxy[3]+2))
+    position="${position}${headx}_"
+    blocked=$(isblocked $heady $headx)
+    ((0 != $blocked)) && echo -n "1" && return;
+
+    ## find position in backtrack
+    [[ 1==$(findinbacktrack "${position}") ]] && echo -n "1" && return;
+
+    ## default: ok
+    echo -n "0";
+}
+
 
 isblocked()
 {
@@ -461,18 +499,21 @@ direction()
 #            echo $blocked   
 
         elif [[ "right" == $item ]]; then
-            ((heady=currxy[0]))
-            ((headx=currxy[1]+2))
-#            echo $heady $headx   
-            blocked=$(isblocked $heady $headx)
-#            echo $blocked  
-            ((0 != $blocked)) && continue
+            ((1==$(chckposright))) && continue
+            
+#             ((heady=currxy[0]))
+#             ((headx=currxy[1]+2))
+# #            echo $heady $headx   
+#             blocked=$(isblocked $heady $headx)
+# #            echo $blocked  
+#             ((0 != $blocked)) && continue
 
-            ((heady=currxy[2]))
-            ((headx=currxy[3]+2))
-#            echo $heady $headx   
-            blocked=$(isblocked $heady $headx)
-#            echo $blocked   
+#             ((heady=currxy[2]))
+#             ((headx=currxy[3]+2))
+# #            echo $heady $headx   
+#             blocked=$(isblocked $heady $headx)
+# #            echo $blocked   
+
         fi
         if (( 0 == $blocked )); then
             break;
@@ -493,19 +534,36 @@ move()
         "right" ) diff=(0 2) ;;
 # TODO default action
     esac
-
-# TODO TRACKYX
-    tmpy=${TRACKYX[$TRACKIDX-1]}
-    dy=diff[0]
-    ((tmpy=tmpy+dy))
-    tmpx=${TRACKYX[$TRACKIDX]}
-    dx=diff[1]
-    ((tmpx=tmpx+dx))
-    TRACKYX=( ${TRACKYX[*]} $tmpy $tmpx )
-    TRACKIDX+=2
-#XXX ckeck
-
     echo -n "${diff[*]}";
+}
+
+## search for position already visited
+findinbacktrack()
+{
+    local item position="$1"
+    for item in ${TRACKING[*]}; do
+        [[ "${item}" == "${position}" ]] && echo -n "1" && return;
+    done
+    echo -n "0";
+}
+
+## history of positions
+backtrack()
+{
+    local item
+    TRACKING=( ${TRACKING[*]} "${pose// /_}" )
+    ((TRACKIDX+=1))
+
+## DEBUG TRACKING
+#    echo $TRACKIDX
+#    echo ${TRACKING[*]}
+#    for item in ${TRACKING[*]}; do
+#        echo "$item"
+#    done
+
+## DEBUG find
+#    res=$(findinbacktrack "${pose// /_}")
+#    echo "$res"
 }
 
 ## game loop, handle user control input
@@ -546,7 +604,7 @@ gameloop()
         ## go 
         direction
         transform $(move)
-
+        backtrack
 
         ## go right
 #       transform 0 1 # TODO algorithm
@@ -565,6 +623,7 @@ transform()
     dy=${2}
     (( $# == 2 )) && moveon # || rotate
 }
+
 
 ## move the avatar within the boundaries
 moveon()
