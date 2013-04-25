@@ -69,52 +69,22 @@ resume()
    echo -e "\e[?25h\e[36;4H"
 }
 
-                             
-# ## TODO - check not used??
-# invocation loop
-# loop()
-# {
-#     local i j
-#     for((i=INDENTY+1; i<=PANELY+INDENTY; ++i))
-#     do
-#         for((j=INDENTX+1; j<=2*(PANELX-1)+INDENTX+1; j+=2))
-#         do
-#             ## first arg, per field (col)
-#             ${1}
-#         done
-#         ## sec arg, per row
-#         ${2}
-#     done
-# }
-
-# ## init of "map" and "pam" structs
-# initialization()
-# {
-#     local rsyx
-#     ((rsyx=(i-INDENTY-1)*PANELX+j/2-INDENTY)) ## TODO - not used?
-
-#     ## map of fields
-#     ((map[rsyx]=0)) # TODO - not used?
-
-# #    ((pam[rsyx]=0)) # TODO rm
-# }
-                                
 
 ## generate game area
 boundary()
 {
     clear
-#    wallcol="\e[1;36m"
     local wallcol="\e[1;34m"
 
     ## top and bottom
-    for((i=INDENTX+1; i<=2*PANELX+INDENTX; i+=2)); do
+    for((i=INDENTX+1; i<=PANELX+INDENTX; i+=1)); do
         echo -e "${wallcol}\e[${INDENTY};${i}H##\e[$((PANELY+INDENTY+1));${i}H##\e[0m"
     done
 
+
     ## side walls
     for((i=INDENTY; i<=PANELY+INDENTY+1; ++i)); do
-        echo -e "${wallcol}\e[${i};$((INDENTX-1))H##\e[${i};$((2*PANELX+INDENTX+1))H##\e[0m"
+        echo -e "${wallcol}\e[${i};$((INDENTX-1))H##\e[${i};$((PANELX+INDENTX+1))H##\e[0m"
     done
 
 # DEBUG
@@ -173,12 +143,12 @@ boundary()
 
     done
 
-    ## DEBUG - dump map
-    # local dbgidx=0
-    # echo "" > ./map.log
-    # for ((dbgidx=0; dbgidx<200; ++dbgidx)); do
-    #     echo "idx '$dbgidx' - map '${map[$dbgidx]}'" >> ./map.log
-    # done
+## DEBUG - dump map
+# local dbgidx=0
+# echo "" > ./map.log
+# for ((dbgidx=0; dbgidx<200; ++dbgidx)); do
+#     echo "idx '$dbgidx' - map '${map[$dbgidx]}'" >> ./map.log
+# done
 
     ## target
     echo -e "${wallcol}\e[1;33m\e[$((INDENTY+1+GOALY));$((INDENTX+1+GOALX))HGO\e[$((INDENTY+2+GOALY));$((INDENTX+1+GOALX))HAL\e[0m"
