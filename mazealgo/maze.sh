@@ -254,8 +254,11 @@ movement()
 #        ((x=coords[0]+dx))
 #        ((y=coords[1]+dy))
 
-        ((y=coords[0]+dx))
-        ((x=coords[1]+dy))
+#        ((y=coords[0]+dx))
+#        ((x=coords[1]+dy))
+        ((y=coords[0]+dy))
+        ((x=coords[1]+dx))
+
 
         ## TODO rm
 #        ((x=coords[i]+dx))
@@ -643,9 +646,13 @@ gameloop()
 transform()
 {
     local dx dy cursor numofcoords
-    dx=${1}
-    dy=${2}
-    (( $# == 2 )) && moveon # || rotate
+#    dx=${1}
+#    dy=${2}
+    dy=${1}
+    dx=${2}
+
+    moveon
+#    (( $# == 2 )) && moveon
 }
 
 
@@ -664,8 +671,10 @@ moveon()
         local v
         for((v=0; v<${#box[*]}; v+=2))
         do
-            ((box[v]+=dx))
-            ((box[v+1]+=dy))
+#            ((box[v]+=dx))
+#            ((box[v+1]+=dy))
+            ((box[v]+=dy))
+            ((box[v+1]+=dx))
         done
         nbox=(${box[*]})
         coordinate box[*] repaint
