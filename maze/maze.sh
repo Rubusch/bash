@@ -22,6 +22,7 @@ GOALX=38
 GOALY=18
 
 TRACKYX=( $AVATARCOORDS )
+TRACKIDX=3
 
 HEADING="right"
                                                                                 
@@ -258,7 +259,7 @@ Quit()
 {
     case $# in
         0 ) ;;
-        1)
+        1) echo "XXX ${TRACKYX[*]}"
 #            set -x
 #            kill -15 ${pid};
             sendkill
@@ -477,20 +478,34 @@ direction()
             break;
         fi
     done
+# TODO don't allow going back, only if everything is blocked -> going back -> crossing with tracked path -> continue at last fork
+# TODO follow this way in abnormal manner until some new possibilities arrive (don't go back!)
 }
 
 
 move()
 {
+    local diff
     case $HEADING in
-        "down" ) echo -n "1 0"; ;;
-        "up" ) echo -n "-1 0"; ;;
-        "left" ) echo -n "0 -2"; ;;
-        "right" ) echo -n "0 2"; ;;
-
-# TODO TRACKYX
+        "down" ) diff=(1 0) ;;
+        "up" ) diff=(-1 0) ;;
+        "left" ) diff=(0 -2) ;;
+        "right" ) diff=(0 2) ;;
 # TODO default action
     esac
+
+# TODO TRACKYX
+    tmpy=${TRACKYX[$TRACKIDX-1]}
+    dy=diff[0]
+    ((tmpy=tmpy+dy))
+    tmpx=${TRACKYX[$TRACKIDX]}
+    dx=diff[1]
+    ((tmpx=tmpx+dx))
+    TRACKYX=( ${TRACKYX[*]} $tmpy $tmpx )
+    TRACKIDX+=2
+#XXX ckeck
+
+    echo -n "${diff[*]}";
 }
 
 ## game loop, handle user control input
