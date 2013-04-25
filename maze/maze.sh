@@ -8,7 +8,8 @@
 ##
 ## game panel (maze), and navigation demo
 
-AVATARCOORDS=(4 6 5 6) # avatar coordinates (y x y x y x)
+#AVATARCOORDS=(4 6 5 6) # avatar coordinates (y x y x y x)
+AVATARCOORDS=(6 6 7 6) # avatar coordinates (y x y x y x)
 AVATARICON=[] # avatar icon
 
 INDENTY=3 # indentation of the top area
@@ -40,6 +41,16 @@ done
 #sendkill(){ kill -${sigExit} ${pid}; } # signal transfer for exit
 sendkill(){ kill -15 ${pid}; } # signal transfer for exit
 setavatar(){ box=(${!1}); } # current block definition
+xy2map(){
+    local res y=${1} x=${2}
+    (( res=y*PANELX+x/2 ))
+    echo -n $res;
+}
+
+# TODO rm
+#(j-INDENTY-1)*PANELX+y/2-INDENTY
+
+
 
 # TODO rm
 #radom(){ echo -n 7; }    TODO rm
@@ -106,40 +117,79 @@ boundary()
 
     ## maze
     ## left, upper wall
-    x_walls=( 2 2 2 2 2 2 2 2 2 2  2  2  2  2  2  2 )
-    y_walls=( 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 )
+#    x_walls=( 2 2 2 2 2 2 2 2 2 2  2  2  2  2  2  2 )
+#    y_walls=( 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 )
+
+    x_walls=( 2 3 2 3 2 3 2 3 2 3 2 3 2 3 2 3 2 3 2 3  2  3  2  3  2  3  2  3  2  3  2  3 )
+    y_walls=( 0 0 1 1 2 2 3 3 4 4 5 5 6 6 7 7 8 8 9 9 10 10 11 11 12 12 13 13 14 14 15 15 )
+
 
     ## left, bottom wall
-    x_walls=( ${x_walls[*]}  8  8  8  8  8  8  8  8  8  8 )
-    y_walls=( ${y_walls[*]} 10 11 12 13 14 15 16 17 18 19 )
+#    x_walls=( ${x_walls[*]}  8  8  8  8  8  8  8  8  8  8 )
+#    y_walls=( ${y_walls[*]} 10 11 12 13 14 15 16 17 18 19 )
+
+    x_walls=( ${x_walls[*]}  8  9  8  9  8  9  8  9  8  9  8  9  8  9  8  9  8  9  8  9 )
+    y_walls=( ${y_walls[*]} 10 10 11 11 12 12 13 13 14 14 15 15 16 16 17 17 18 18 19 19 )
+
 
     ## L shaped wall
-    x_walls=( ${x_walls[*]} 10 10 10 10 12 12 )
-    y_walls=( ${y_walls[*]}  4  5  6  7  6  7 )
+#    x_walls=( ${x_walls[*]} 10 10 10 10 12 12 )
+#    y_walls=( ${y_walls[*]}  4  5  6  7  6  7 )
+
+    x_walls=( ${x_walls[*]} 10 11 10 11 10 11 10 11 12 13 12 13 )
+    y_walls=( ${y_walls[*]}  4  4  5  5  6  6  7  7  6  6  7  7 )
+
 
     ## C shaped wall pt.1
-    x_walls=( ${x_walls[*]} 16 16 16 16 16 16 18 18 20 20 22 22 24 24 )
-    y_walls=( ${y_walls[*]}  0  1  2  3  6  7  6  7  6  7  6  7  6  7 )
+#    x_walls=( ${x_walls[*]} 16 16 16 16 16 16 18 18 20 20 22 22 24 24 )
+#    y_walls=( ${y_walls[*]}  0  1  2  3  6  7  6  7  6  7  6  7  6  7 )
+
+    x_walls=( ${x_walls[*]} 16 17 16 17 16 17 16 17 16 17 16 17 18 19 18 19 20 21 20 21 22 23 22 23 24 25 24 25 )
+    y_walls=( ${y_walls[*]}  0  0  1  1  2  2  3  3  6  6  7  7  6  6  7  7  6  6  7  7  6  6  7  7  6  6  7  7 )
+
 
     ## pt.2
-    x_walls=( ${x_walls[*]} 16 16 16 16 18 18 24 24 24 24 24 24 24 24 24 24 16 16 18 18 20 20 22 22 24 24 16 16 16 16 )
-    y_walls=( ${y_walls[*]}  8  9 10 11 10 11  8  9 10 11 12 13 14 15 16 17 18 19 18 19 18 19 18 19 18 19 18 19 16 17 )
+#    x_walls=( ${x_walls[*]} 16 16 16 16 18 18 24 24 24 24 24 24 24 24 24 24 16 16 18 18 20 20 22 22 24 24 16 16 16 16 )
+#    y_walls=( ${y_walls[*]}  8  9 10 11 10 11  8  9 10 11 12 13 14 15 16 17 18 19 18 19 18 19 18 19 18 19 18 19 16 17 )
+
+    x_walls=( ${x_walls[*]} 16 17 16 17 16 17 16 17 18 19 18 19 24 25 24 25 24 25 24 25 24 25 24 25 24 25 24 25 24 25 )
+    y_walls=( ${y_walls[*]}  8  8  9  9 10 10 11 11 10 10 11 11  8  8  9  9 10 10 11 11 12 12 13 13 14 14 15 15 16 16 )
+
+    x_walls=( ${x_walls[*]} 24 25 16 17 16 17 18 19 18 19 20 21 20 21 22 23 22 23 24 25 24 25 16 17 16 17 16 17 16 17 )
+    y_walls=( ${y_walls[*]} 17 17 18 18 19 19 18 18 19 19 18 18 19 19 18 18 19 19 18 18 19 19 18 18 19 19 16 16 17 17 )
+
 
     ## pt.3
-    x_walls=( ${x_walls[*]} 16 16 18 18 30 30 )
-    y_walls=( ${y_walls[*]} 14 15 14 15  0  1 )
+#    x_walls=( ${x_walls[*]} 16 16 18 18 30 30 )
+#    y_walls=( ${y_walls[*]} 14 15 14 15  0  1 )
+
+    x_walls=( ${x_walls[*]} 16 17 16 17 18 19 18 19 30 31 30 31 )
+    y_walls=( ${y_walls[*]} 14 14 15 15 14 14 15 15  0  0  1  1 )
+
 
     ## I block wall, right
-    x_walls=( ${x_walls[*]} 30 30 30 30 30 30 30 30 30 30 )
-    y_walls=( ${y_walls[*]}  4  5  6  7  8  9 10 11 12 13 )
+#    x_walls=( ${x_walls[*]} 30 30 30 30 30 30 30 30 30 30 )
+#    y_walls=( ${y_walls[*]}  4  5  6  7  8  9 10 11 12 13 )
+
+    x_walls=( ${x_walls[*]} 30 31 30 31 30 31 30 31 30 31 30 31 30 31 30 31 30 31 30 31 )
+    y_walls=( ${y_walls[*]}  4  4  5  5  6  6  7  7  8  8  9  9 10 10 11 11 12 12 13 13 )
+
 
     ## right, bottom wall
-    x_walls=( ${x_walls[*]} 34 34 34 34 34 34 34 34 34 34 )
-    y_walls=( ${y_walls[*]} 10 11 12 13 14 15 16 17 18 19 )
+#    x_walls=( ${x_walls[*]} 34 34 34 34 34 34 34 34 34 34 )
+#    y_walls=( ${y_walls[*]} 10 11 12 13 14 15 16 17 18 19 )
+
+    x_walls=( ${x_walls[*]} 34 35 34 35 34 35 34 35 34 35 34 35 34 35 34 35 34 35 34 35 )
+    y_walls=( ${y_walls[*]} 10 10 11 11 12 12 13 13 14 14 15 15 16 16 17 17 18 18 19 19 )
+
 
     ## horizontal small wall, right
-    x_walls=( ${x_walls[*]} 34 34 36 36 38 38 )
-    y_walls=( ${y_walls[*]}  6  7  6  7  6  7 )
+#    x_walls=( ${x_walls[*]} 34 34 36 36 38 38 )
+#    y_walls=( ${y_walls[*]}  6  7  6  7  6  7 )
+
+    x_walls=( ${x_walls[*]} 34 35 34 35 36 37 36 37 38 39 38 39 )
+    y_walls=( ${y_walls[*]}  6  6  7  7  6  6  7  7  6  6  7  7 )
+
 
     for ((idx=0; idx<${#x_walls[*]}; ++idx)) ; do
         x=${x_walls[idx]}
@@ -148,7 +198,8 @@ boundary()
 
 ## draw maze
 #        echo -e "${wallcol}\e[$((INDENTY+1+y));$((INDENTX+1+x))H##\e[$((INDENTY+2+y));$((INDENTX+1+x))H##\e[0m"
-        echo -e "${wallcol}\e[$((INDENTY+1+y));$((INDENTX+1+x))H##\e[0m"
+#        echo -e "${wallcol}\e[$((INDENTY+1+y));$((INDENTX+1+x))H##\e[0m"
+        echo -e "${wallcol}\e[$((INDENTY+1+y));$((INDENTX+1+x))H#\e[0m"
 
 
 ## colision detection
@@ -156,15 +207,19 @@ boundary()
 
         ## 2d-array conversion: "map" contains 400 elements
         ## for blockings (walls) contains 1, rest 0
-        ## x=0, y=0 -> map[0] 
+        ## x=0, y=0 -> map[0]
         ## x=1, y=0 -> map[20]
         ## x=19, y=19 -> map[399]; max field
-#        ((yox=(x-INDENTY-1)*PANELX+y/2-INDENTY))   
-        ((yox=(y)*(INDENTX + PANELX-INDENTX) + (x/2) )) ## only works for first line
 
-#        echo "yox ${yox}"  
-        ((map[yox]=1)) # collision detection   
+#        ((yox=(y)*(INDENTX + PANELX-INDENTX) + (x/2) ))
+#        ((yox=y*PANELX + x/2 ))
 
+        yox=$(xy2map $y $x)
+#        ((yox=(x-INDENTY-1)*PANELX+y/2-INDENTY))  
+
+        ((map[yox]=1)) # collision detection
+
+#        echo $(map[xy2map 4 8 ] )
 #        pam[yox]="${colbox}" # TODO
 
     done
@@ -260,11 +315,16 @@ movebox()
     for((i=0; i<${#vor[@]}; i+=2)); do
         ((x=vor[i]+dx))
         ((y=vor[i+1]+dy))
+
+        ## 
         ((xoy=(x-INDENTY-1)*PANELX+y/2-INDENTY))
         (( xoy < 0 )) && return 1
+
+        ## within panel
         boolx="x <= INDENTY || x > PANELY+INDENTY"
         booly="y > 2*PANELX+INDENTX || y <= INDENTX"
         (( boolx || booly )) && return 1
+
         if (( map[xoy] == 1 )); then
             if (( smu == 2 )); then
                 for((j=PANELY+INDENTY; j>x; --j)); do
@@ -273,6 +333,7 @@ movebox()
             fi
             return 1
         fi
+
     done
     return 0
 }
@@ -306,13 +367,41 @@ repaint()
 
 isblocked()
 {
-    # map[(j-INDENTY-1)*PANELX+y/2-INDENTY]
-    echo -n "1";
+#set -x
+    local y=$1 x=$2 xoy
+
+    ((xoy=(x-INDENTY-1)*PANELX+y/2-INDENTY))
+    (( xoy < 0 )) && echo -n "1" && return
+#    echo "xoy $xoy"
+
+    boolx="x <= INDENTY || x > PANELY+INDENTY"
+    booly="y > 2*PANELX+INDENTX || y <= INDENTX"
+    (( boolx || booly )) && echo -n "1" && return
+
+#     ## 
+#      if (( map[xoy] == 1 )); then
+#          if (( smu == 2 )); then
+#              for((j=PANELY+INDENTY; j>x; --j)); do
+# # #                (( map[(j-INDENTY-1)*PANELX+y/2-INDENTY] == 0 )) && return 0
+#                  (( map[(j-INDENTY-1)*PANELX+y/2-INDENTY] == 0 )) && echo "0" && return
+#              done
+#          fi
+#          echo -n "1"
+# #         return 1
+#      fi
+
+
+#    if (( y < 4 )); then echo -n "1"; return; fi
+#    if (( x < 7 )); then echo -n "1"; return; fi
+#    if (( y > 40 )); then echo -n "1"; return; fi
+#    if (( x > 20 )); then echo -n "1"; return; fi
+    (( map[(x-INDENTY-1)*PANELX+y/2-INDENTY] != 0 )) && echo -n "1" || echo -n "0"
+
 }
 
 direction()
 {
-    local dx dy currxy sizegoalx sizegoaly headings idx
+    local dx dy currxy sizegoalx sizegoaly headings idx headx heady blocked
     sizegoalx=2
     sizegoaly=2
 
@@ -350,9 +439,57 @@ direction()
         fi
     fi
 
-    idx=0
-    HEADING=${headings[$idx]}
-    ## GOALY - current y
+    ## check for blocking
+    item=""
+    for item in ${headings[*]}; do
+        echo $item  
+        HEADING=$item
+        if [[ "up" == $item ]]; then
+            ((heady=currxy[0]-1))
+            ((headx=currxy[1]))
+            echo $heady $headx  
+            blocked=$(isblocked heady headx)
+            echo $blocked  
+
+        elif [[ "down" == $item ]]; then
+            ((heady=currxy[2]+1))
+            ((headx=currxy[3]))
+            echo $heady $headx  
+            blocked=$(isblocked heady headx)
+            echo $blocked  
+
+        elif [[ "left" == $item ]]; then
+            ((heady=currxy[0]))
+            ((headx=currxy[1]-2))
+            echo $heady $headx  
+            blocked=$(isblocked heady headx)
+            echo $blocked  
+            ((0 != $blocked)) && continue
+
+            ((heady=currxy[2]))
+            ((headx=currxy[3]-2))
+            echo $heady $headx  
+            blocked=$(isblocked heady headx)
+            echo $blocked  
+
+        elif [[ "right" == $item ]]; then
+            ((heady=currxy[0]))
+            ((headx=currxy[1]+2))
+            echo $heady $headx  
+            blocked=$(isblocked $heady $headx)
+            echo $blocked  
+            ((0 != $blocked)) && continue
+
+            ((heady=currxy[2]))
+            ((headx=currxy[3]+2))
+            echo $heady $headx  
+            blocked=$(isblocked $heady $headx)
+            echo $blocked   
+        fi
+        if (( 0 == $blocked )); then
+            break;
+        fi
+    done
 }
 
 
@@ -402,7 +539,8 @@ gameloop()
 # - go down, if not possible,
 # - go up, if not possible - do bugfix, go left, then.. something
 
-        ## go down
+        ## go 
+#        echo $pose
         direction
         transform $(move)
 
