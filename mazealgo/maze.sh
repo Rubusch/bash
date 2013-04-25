@@ -251,9 +251,11 @@ movement()
 #    for((i=0; i<${#coords[@]}; i+=2)); do
 
         ## new position (global coords)
-        ((x=coords[0]+dx))
-        ((y=coords[1]+dy))
+#        ((x=coords[0]+dx))
+#        ((y=coords[1]+dy))
 
+        ((y=coords[0]+dx))
+        ((x=coords[1]+dy))
 
         ## TODO rm
 #        ((x=coords[i]+dx))
@@ -264,20 +266,28 @@ movement()
 #        booly="y > 2*PANELX+INDENTX || y <= INDENTX"  
 
         ## check - within panel
-        boolx="x <= INDENTY || x > PANELY+INDENTY"
-        booly="y > PANELX+INDENTX || y <= INDENTX"
+#        boolx="x <= INDENTY || x > PANELY+INDENTY"
+#        booly="y > PANELX+INDENTX || y <= INDENTX"
+        boolx="y <= INDENTY || y > PANELY+INDENTY"
+        booly="x > PANELX+INDENTX || x <= INDENTX"
         (( boolx || booly )) && return 1
 
         ## panel coords conversion
+#        ((panelx=x-INDENTY-1))
+#        ((panely=y-INDENTX-1))
+        ((panely=y-INDENTY-1))
         ((panelx=x-INDENTX-1))
-        ((panely=y-INDENY-1))
+
 
         ## conversion to mapidx
+#        echo "XXX panelx $panelx - panely $panely"   
         mapidx=$(xy2map $panelx $panely)
         (( mapidx < 0 )) && return 1
 
         ## check for blocks in map
-        (( map[mapidx] == 1 )) && return 1
+        foo=${map[$mapidx]}    
+#        echo "XXX $mapidx -> $foo"   
+        (( 1 == map[mapidx] )) && return 1
 
 
 # TODO rm
