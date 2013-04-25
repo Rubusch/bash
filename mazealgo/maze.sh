@@ -6,6 +6,7 @@
 
 ## TODO coords
 
+AVATARSTART=(4 6)
 AVATARCOORDS=(4 6) # avatar coordinates (y x y x y x)
 AVATARICON="2" # avatar icon
 
@@ -33,14 +34,35 @@ done
 ## tools (inline functions)
 
 sendkill(){ kill -15 ${pid}; } # signal transfer for exit
-setavatar(){ box=(${!1}); } # current block definition
+#setavatar(){ box=(${!1}); } # current block definition
+setavatar(){ AVATARCOORDS=(${!1}); } # current block definition  
+getpanely(){
+    local panely=$1
+    ((panely=panely-INDENTY-1))
+    echo -n $panely;
+}
+getpanelx(){
+    local panelx=$1
+    ((panelx=panelx-INDENTX-1))
+    echo -n $panelx
+}
 # xy2map(){
 #     local res=0 x=${1} y=${2}
 #     (( res = x + y*PANELX ))
 #     echo -n $res;
 # }
-xy2map(){ local res=0; ((res=$1 + $2*PANELX)) && echo -n $res; }
-
+#xy2map(){ local res=0; ((res=$1+$2*PANELX)) && echo -n $res; } # TODO check && problematic when 0?
+xy2map(){ local res=0; ((res=$1+$2*PANELX)); echo -n $res; }
+map2x(){
+    local x=0 idx=$1
+    ((x= idx % PANELX))
+    echo -n $x;
+}
+map2y(){
+    local idx=$1 y=0
+    ((y=idx / PANELX))
+    echo -n $y;
+}
 
 ## function
 
@@ -56,7 +78,7 @@ resume()
 boundary()
 {
     clear
-    local mapidx wallcol="\e[1;34m"
+    local mapidx wallcol="\e[1;34m" x y
 #    local mapidx wallcol="\e[1;31m"
 
     ## top and bottom
@@ -107,23 +129,20 @@ boundary()
     x_walls=( ${x_walls[*]} 17 17 17 17 17 )
     y_walls=( ${y_walls[*]}  5  6  7  8  9 )
 
+    ## convert coords to map and set walls
     for ((idx=0; idx<${#x_walls[*]}; ++idx)) ; do
-        x=${x_walls[idx]}
-        y=${y_walls[idx]}
-
-        ## draw single wall pieces
-        echo -e "${wallcol}\e[$((INDENTY+1+y));$((INDENTX+1+x))H1\e[0m"
-
-        ## colision detection array
-        ##
-        ## 2d-array conversion: "map" contains 400 elements
-        ## for blockings (walls) contains 1, rest 0
-        ## x=0, y=0 -> map[0]
-        ## x=1, y=0 -> map[20]
-        ## x=19, y=19 -> map[399]; max field
-        mapidx=$(xy2map $x $y)
+        mapidx=$(xy2map ${x_walls[idx]} ${y_walls[idx]})
         ((map[mapidx]=1))
+    done
 
+    ## double check - reconvert map to draw walls on display
+    x=0; y=0
+    for (( idx=0; idx<PANELX*PANELY; ++idx )) ; do
+        if (( 1 == map[$idx] )); then
+            x=$(map2x $idx)
+            y=$(map2y $idx)
+            echo -e "${wallcol}\e[$((INDENTY+1+y));$((INDENTX+1+x))H1\e[0m"
+        fi
     done
 
 ## DEBUG - dump map
@@ -133,7 +152,7 @@ boundary()
 #     echo "idx '$dbgidx' - map '${map[$dbgidx]}'" >> ./map.log
 # done
 
-    ## GOAL
+    ## draw a GOAL
 #    echo -e "${wallcol}\e[1;33m\e[$((INDENTY+1+GOALY));$((INDENTX+1+GOALX))H3\e[0m"
     echo -e "${wallcol}\e[44m\e[1;31m\e[$((INDENTY+1+GOALY));$((INDENTX+1+GOALX))H3\e[0m"
 }
@@ -187,32 +206,35 @@ Die()
     exit
 }
 
-# ## draw avatar
-# drawbox()
-# {
-#     setavatar AVATARCOORDS[*]
-#     colbox="$(echo -n ${COLTAB[RANDOM/512]})"
-#     coordinate box[@] repaint
-#     oldbox="${cursor}"
+# TODO needed?
+## draw avatar
+drawbox()
+{
+    setavatar AVATARCOORDS[*]
+    colbox="$(echo -n ${COLTAB[RANDOM/512]})"
+#    coordinate box[@] repaint
+    coordinate AVATARCOORDS[@] repaint
+    oldbox="${cursor}"
 
-#     # (( $# == 1 )) && {
-#     #     setavatar AVATARCOORDS[*]
-#     #     colbox="$(echo -n ${COLTAB[RANDOM/512]})"
-#     #     coordinate box[@] repaint
-#     # } || {
-#     #     colbox="${srmcbox}"
-#     #     coordinate rmcbox[@] repaint
-#     # }
-#     # oldbox="${cursor}"
+    (( $# == 1 )) && {
+        setavatar AVATARCOORDS[*]
+        colbox="$(echo -n ${COLTAB[RANDOM/512]})"
+#        coordinate box[@] repaint
+        coordinate AVATARCOORDS[@] repaint
+    } || {
+        colbox="${srmcbox}"
+        coordinate rmcbox[@] repaint
+    }
+    oldbox="${cursor}"
 
 
-#     ## TODO rm - necessary? seems to be filled up tetris terminate condition
-#     # if ! movement globxypos; then
-#     #     kill -${sigExit} ${PPID}
-#     #     sendkill
-#     #     Die
-#     # fi
-# }
+    ## TODO rm - necessary? seems to be filled up tetris terminate condition
+    # if ! movement globxypos; then
+    #     kill -${sigExit} ${PPID}
+    #     sendkill
+    #     Die
+    # fi
+}
 
 ## detect if movement is possible
 movement()
@@ -245,13 +267,16 @@ movement()
 ## get coordinates of the avatar
 coordinate()
 {
-   local i sup coords
-   coords=(${!1})
-   for((i=0; i<${#coords[@]}; i+=2))
-   do
-       cursor+="\e[${coords[i]};${coords[i+1]}H${AVATARICON}"
-       sup+="${coords[i]} ${coords[i+1]} "
-   done
+#   local i sup coords
+   local sup coords=(${!1})
+#   for((i=0; i<${#coords[@]}; i+=2))
+#   do
+#       cursor+="\e[${coords[i]};${coords[i+1]}H${AVATARICON}"
+#       sup+="${coords[i]} ${coords[i+1]} "
+#   done
+   cursor="\e[${coords[0]};${coords[1]}H${AVATARICON}"
+   sup="${coords[0]} ${coords[1]} "
+
    ${2}
 }
 
@@ -408,13 +433,29 @@ isblocked()
 direction()
 {
     local dx dy currxy sizegoalx sizegoaly headings idx headx heady blocked
-    sizegoalx=2
-    sizegoaly=2
 
-    currxy=( $globxypos )
+#    sizegoalx=2
+#    sizegoaly=2
 
-    ((dx=GOALX/2+1+sizegoalx - currxy[3]/2))
-    ((dy=GOALY+1+2*sizegoaly - currxy[2]))
+#    currxy=( $globxypos )
+
+#    ((dx=GOALX/2+1+sizegoalx - currxy[3]/2))
+#    ((dy=GOALY+1+2*sizegoaly - currxy[2]))
+
+    local currx curry
+
+#    curry=$(getpanely $box[0])
+#    currx=$(getpanelx $box[1])
+
+    curry=$(getpanely ${AVATARCOORDS[0]})
+    currx=$(getpanelx ${AVATARCOORDS[1]})
+
+
+    ((dx=GOALX+1 - currx))
+    ((dy=GOALY+1 - curry))
+
+# XXX
+    echo "$curry $currx - $dy $dx" >> ./debug.log   
 
     ## orientation priority
     if (( 0 <= dx && 0 <= dy )); then
@@ -442,6 +483,9 @@ direction()
             headings=("up" "left" "right" "down")
         fi
     fi
+
+    HEADING=${headings[0]}
+    return
 
     ## check for blocking walls
 #    echo " " >> ./debug.log    
@@ -527,12 +571,14 @@ gameloop()
     pid=${1}
 
     ## draw avatar and set old
-    setavatar AVATARCOORDS[*]
+#    setavatar AVATARCOORDS[*]
+    setavatar AVATARSTART[*]
     colbox="$(echo -n ${COLTAB[RANDOM/512]})"
-    coordinate box[@] repaint
+#    coordinate box[@] repaint
+    coordinate AVATARCOORDS[@] repaint
     oldbox="${cursor}"
 
-#    drawbox 0 # draw
+    drawbox 0 # draw
 
 #    for i in sigRotate sigTransf sigLeft sigRight sigDown sigUp ; do
 #    for i in sigTransf sigLeft sigRight sigDown sigUp ; do
@@ -564,9 +610,9 @@ gameloop()
 
 # TODO uncomment                                                 
         ## go
-        direction
-        transform $(move)
-        backtrack
+#        direction
+#        transform $(move)
+#        backtrack
     done
 }
 
@@ -586,18 +632,30 @@ transform()
     if movement globxypos; then
 
         ## remove artefact trails
-        echo -e "${oldbox//${AVATARICON}/ }\e[0m"
+        echo -e "${oldbox//2/ }\e[0m"
+#        echo -e "${oldbox//${AVATARICON}/ }\e[0m"
 
-# TODO refac
+# # TODO refac
+#         local v
+#         for((v=0; v<${#box[*]}; v+=2)); do
+#             ((box[v]+=dy))
+#             ((box[v+1]+=dx))
+#         done
+#         echo "box ${box[*]}" >> ./debug.log
+#         nbox=(${box[*]})
+#         coordinate box[*] repaint
+#         box=(${nbox[*]})
+
         local v
-        for((v=0; v<${#box[*]}; v+=2))
-        do
-            ((box[v]+=dy))
-            ((box[v+1]+=dx))
+        for((v=0; v<${#AVATARCOORDS[*]}; v+=2)); do
+            ((AVATARCOORDS[v]+=dy))
+            ((AVATARCOORDS[v+1]+=dx))
         done
-        nbox=(${box[*]})
-        coordinate box[*] repaint
-        box=(${nbox[*]})
+#        echo "AVATARCOORDS ${AVATARCOORDS[*]}" >> ./debug.log
+        nbox=(${AVATARCOORDS[*]})
+        coordinate AVATARCOORDS[*] repaint
+        AVATARCOORDS=(${nbox[*]})
+
 
 # TODO why not possible?
         # ((box[2]+=dx))
