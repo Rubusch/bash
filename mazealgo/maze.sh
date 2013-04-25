@@ -7,8 +7,7 @@
 ## TODO coords
 
 AVATARCOORDS=(4 6) # avatar coordinates (y x y x y x)
-#AVATARCOORDS=(6 6 7 6) # avatar coordinates (y x y x y x)   
-AVATARICON="L" # avatar icon
+AVATARICON="2" # avatar icon
 
 INDENTY=3 # indentation of the top area
 INDENTX=5 # indentation of the left area
@@ -26,41 +25,22 @@ HEADING="right"
                                                                                 
 ## signal traps
 
-# TODO rm - check
-#for signal in Rotate Left Right Down Up Exit Transf ; do
-#for signal in Left Right Down Up Exit Transf ; do
 for signal in Left Right Down Up Exit ; do
-#    ((sig${signal}=++gis+24)) # signal definition
-
-#for signal in Left Right Down Up ; do
     ((sig${signal}=++gis+24)) # signal definition
 done
 
                                                                                 
 ## tools (inline functions)
 
-#sendkill(){ kill -${sigExit} ${pid}; } # signal transfer for exit
 sendkill(){ kill -15 ${pid}; } # signal transfer for exit
 setavatar(){ box=(${!1}); } # current block definition
-xy2map(){
-    local res=0 x=${1} y=${2}
+# xy2map(){
+#     local res=0 x=${1} y=${2}
+#     (( res = x + y*PANELX ))
+#     echo -n $res;
+# }
+xy2map(){ local res=0; ((res=$1 + $2*PANELX)) && echo -n $res; }
 
-#    (( res=y*PANELX+x/2 ))
-    (( res = x + y*PANELX ))
-    echo -n $res;
-}
-
-# TODO rm
-#(j-INDENTY-1)*PANELX+y/2-INDENTY
-
-
-
-# TODO rm
-#radom(){ echo -n 7; }    TODO rm
-#color(){ echo -n ${COLTAB[RANDOM/512]}; } # generate the randomly number between zero and sisty-three
-#serxy(){ kbox="${sup}"; } # vertical and horizontal coordinates
-#hdbox(){ echo -e "${oldbox//[]/  }\e[0m"; } # erase the old pieces
-#check(){ (( map[(i-INDENTY-1)*PANELX+j/2-INDENTY] == 0 )) && break; } # check the current row whether it's fully filled up with pieces
 
 ## function
 
@@ -77,22 +57,15 @@ boundary()
 {
     clear
     local mapidx wallcol="\e[1;34m"
+#    local mapidx wallcol="\e[1;31m"
 
     ## top and bottom
-
-#    for((i=INDENTX+1; i<=PANELX+INDENTX; i+=1)); do
-#        echo -e "${wallcol}\e[${INDENTY};${i}H##\e[$((PANELY+INDENTY+1));${i}H##\e[0m"
-
     for((i=INDENTX; i<=PANELX+INDENTX+1; ++i)); do
         echo -e "${wallcol}\e[${INDENTY};${i}H#\e[$((PANELY+INDENTY+1));${i}H#\e[0m"
     done
 
 
     ## side walls
-
-#    for((i=INDENTY; i<=PANELY+INDENTY+1; ++i)); do
-#        echo -e "${wallcol}\e[${i};$((INDENTX-1))H##\e[${i};$((PANELX+INDENTX+1))H##\e[0m"
-
     for((i=INDENTY; i<=PANELY+INDENTY; ++i)); do
         echo -e "${wallcol}\e[${i};$((INDENTX))H#\e[${i};$((PANELX+INDENTX+1))H#\e[0m"
     done
@@ -139,7 +112,7 @@ boundary()
         y=${y_walls[idx]}
 
         ## draw single wall pieces
-        echo -e "${wallcol}\e[$((INDENTY+1+y));$((INDENTX+1+x))H#\e[0m"
+        echo -e "${wallcol}\e[$((INDENTY+1+y));$((INDENTX+1+x))H1\e[0m"
 
         ## colision detection array
         ##
@@ -161,7 +134,8 @@ boundary()
 # done
 
     ## GOAL
-    echo -e "${wallcol}\e[1;33m\e[$((INDENTY+1+GOALY));$((INDENTX+1+GOALX))HX\e[0m"
+#    echo -e "${wallcol}\e[1;33m\e[$((INDENTY+1+GOALY));$((INDENTX+1+GOALX))H3\e[0m"
+    echo -e "${wallcol}\e[44m\e[1;31m\e[$((INDENTY+1+GOALY));$((INDENTX+1+GOALX))H3\e[0m"
 }
 
 ## user input and navigation
@@ -213,27 +187,32 @@ Quit()
     exit
 }
 
-## draw avatar
-drawbox()
-{
-    (( $# == 1 )) && {
-        setavatar AVATARCOORDS[*]
-        colbox="$(echo -n ${COLTAB[RANDOM/512]})"
-        coordinate box[@] repaint
-    } || {
-        colbox="${srmcbox}"
-        coordinate rmcbox[@] repaint
-    }
-    oldbox="${cursor}"
+# ## draw avatar
+# drawbox()
+# {
+#     setavatar AVATARCOORDS[*]
+#     colbox="$(echo -n ${COLTAB[RANDOM/512]})"
+#     coordinate box[@] repaint
+#     oldbox="${cursor}"
+
+#     # (( $# == 1 )) && {
+#     #     setavatar AVATARCOORDS[*]
+#     #     colbox="$(echo -n ${COLTAB[RANDOM/512]})"
+#     #     coordinate box[@] repaint
+#     # } || {
+#     #     colbox="${srmcbox}"
+#     #     coordinate rmcbox[@] repaint
+#     # }
+#     # oldbox="${cursor}"
 
 
-    ## TODO rm - necessary? seems to be filled up tetris terminate condition
-    # if ! movement globxypos; then
-    #     kill -${sigExit} ${PPID}
-    #     sendkill
-    #     Quit
-    # fi
-}
+#     ## TODO rm - necessary? seems to be filled up tetris terminate condition
+#     # if ! movement globxypos; then
+#     #     kill -${sigExit} ${PPID}
+#     #     sendkill
+#     #     Quit
+#     # fi
+# }
 
 ## detect if movement is possible
 movement()
@@ -284,7 +263,8 @@ repaint()
     oldbox="${cursor}"
 
     ## show cursor
-    echo -e "\e[${colbox}${cursor}\e[0m"
+#    echo -e "\e[${colbox}${cursor}\e[0m"
+    echo -e "\e[42m\e[31m${cursor}\e[0m"
 
     ## collision detection
     globxypos="${sup}"
@@ -292,7 +272,7 @@ repaint()
 
 chckposup(){
     local heady headx currxy blocked position
-    echo "chckposup" >> ./debug.log   
+#    echo "chckposup" >> ./debug.log   
     currxy=($globxypos)
     blocked=0
 
@@ -312,7 +292,7 @@ chckposup(){
 #    [[ "1"==$(findinbacktrack "${position}") ]] && echo -n "1" && return;
 
     blocked=$(findinbacktrack "${position}")
-    echo "position ${position//_/ } - blocked $blocked" >> ./debug.log 
+#    echo "position ${position//_/ } - blocked $blocked" >> ./debug.log 
     ((1 == blocked )) && echo -n "1" && return;
 
     echo -n "0";
@@ -320,7 +300,7 @@ chckposup(){
 
 chckposdown(){
     local heady headx currxy blocked position
-    echo "chckposdown" >> ./debug.log   
+#    echo "chckposdown" >> ./debug.log   
     currxy=($globxypos)
     blocked=0
 
@@ -338,7 +318,7 @@ chckposdown(){
 
     blocked=$(isblocked $heady $headx)
 
-    echo "position ${position//_/ } - blocked $blocked" >> ./debug.log 
+#    echo "position ${position//_/ } - blocked $blocked" >> ./debug.log 
     ((1==blocked)) && echo -n "1" && return;
 
     ## find position in backtrack
@@ -350,7 +330,7 @@ chckposdown(){
 
 chckposleft(){
     local heady headx currxy blocked position
-    echo "chckposleft" >> ./debug.log   
+#    echo "chckposleft" >> ./debug.log   
     currxy=($globxypos)
     blocked=0
 
@@ -359,7 +339,7 @@ chckposleft(){
     ((headx=currxy[1]-2))
     position="${position}${headx}_"
     blocked=$(isblocked $heady $headx)
-    echo "position ${position//_/ } - blocked $blocked" >> ./debug.log 
+#    echo "position ${position//_/ } - blocked $blocked" >> ./debug.log 
     ((1 == $blocked)) && echo -n "1" && return;
 
     # ((heady=currxy[2]))
@@ -381,32 +361,22 @@ chckposleft(){
 
 chckposright(){
     local heady headx currxy blocked position
-    echo "chckposright" >> ./debug.log   
+#    echo "chckposright" >> ./debug.log   
     currxy=($globxypos)
     blocked=0
 
     ((heady=currxy[0]))
     position="${heady}_"
-# XXX
-#    ((headx=currxy[1]+2)) 
     ((headx=currxy[1]+1))
     position="${position}${headx}_"
     blocked=$(isblocked $heady $headx)
 
-#    ((1 == $blocked)) && echo -n "1" && return;
-#     ((heady=currxy[2]))
-#     position="${position}${heady}_"
-# #    ((headx=currxy[3]+2)) 
-#     ((headx=currxy[3]+1))
-#     position="${position}${headx}_"
-#    blocked=$(isblocked $heady $headx)
-
-    echo "position ${position//_/ } - blocked $blocked" >> ./debug.log 
+#    echo "position ${position//_/ } - blocked $blocked" >> ./debug.log 
     ((1 == $blocked)) && echo -n "1" && return;
 
     ## find position in backtrack
     blocked=$(findinbacktrack "${position}")
-    echo "position ${position//_/ } - blocked $blocked" >> ./debug.log 
+#    echo "position ${position//_/ } - blocked $blocked" >> ./debug.log 
     (( 1 == blocked )) && echo -n "1" && return;
 
     ## default: ok
@@ -417,7 +387,7 @@ chckposright(){
 isblocked()
 {
     local y=$1 x=$2 xoy res mapidx
-    echo "y '$y' x '$x'" >> ./debug.log   
+#    echo "y '$y' x '$x'" >> ./debug.log   
 
 #    ((xoy=(x-INDENTY-1)*PANELX+y/2-INDENTY))
 #    (( xoy < 0 )) && echo -n "1" && return
@@ -429,7 +399,7 @@ isblocked()
 
 #    (( mapidx=((y-INDENTY-1) * PANELX) + (x-1-INDENTX-1) ));
     (( mapidx=((y-INDENTY-1) * PANELX) + (x-2-INDENTX) ));
-    echo "mapidx $mapidx" >> ./debug.log   
+#    echo "mapidx $mapidx" >> ./debug.log   
 
     res=0; (( map[ $mapidx ] != 0 )) && res=1 || res=0
     echo -n "$res";
@@ -474,10 +444,10 @@ direction()
     fi
 
     ## check for blocking
-    echo " " >> ./debug.log    
+#    echo " " >> ./debug.log    
     item=""
     for item in ${headings[*]}; do
-        echo $item  >> ./debug.log    
+#        echo $item  >> ./debug.log    
         HEADING=$item
         if [[ "up" == "$item" ]]; then
             ((1==$(chckposup))) && continue
@@ -555,7 +525,14 @@ gameloop()
 {
     local sigSwap pid
     pid=${1}
-    drawbox 0 # draw
+
+    ## draw avatar and set old
+    setavatar AVATARCOORDS[*]
+    colbox="$(echo -n ${COLTAB[RANDOM/512]})"
+    coordinate box[@] repaint
+    oldbox="${cursor}"
+
+#    drawbox 0 # draw
 
 #    for i in sigRotate sigTransf sigLeft sigRight sigDown sigUp ; do
 #    for i in sigTransf sigLeft sigRight sigDown sigUp ; do
@@ -587,9 +564,9 @@ gameloop()
 
 # TODO uncomment                                                 
         ## go
-#        direction
-#        transform $(move)
-#        backtrack
+        direction
+        transform $(move)
+        backtrack
     done
 }
 
@@ -641,19 +618,15 @@ transform()
                                                                                 
 ## START
 [[ "x${1}" == "xRun" ]] && {
-    echo "restarted xRun"  
-
-# TODO rm - not used?
-#    loop initialization # init each field (col), per line (row)
-
-    boundary # paint game panel
+    ## daemon - restarted to paint game panel
+    boundary
     gameloop $!
 
 } || {
-    echo "Run"  
-    ## restart game
+    echo "Run"
+    ## restart/daemon trick to draw board
     bash $0 Run ${1} &
 
-    ## continue with navigation
+    ## keep controls active via traps
     control $!
 }
