@@ -238,74 +238,28 @@ drawbox()
 ## detect if movement is possible
 movement()
 {
-# TODO cleanup
-#    local x y i j xoy coords boolx booly panelx panely
-    local x y mapidx coords boolx booly panelx panely
+    local globx globy panelx panely mapidx coords numofcoords boolx booly
     coords=(${!1})
     numofcoords=${#coords[*]}
 
-#    echo "numofcoords ${numofcoords[*]}"
-#    echo "coords ${coords[*]}"
+    ((globy=coords[0]+dy))
+    ((globx=coords[1]+dx))
 
-    ## steps of 2 for 2 dimensions in array: x and y
-#    for((i=0; i<${#coords[@]}; i+=2)); do
+    ## check - within panel
+    boolx="globy <= INDENTY || globy > PANELY+INDENTY"
+    booly="globx > PANELX+INDENTX || globx <= INDENTX"
+    (( boolx || booly )) && return 1
 
-        ## new position (global coords)
-#        ((x=coords[0]+dx))
-#        ((y=coords[1]+dy))
+    ## panel coords conversion
+    ((panely=globy-INDENTY-1))
+    ((panelx=globx-INDENTX-1))
 
-#        ((y=coords[0]+dx))
-#        ((x=coords[1]+dy))
-        ((y=coords[0]+dy))
-        ((x=coords[1]+dx))
+    ## conversion to mapidx
+    mapidx=$(xy2map $panelx $panely)
+    (( mapidx < 0 )) && return 1
 
-
-        ## TODO rm
-#        ((x=coords[i]+dx))
-#        ((y=coords[i+1]+dy))
-#        (( xoy=(x-INDENTY-1)*PANELX+y/2-INDENTY ))
-#        (( xoy < 0 )) && return 1
-
-#        booly="y > 2*PANELX+INDENTX || y <= INDENTX"  
-
-        ## check - within panel
-#        boolx="x <= INDENTY || x > PANELY+INDENTY"
-#        booly="y > PANELX+INDENTX || y <= INDENTX"
-        boolx="y <= INDENTY || y > PANELY+INDENTY"
-        booly="x > PANELX+INDENTX || x <= INDENTX"
-        (( boolx || booly )) && return 1
-
-        ## panel coords conversion
-#        ((panelx=x-INDENTY-1))
-#        ((panely=y-INDENTX-1))
-        ((panely=y-INDENTY-1))
-        ((panelx=x-INDENTX-1))
-
-
-        ## conversion to mapidx
-#        echo "XXX panelx $panelx - panely $panely"   
-        mapidx=$(xy2map $panelx $panely)
-        (( mapidx < 0 )) && return 1
-
-        ## check for blocks in map
-        foo=${map[$mapidx]}    
-#        echo "XXX $mapidx -> $foo"   
-        (( 1 == map[mapidx] )) && return 1
-
-
-# TODO rm
-#        if (( map[xoy] == 1 )); then
-# TODO rm - always 2 coords (only one x and y)
-#            if (( numofcoords == 2 )); then
-
-#            for((j=PANELY+INDENTY; j>x; --j)); do
-#                (( map[(j-INDENTY-1)*PANELX+y/2-INDENTY] == 0 )) && return 0
-#            done
-
-#            fi
-#            return 1
-#        fi
-#    done
+    ## check for blocks in map
+    (( 1 == map[mapidx] )) && return 1
     return 0
 }
 
