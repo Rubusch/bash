@@ -43,8 +43,10 @@ done
 sendkill(){ kill -15 ${pid}; } # signal transfer for exit
 setavatar(){ box=(${!1}); } # current block definition
 xy2map(){
-    local res=0 y=${1} x=${2}
-    (( res=y*PANELX+x/2 ))
+    local res=0 x=${1} y=${2}
+
+#    (( res=y*PANELX+x/2 ))
+    (( res = x + y*PANELX ))
     echo -n $res;
 }
 
@@ -74,7 +76,7 @@ resume()
 boundary()
 {
     clear
-    local wallcol="\e[1;34m"
+    local mapidx wallcol="\e[1;34m"
 
     ## top and bottom
     for((i=INDENTX+1; i<=PANELX+INDENTX; i+=1)); do
@@ -138,8 +140,8 @@ boundary()
         ## x=0, y=0 -> map[0]
         ## x=1, y=0 -> map[20]
         ## x=19, y=19 -> map[399]; max field
-        yox=$(xy2map $y $x)
-        ((map[yox]=1))
+        mapidx=$(xy2map $x $y)
+        ((map[mapidx]=1))
 
     done
 
@@ -150,8 +152,8 @@ boundary()
 #     echo "idx '$dbgidx' - map '${map[$dbgidx]}'" >> ./map.log
 # done
 
-    ## target
-    echo -e "${wallcol}\e[1;33m\e[$((INDENTY+1+GOALY));$((INDENTX+1+GOALX))HGO\e[$((INDENTY+2+GOALY));$((INDENTX+1+GOALX))HAL\e[0m"
+    ## GOAL
+    echo -e "${wallcol}\e[1;33m\e[$((INDENTY+1+GOALY));$((INDENTX+1+GOALX))HX\e[0m"
 }
 
 ## user input and navigation
@@ -207,8 +209,6 @@ Quit()
 drawbox()
 {
     (( $# == 1 )) && {
-#        setavatar box$(radom)[@] # TODO rm
-#        setavatar box7[*] # TODO rm
         setavatar AVATARCOORDS[*]
         colbox="$(echo -n ${COLTAB[RANDOM/512]})"
         coordinate box[@] repaint
@@ -231,12 +231,15 @@ drawbox()
 movebox()
 {
                                                 
-    local x y i j xoy vor boolx booly
-    vor=(${!1})
-    smu=${#vor[@]}
-    for((i=0; i<${#vor[@]}; i+=2)); do
-        ((x=vor[i]+dx))
-        ((y=vor[i+1]+dy))
+    local x y i j xoy coords boolx booly
+    coords=(${!1})
+    smu=${#coords[*]}
+#    echo "smu ${smu[*]}"
+#    echo "coords ${coords[*]}"
+
+    for((i=0; i<${#coords[@]}; i+=2)); do
+        ((x=coords[i]+dx))
+        ((y=coords[i+1]+dy))
 
         ## 
         ((xoy=(x-INDENTY-1)*PANELX+y/2-INDENTY))
@@ -244,7 +247,8 @@ movebox()
 
         ## within panel
         boolx="x <= INDENTY || x > PANELY+INDENTY"
-        booly="y > 2*PANELX+INDENTX || y <= INDENTX"
+#        booly="y > 2*PANELX+INDENTX || y <= INDENTX"  
+        booly="y > PANELX+INDENTX || y <= INDENTX"
         (( boolx || booly )) && return 1
 
         if (( map[xoy] == 1 )); then
@@ -263,12 +267,12 @@ movebox()
 ## get coordinates of the avatar
 coordinate()
 {
-   local i sup vor
-   vor=(${!1})
-   for((i=0; i<${#vor[@]}; i+=2))
+   local i sup coords
+   coords=(${!1})
+   for((i=0; i<${#coords[@]}; i+=2))
    do
-       cursor+="\e[${vor[i]};${vor[i+1]}H${AVATARICON}"
-       sup+="${vor[i]} ${vor[i+1]} "
+       cursor+="\e[${coords[i]};${coords[i+1]}H${AVATARICON}"
+       sup+="${coords[i]} ${coords[i+1]} "
    done
    ${2}
 }
@@ -300,13 +304,14 @@ chckposup(){
     blocked=$(isblocked $heady $headx)
     ((1 == $blocked)) && echo -n "1" && return;
 
-    ((heady=currxy[2]-1))
-    position="${position}${heady}_"
-    ((headx=currxy[3]))
-    position="${position}${headx}_"
+    # ((heady=currxy[2]-1))
+    # position="${position}${heady}_"
+    # ((headx=currxy[3]))
+    # position="${position}${headx}_"
 
     ## find position in backtrack
 #    [[ "1"==$(findinbacktrack "${position}") ]] && echo -n "1" && return;
+
     blocked=$(findinbacktrack "${position}")
     echo "position ${position//_/ } - blocked $blocked" >> ./debug.log 
     ((1 == blocked )) && echo -n "1" && return;
@@ -326,11 +331,12 @@ chckposdown(){
     ((headx=currxy[1]+1))  
     position="${position}${headx}_"
 
-    ((heady=currxy[2]+1))
-    position="${position}${heady}_"
-#    ((headx=currxy[3]))
-    ((headx=currxy[3]+1))  
-    position="${position}${headx}_"
+#     ((heady=currxy[2]+1))
+#     position="${position}${heady}_"
+# #    ((headx=currxy[3]))
+#     ((headx=currxy[3]+1))  
+#     position="${position}${headx}_"
+
     blocked=$(isblocked $heady $headx)
 
     echo "position ${position//_/ } - blocked $blocked" >> ./debug.log 
@@ -357,14 +363,13 @@ chckposleft(){
     echo "position ${position//_/ } - blocked $blocked" >> ./debug.log 
     ((1 == $blocked)) && echo -n "1" && return;
 
-    ((heady=currxy[2]))
-    position="${position}${heady}_"
-    ((headx=currxy[3]-2))
-    position="${position}${headx}_"
-
-    blocked=$(isblocked $heady $headx)
-    echo "position ${position//_/ } - blocked $blocked" >> ./debug.log 
-    ((1 == $blocked)) && echo -n "1" && return;
+    # ((heady=currxy[2]))
+    # position="${position}${heady}_"
+    # ((headx=currxy[3]-2))
+    # position="${position}${headx}_"
+#    blocked=$(isblocked $heady $headx)
+#    echo "position ${position//_/ } - blocked $blocked" >> ./debug.log 
+#    ((1 == $blocked)) && echo -n "1" && return;
 
     ## find position in backtrack
     blocked=$(findinbacktrack "${position}")
@@ -388,14 +393,15 @@ chckposright(){
     ((headx=currxy[1]+1))
     position="${position}${headx}_"
     blocked=$(isblocked $heady $headx)
-    ((1 == $blocked)) && echo -n "1" && return;
 
-    ((heady=currxy[2]))
-    position="${position}${heady}_"
-#    ((headx=currxy[3]+2)) 
-    ((headx=currxy[3]+1))
-    position="${position}${headx}_"
-    blocked=$(isblocked $heady $headx)
+#    ((1 == $blocked)) && echo -n "1" && return;
+#     ((heady=currxy[2]))
+#     position="${position}${heady}_"
+# #    ((headx=currxy[3]+2)) 
+#     ((headx=currxy[3]+1))
+#     position="${position}${headx}_"
+#    blocked=$(isblocked $heady $headx)
+
     echo "position ${position//_/ } - blocked $blocked" >> ./debug.log 
     ((1 == $blocked)) && echo -n "1" && return;
 
@@ -580,14 +586,11 @@ gameloop()
 # - go down, if not possible,
 # - go up, if not possible - do bugfix, go left, then.. something
 
-        ## go 
-        direction
-        transform $(move)
-        backtrack
-
-        ## go right
-#       transform 0 1 # TODO algorithm
-#        break   
+# TODO uncomment                                                 
+        ## go
+#        direction
+#        transform $(move)
+#        backtrack
     done
 }
 
