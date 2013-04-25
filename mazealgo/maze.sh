@@ -146,8 +146,8 @@ control()
     arry=(0 0 0)
     pool=$(echo -ne "\e")
     STTY=$(stty -g) # change terminal line settings
-    trap "Quit 0" INT TERM
-    trap "Quit 0 0" ${sigExit}
+    trap "Die 0" INT TERM
+    trap "Die 0 0" ${sigExit}
     echo -ne "\e[?25l"
     while :
     do
@@ -156,7 +156,7 @@ control()
         arry[1]=${arry[2]}
         arry[2]=${key}
         sig=0
-        if [[ ${key} == ${pool} && ${arry[1]} == ${pool} ]]; then Quit 0
+        if [[ ${key} == ${pool} && ${arry[1]} == ${pool} ]]; then Die 0
         elif [[ ${arry[0]} == ${pool} && ${arry[1]} == "[" ]]; then
             case ${key} in
                 A)    sig=${sigUp}        ;;
@@ -166,7 +166,7 @@ control()
             esac
         else
             case ${key} in
-                Q|q)  Quit 0              ;;
+                Q|q)  Die 0              ;;
             esac
         fi
         (( sig != 0 )) && kill -${sig} ${pid}
@@ -174,7 +174,7 @@ control()
 }
 
 ## terminate
-Quit()
+Die()
 {
     case $# in
         0 ) ;;
@@ -210,7 +210,7 @@ Quit()
 #     # if ! movement globxypos; then
 #     #     kill -${sigExit} ${PPID}
 #     #     sendkill
-#     #     Quit
+#     #     Die
 #     # fi
 # }
 
@@ -443,7 +443,7 @@ direction()
         fi
     fi
 
-    ## check for blocking
+    ## check for blocking walls
 #    echo " " >> ./debug.log    
     item=""
     for item in ${headings[*]}; do
@@ -540,7 +540,7 @@ gameloop()
         trap "sig=${!i}" ${!i}
     done
 
-    trap "sendkill; Quit" ${sigExit}
+    trap "sendkill; Die" ${sigExit}
 
     while :
     do
