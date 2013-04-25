@@ -79,14 +79,22 @@ boundary()
     local mapidx wallcol="\e[1;34m"
 
     ## top and bottom
-    for((i=INDENTX+1; i<=PANELX+INDENTX; i+=1)); do
-        echo -e "${wallcol}\e[${INDENTY};${i}H##\e[$((PANELY+INDENTY+1));${i}H##\e[0m"
+
+#    for((i=INDENTX+1; i<=PANELX+INDENTX; i+=1)); do
+#        echo -e "${wallcol}\e[${INDENTY};${i}H##\e[$((PANELY+INDENTY+1));${i}H##\e[0m"
+
+    for((i=INDENTX-1; i<=PANELX+INDENTX+1; ++i)); do
+        echo -e "${wallcol}\e[${INDENTY};${i}H#\e[$((PANELY+INDENTY+1));${i}H#\e[0m"
     done
 
 
     ## side walls
-    for((i=INDENTY; i<=PANELY+INDENTY+1; ++i)); do
-        echo -e "${wallcol}\e[${i};$((INDENTX-1))H##\e[${i};$((PANELX+INDENTX+1))H##\e[0m"
+
+#    for((i=INDENTY; i<=PANELY+INDENTY+1; ++i)); do
+#        echo -e "${wallcol}\e[${i};$((INDENTX-1))H##\e[${i};$((PANELX+INDENTX+1))H##\e[0m"
+
+    for((i=INDENTY+1; i<=PANELY+INDENTY; ++i)); do
+        echo -e "${wallcol}\e[${i};$((INDENTX-1))H#\e[${i};$((PANELX+INDENTX+1))H#\e[0m"
     done
 
 # DEBUG
@@ -220,7 +228,7 @@ drawbox()
 
 
     ## TODO rm - necessary? seems to be filled up tetris terminate condition
-    # if ! movebox pose; then
+    # if ! movebox globxypos; then
     #     kill -${sigExit} ${PPID}
     #     sendkill
     #     Quit
@@ -233,30 +241,37 @@ movebox()
                                                 
     local x y i j xoy coords boolx booly
     coords=(${!1})
-    smu=${#coords[*]}
-#    echo "smu ${smu[*]}"
+    numofcoords=${#coords[*]}
+
+#    echo "numofcoords ${numofcoords[*]}"
 #    echo "coords ${coords[*]}"
 
+    ## steps of 2 for 2 dimensions in array: x and y
     for((i=0; i<${#coords[@]}; i+=2)); do
+
+        ## new position
         ((x=coords[i]+dx))
         ((y=coords[i+1]+dy))
 
         ## 
-        ((xoy=(x-INDENTY-1)*PANELX+y/2-INDENTY))
+        (( xoy=(x-INDENTY-1)*PANELX+y/2-INDENTY ))
         (( xoy < 0 )) && return 1
 
-        ## within panel
+        ## check - within panel
         boolx="x <= INDENTY || x > PANELY+INDENTY"
 #        booly="y > 2*PANELX+INDENTX || y <= INDENTX"  
         booly="y > PANELX+INDENTX || y <= INDENTX"
         (( boolx || booly )) && return 1
 
         if (( map[xoy] == 1 )); then
-            if (( smu == 2 )); then
-                for((j=PANELY+INDENTY; j>x; --j)); do
-                    (( map[(j-INDENTY-1)*PANELX+y/2-INDENTY] == 0 )) && return 0
-                done
-            fi
+# TODO rm - always 2 coords (only one x and y)
+#            if (( numofcoords == 2 )); then
+
+            for((j=PANELY+INDENTY; j>x; --j)); do
+                (( map[(j-INDENTY-1)*PANELX+y/2-INDENTY] == 0 )) && return 0
+            done
+
+#            fi
             return 1
         fi
 
@@ -288,13 +303,13 @@ repaint()
     echo -e "\e[${colbox}${cursor}\e[0m"
 
     ## collision detection
-    pose="${sup}"
+    globxypos="${sup}"
 }
 
 chckposup(){
     local heady headx currxy blocked position
     echo "chckposup" >> ./debug.log   
-    currxy=($pose)
+    currxy=($globxypos)
     blocked=0
 
     ((heady=currxy[0]-1))
@@ -322,7 +337,7 @@ chckposup(){
 chckposdown(){
     local heady headx currxy blocked position
     echo "chckposdown" >> ./debug.log   
-    currxy=($pose)
+    currxy=($globxypos)
     blocked=0
 
     ((heady=currxy[0]+1))
@@ -352,7 +367,7 @@ chckposdown(){
 chckposleft(){
     local heady headx currxy blocked position
     echo "chckposleft" >> ./debug.log   
-    currxy=($pose)
+    currxy=($globxypos)
     blocked=0
 
     ((heady=currxy[0]))
@@ -383,7 +398,7 @@ chckposleft(){
 chckposright(){
     local heady headx currxy blocked position
     echo "chckposright" >> ./debug.log   
-    currxy=($pose)
+    currxy=($globxypos)
     blocked=0
 
     ((heady=currxy[0]))
@@ -442,7 +457,7 @@ direction()
     sizegoalx=2
     sizegoaly=2
 
-    currxy=( $pose )
+    currxy=( $globxypos )
 
     ((dx=GOALX/2+1+sizegoalx - currxy[3]/2))
     ((dy=GOALY+1+2*sizegoaly - currxy[2]))
@@ -533,7 +548,7 @@ findinbacktrack()
 ## history of positions
 backtrack()
 {
-    local item position="${pose// /_}"
+    local item position="${globxypos// /_}"
     [[ "1" == $(findinbacktrack "$position") ]] && return
 
     TRACKING=( ${TRACKING[*]} "${position}" )
@@ -600,7 +615,7 @@ gameloop()
 ## perform type of movement
 transform()
 {
-    local dx dy cursor smu
+    local dx dy cursor numofcoords
     dx=${1}
     dy=${2}
     (( $# == 2 )) && moveon # || rotate
@@ -610,11 +625,11 @@ transform()
 ## move the avatar within the boundaries
 moveon()
 {
-    if movebox pose; then
+    if movebox globxypos; then
         echo -e "${oldbox//[]/  }\e[0m"
 
 #        hdbox # TODO rm
-#        (( smu == 2 )) && across ## TODO rm
+#        (( numofcoords == 2 )) && across ## TODO rm
         
 #        increment # TODO rm
         
