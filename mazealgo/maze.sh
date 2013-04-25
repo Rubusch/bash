@@ -83,7 +83,7 @@ boundary()
 #    for((i=INDENTX+1; i<=PANELX+INDENTX; i+=1)); do
 #        echo -e "${wallcol}\e[${INDENTY};${i}H##\e[$((PANELY+INDENTY+1));${i}H##\e[0m"
 
-    for((i=INDENTX-1; i<=PANELX+INDENTX+1; ++i)); do
+    for((i=INDENTX; i<=PANELX+INDENTX+1; ++i)); do
         echo -e "${wallcol}\e[${INDENTY};${i}H#\e[$((PANELY+INDENTY+1));${i}H#\e[0m"
     done
 
@@ -93,8 +93,8 @@ boundary()
 #    for((i=INDENTY; i<=PANELY+INDENTY+1; ++i)); do
 #        echo -e "${wallcol}\e[${i};$((INDENTX-1))H##\e[${i};$((PANELX+INDENTX+1))H##\e[0m"
 
-    for((i=INDENTY+1; i<=PANELY+INDENTY; ++i)); do
-        echo -e "${wallcol}\e[${i};$((INDENTX-1))H#\e[${i};$((PANELX+INDENTX+1))H#\e[0m"
+    for((i=INDENTY; i<=PANELY+INDENTY; ++i)); do
+        echo -e "${wallcol}\e[${i};$((INDENTX))H#\e[${i};$((PANELX+INDENTX+1))H#\e[0m"
     done
 
 # DEBUG
@@ -228,7 +228,7 @@ drawbox()
 
 
     ## TODO rm - necessary? seems to be filled up tetris terminate condition
-    # if ! movebox globxypos; then
+    # if ! movement globxypos; then
     #     kill -${sigExit} ${PPID}
     #     sendkill
     #     Quit
@@ -236,10 +236,11 @@ drawbox()
 }
 
 ## detect if movement is possible
-movebox()
+movement()
 {
-                                                
-    local x y i j xoy coords boolx booly
+# TODO cleanup
+#    local x y i j xoy coords boolx booly panelx panely
+    local x y mapidx coords boolx booly panelx panely
     coords=(${!1})
     numofcoords=${#coords[*]}
 
@@ -247,35 +248,51 @@ movebox()
 #    echo "coords ${coords[*]}"
 
     ## steps of 2 for 2 dimensions in array: x and y
-    for((i=0; i<${#coords[@]}; i+=2)); do
+#    for((i=0; i<${#coords[@]}; i+=2)); do
 
-        ## new position
-        ((x=coords[i]+dx))
-        ((y=coords[i+1]+dy))
+        ## new position (global coords)
+        ((x=coords[0]+dx))
+        ((y=coords[1]+dy))
 
-        ## 
-        (( xoy=(x-INDENTY-1)*PANELX+y/2-INDENTY ))
-        (( xoy < 0 )) && return 1
+
+        ## TODO rm
+#        ((x=coords[i]+dx))
+#        ((y=coords[i+1]+dy))
+#        (( xoy=(x-INDENTY-1)*PANELX+y/2-INDENTY ))
+#        (( xoy < 0 )) && return 1
+
+#        booly="y > 2*PANELX+INDENTX || y <= INDENTX"  
 
         ## check - within panel
         boolx="x <= INDENTY || x > PANELY+INDENTY"
-#        booly="y > 2*PANELX+INDENTX || y <= INDENTX"  
         booly="y > PANELX+INDENTX || y <= INDENTX"
         (( boolx || booly )) && return 1
 
-        if (( map[xoy] == 1 )); then
+        ## panel coords conversion
+        ((panelx=x-INDENTX-1))
+        ((panely=y-INDENY-1))
+
+        ## conversion to mapidx
+        mapidx=$(xy2map $panelx $panely)
+        (( mapidx < 0 )) && return 1
+
+        ## check for blocks in map
+        (( map[mapidx] == 1 )) && return 1
+
+
+# TODO rm
+#        if (( map[xoy] == 1 )); then
 # TODO rm - always 2 coords (only one x and y)
 #            if (( numofcoords == 2 )); then
 
-            for((j=PANELY+INDENTY; j>x; --j)); do
-                (( map[(j-INDENTY-1)*PANELX+y/2-INDENTY] == 0 )) && return 0
-            done
+#            for((j=PANELY+INDENTY; j>x; --j)); do
+#                (( map[(j-INDENTY-1)*PANELX+y/2-INDENTY] == 0 )) && return 0
+#            done
 
 #            fi
-            return 1
-        fi
-
-    done
+#            return 1
+#        fi
+#    done
     return 0
 }
 
@@ -588,8 +605,8 @@ gameloop()
             sigSwap=${sig}
             sig=0
             case ${sigSwap} in
-                ${sigLeft}   )  transform 0 -2  ;;
-                ${sigRight}  )  transform 0  2  ;;
+                ${sigLeft}   )  transform 0 -1  ;;
+                ${sigRight}  )  transform 0  1  ;;
                 ${sigDown}   )  transform 1  0  ;;
                 ${sigUp}     )  transform -1 0  ;;
             esac
@@ -625,7 +642,7 @@ transform()
 ## move the avatar within the boundaries
 moveon()
 {
-    if movebox globxypos; then
+    if movement globxypos; then
         echo -e "${oldbox//[]/  }\e[0m"
 
 #        hdbox # TODO rm
@@ -633,16 +650,31 @@ moveon()
         
 #        increment # TODO rm
         
-   local v
-   for((v=0; v<${#box[@]}; v+=2))
-   do
-      ((box[v]+=dx))
-      ((box[v+1]+=dy))
-   done
-   nbox=(${box[@]})
-   coordinate box[@] repaint
-   box=(${nbox[@]})
-        
+
+        local v
+        for((v=0; v<${#box[*]}; v+=2))
+        do
+            ((box[v]+=dx))
+            ((box[v+1]+=dy))
+        done
+        nbox=(${box[*]})
+        coordinate box[*] repaint
+        box=(${nbox[*]})
+
+# TODO why not possible?
+        # ((box[2]+=dx))
+        # ((box[1]+=dy))
+        # nbox=(${box[*]})
+        # coordinate box[*] repaint
+        # box=(${nbox[*]})
+
+        # ((AVATARCOORDS[2]+=dx))
+        # ((AVATARCOORDS[1]+=dy))
+        # nbox=(${AVATARCOORDS[*]})
+        # coordinate AVATARCOORDS[*] repaint
+        # AVATARCOORDS=(${nbox[*]})
+
+
 # TODO collision detection
 #             ((map[yox]=1))  
 
