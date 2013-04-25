@@ -525,8 +525,8 @@ move()
     case $HEADING in
         "down" ) diff=(1 0) ;;
         "up" ) diff=(-1 0) ;;
-        "left" ) diff=(0 -2) ;;
-        "right" ) diff=(0 2) ;;
+        "left" ) diff=(0 -1) ;;
+        "right" ) diff=(0 1) ;;
 # TODO default action
     esac
     echo -n "${diff[*]}";
@@ -610,8 +610,8 @@ gameloop()
 
 # TODO uncomment                                                 
         ## go
-#        direction
-#        transform $(move)
+        direction
+        transform $(move)
 #        backtrack
     done
 }
