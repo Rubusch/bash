@@ -6,7 +6,8 @@
 
 ## TODO coords
 
-AVATARSTART=(4 6)
+## global coords
+AVATARSTART=(4 6) # TODO rm??
 AVATARCOORDS=(4 6) # avatar coordinates (y x y x y x)
 AVATARICON="2" # avatar icon
 
@@ -46,13 +47,9 @@ getpanelx(){
     ((panelx=panelx-INDENTX-1))
     echo -n $panelx
 }
-# xy2map(){
-#     local res=0 x=${1} y=${2}
-#     (( res = x + y*PANELX ))
-#     echo -n $res;
-# }
-#xy2map(){ local res=0; ((res=$1+$2*PANELX)) && echo -n $res; } # TODO check && problematic when 0?
+
 xy2map(){ local res=0; ((res=$1+$2*PANELX)); echo -n $res; }
+
 map2x(){
     local x=0 idx=$1
     ((x= idx % PANELX))
@@ -385,17 +382,24 @@ chckposleft(){
 
 
 chckposright(){
+# TODO headxy -> panelxy   
     local heady headx currxy blocked position
-#    echo "chckposright" >> ./debug.log   
-    currxy=($globxypos)
+    echo "chckposright" >> ./debug.log   
+#    currxy=($globxypos)
+
     blocked=0
 
-    ((heady=currxy[0]))
+#    ((heady=currxy[0])) 
+#    ((heady=AVATARCOORDS[0]))
+    heady=$(getpanely ${AVATARCOORDS[0]})
     position="${heady}_"
-    ((headx=currxy[1]+1))
-    position="${position}${headx}_"
-    blocked=$(isblocked $heady $headx)
 
+#    ((headx=currxy[1]+1)) 
+#    ((headx=AVATARCOORDS[1]+1))
+    headx=$(getpanelx ${AVATARCOORDS[0]})
+    position="${position}${headx}_"
+
+    blocked=$(isblocked $heady $headx)
 #    echo "position ${position//_/ } - blocked $blocked" >> ./debug.log 
     ((1 == $blocked)) && echo -n "1" && return;
 
@@ -411,51 +415,36 @@ chckposright(){
 ## check if specified field has a block entry in map
 isblocked()
 {
-    local y=$1 x=$2 xoy res mapidx
+# TODO rm
+# TODO need to be panelxy!!!   
 #    echo "y '$y' x '$x'" >> ./debug.log   
-
 #    ((xoy=(x-INDENTY-1)*PANELX+y/2-INDENTY))
 #    (( xoy < 0 )) && echo -n "1" && return
+#    boolx="x <= INDENTY || x > PANELY+INDENTY"
+#    booly="y > 2*PANELX+INDENTX || y <= INDENTX"
 
-    ## boundaries
-    boolx="x <= INDENTY || x > PANELY+INDENTY"
-    booly="y > 2*PANELX+INDENTX || y <= INDENTX"
+    local y=$1 x=$2 mapidx
+
+    ## is blocked by panel boundaries?
+    boolx="x < 0 || x >= PANELX"
+    booly="y < 0 || y >= PANELY"
     (( boolx || booly )) && echo -n "1" && return
 
-#    (( mapidx=((y-INDENTY-1) * PANELX) + (x-1-INDENTX-1) ));
-    (( mapidx=((y-INDENTY-1) * PANELX) + (x-2-INDENTX) ));
-#    echo "mapidx $mapidx" >> ./debug.log   
-
-    res=0; (( map[ $mapidx ] != 0 )) && res=1 || res=0
-    echo -n "$res";
+    ## is blocked by a wall?
+    mapidx=$(xy2map $x $y)
+    echo "y $y - x $x - mapidx $mapidx" >> ./debug.log   
+    (( map[$mapidx] == 1 )) && echo -n "1" || echo -n "0";
 }
 
 direction()
 {
-    local dx dy currxy sizegoalx sizegoaly headings idx headx heady blocked
-
-#    sizegoalx=2
-#    sizegoaly=2
-
-#    currxy=( $globxypos )
-
-#    ((dx=GOALX/2+1+sizegoalx - currxy[3]/2))
-#    ((dy=GOALY+1+2*sizegoaly - currxy[2]))
-
-    local currx curry
-
-#    curry=$(getpanely $box[0])
-#    currx=$(getpanelx $box[1])
+#    local dx dy currxy sizegoalx sizegoaly headings idx headx heady blocked
+    local dx dy currx curry headings
 
     curry=$(getpanely ${AVATARCOORDS[0]})
     currx=$(getpanelx ${AVATARCOORDS[1]})
-
-
     ((dx=GOALX+1 - currx))
     ((dy=GOALY+1 - curry))
-
-# XXX
-    echo "$curry $currx - $dy $dx" >> ./debug.log   
 
     ## orientation priority
     if (( 0 <= dx && 0 <= dy )); then
@@ -484,12 +473,10 @@ direction()
         fi
     fi
 
-    HEADING=${headings[0]}
-    return
 
     ## check for blocking walls
 #    echo " " >> ./debug.log    
-    item=""
+    local blocked item=""
     for item in ${headings[*]}; do
 #        echo $item  >> ./debug.log    
         HEADING=$item
