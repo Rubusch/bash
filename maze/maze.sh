@@ -8,8 +8,8 @@
 ##
 ## game panel (maze), and navigation demo
 
-#AVATARCOORDS=(4 6 5 6) # avatar coordinates (y x y x y x)
-AVATARCOORDS=(6 6 7 6) # avatar coordinates (y x y x y x)
+AVATARCOORDS=(4 6 5 6) # avatar coordinates (y x y x y x)
+#AVATARCOORDS=(6 6 7 6) # avatar coordinates (y x y x y x)   
 AVATARICON=[] # avatar icon
 
 INDENTY=3 # indentation of the top area
@@ -20,6 +20,8 @@ COLTAB=(1\;{30..37}\;{40..47}m) # color definition of the pieces
 
 GOALX=38
 GOALY=18
+
+TRACKYX=( $AVATARCOORDS )
 
 HEADING="right"
                                                                                 
@@ -42,7 +44,7 @@ done
 sendkill(){ kill -15 ${pid}; } # signal transfer for exit
 setavatar(){ box=(${!1}); } # current block definition
 xy2map(){
-    local res y=${1} x=${2}
+    local res=0 y=${1} x=${2}
     (( res=y*PANELX+x/2 ))
     echo -n $res;
 }
@@ -68,35 +70,36 @@ resume()
    echo -e "\e[?25h\e[36;4H"
 }
 
+                             
 ## TODO - check not used??
-## invocation loop
-# loop()
-# {
-#     local i j
-#     for((i=INDENTY+1; i<=PANELY+INDENTY; ++i))
-#     do
-#         for((j=INDENTX+1; j<=2*(PANELX-1)+INDENTX+1; j+=2))
-#         do
-#             ## first arg, per field (col)
-#             ${1}
-#         done
-#         ## sec arg, per row
-#         ${2}
-#     done
-# }
+invocation loop
+loop()
+{
+    local i j
+    for((i=INDENTY+1; i<=PANELY+INDENTY; ++i))
+    do
+        for((j=INDENTX+1; j<=2*(PANELX-1)+INDENTX+1; j+=2))
+        do
+            ## first arg, per field (col)
+            ${1}
+        done
+        ## sec arg, per row
+        ${2}
+    done
+}
 
-# ## init of "map" and "pam" structs
-# initialization()
-# {
-#     local rsyx
-#     ((rsyx=(i-INDENTY-1)*PANELX+j/2-INDENTY)) ## TODO - not used?
+## init of "map" and "pam" structs
+initialization()
+{
+    local rsyx
+    ((rsyx=(i-INDENTY-1)*PANELX+j/2-INDENTY)) ## TODO - not used?
 
-#     ## map of fields
-#     ((map[rsyx]=0)) # TODO - not used?
+    ## map of fields
+    ((map[rsyx]=0)) # TODO - not used?
 
-# #    ((pam[rsyx]=0)) # TODO rm
-# }
-
+#    ((pam[rsyx]=0)) # TODO rm
+}
+                                
 
 ## generate game area
 boundary()
@@ -115,43 +118,31 @@ boundary()
         echo -e "${wallcol}\e[${i};$((INDENTX-1))H##\e[${i};$((2*PANELX+INDENTX+1))H##\e[0m"
     done
 
+#    x_walls=( 0 0 0 0 0 0 0 )  
+#    y_walls=( 0 1 2 3 4 5 6 )  
+
     ## maze
     ## left, upper wall
-#    x_walls=( 2 2 2 2 2 2 2 2 2 2  2  2  2  2  2  2 )
-#    y_walls=( 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 )
-
     x_walls=( 2 3 2 3 2 3 2 3 2 3 2 3 2 3 2 3 2 3 2 3  2  3  2  3  2  3  2  3  2  3  2  3 )
     y_walls=( 0 0 1 1 2 2 3 3 4 4 5 5 6 6 7 7 8 8 9 9 10 10 11 11 12 12 13 13 14 14 15 15 )
 
 
     ## left, bottom wall
-#    x_walls=( ${x_walls[*]}  8  8  8  8  8  8  8  8  8  8 )
-#    y_walls=( ${y_walls[*]} 10 11 12 13 14 15 16 17 18 19 )
-
     x_walls=( ${x_walls[*]}  8  9  8  9  8  9  8  9  8  9  8  9  8  9  8  9  8  9  8  9 )
     y_walls=( ${y_walls[*]} 10 10 11 11 12 12 13 13 14 14 15 15 16 16 17 17 18 18 19 19 )
 
 
     ## L shaped wall
-#    x_walls=( ${x_walls[*]} 10 10 10 10 12 12 )
-#    y_walls=( ${y_walls[*]}  4  5  6  7  6  7 )
-
     x_walls=( ${x_walls[*]} 10 11 10 11 10 11 10 11 12 13 12 13 )
     y_walls=( ${y_walls[*]}  4  4  5  5  6  6  7  7  6  6  7  7 )
 
 
     ## C shaped wall pt.1
-#    x_walls=( ${x_walls[*]} 16 16 16 16 16 16 18 18 20 20 22 22 24 24 )
-#    y_walls=( ${y_walls[*]}  0  1  2  3  6  7  6  7  6  7  6  7  6  7 )
-
     x_walls=( ${x_walls[*]} 16 17 16 17 16 17 16 17 16 17 16 17 18 19 18 19 20 21 20 21 22 23 22 23 24 25 24 25 )
     y_walls=( ${y_walls[*]}  0  0  1  1  2  2  3  3  6  6  7  7  6  6  7  7  6  6  7  7  6  6  7  7  6  6  7  7 )
 
 
     ## pt.2
-#    x_walls=( ${x_walls[*]} 16 16 16 16 18 18 24 24 24 24 24 24 24 24 24 24 16 16 18 18 20 20 22 22 24 24 16 16 16 16 )
-#    y_walls=( ${y_walls[*]}  8  9 10 11 10 11  8  9 10 11 12 13 14 15 16 17 18 19 18 19 18 19 18 19 18 19 18 19 16 17 )
-
     x_walls=( ${x_walls[*]} 16 17 16 17 16 17 16 17 18 19 18 19 24 25 24 25 24 25 24 25 24 25 24 25 24 25 24 25 24 25 )
     y_walls=( ${y_walls[*]}  8  8  9  9 10 10 11 11 10 10 11 11  8  8  9  9 10 10 11 11 12 12 13 13 14 14 15 15 16 16 )
 
@@ -160,33 +151,21 @@ boundary()
 
 
     ## pt.3
-#    x_walls=( ${x_walls[*]} 16 16 18 18 30 30 )
-#    y_walls=( ${y_walls[*]} 14 15 14 15  0  1 )
-
     x_walls=( ${x_walls[*]} 16 17 16 17 18 19 18 19 30 31 30 31 )
     y_walls=( ${y_walls[*]} 14 14 15 15 14 14 15 15  0  0  1  1 )
 
 
     ## I block wall, right
-#    x_walls=( ${x_walls[*]} 30 30 30 30 30 30 30 30 30 30 )
-#    y_walls=( ${y_walls[*]}  4  5  6  7  8  9 10 11 12 13 )
-
     x_walls=( ${x_walls[*]} 30 31 30 31 30 31 30 31 30 31 30 31 30 31 30 31 30 31 30 31 )
     y_walls=( ${y_walls[*]}  4  4  5  5  6  6  7  7  8  8  9  9 10 10 11 11 12 12 13 13 )
 
 
     ## right, bottom wall
-#    x_walls=( ${x_walls[*]} 34 34 34 34 34 34 34 34 34 34 )
-#    y_walls=( ${y_walls[*]} 10 11 12 13 14 15 16 17 18 19 )
-
     x_walls=( ${x_walls[*]} 34 35 34 35 34 35 34 35 34 35 34 35 34 35 34 35 34 35 34 35 )
     y_walls=( ${y_walls[*]} 10 10 11 11 12 12 13 13 14 14 15 15 16 16 17 17 18 18 19 19 )
 
 
     ## horizontal small wall, right
-#    x_walls=( ${x_walls[*]} 34 34 36 36 38 38 )
-#    y_walls=( ${y_walls[*]}  6  7  6  7  6  7 )
-
     x_walls=( ${x_walls[*]} 34 35 34 35 36 37 36 37 38 39 38 39 )
     y_walls=( ${y_walls[*]}  6  6  7  7  6  6  7  7  6  6  7  7 )
 
@@ -195,9 +174,10 @@ boundary()
         x=${x_walls[idx]}
         y=${y_walls[idx]}
 
+#        echo "x '$x' y '$y'"   
 
-## draw maze
-#        echo -e "${wallcol}\e[$((INDENTY+1+y));$((INDENTX+1+x))H##\e[$((INDENTY+2+y));$((INDENTX+1+x))H##\e[0m"
+
+## draw walls
 #        echo -e "${wallcol}\e[$((INDENTY+1+y));$((INDENTX+1+x))H##\e[0m"
         echo -e "${wallcol}\e[$((INDENTY+1+y));$((INDENTX+1+x))H#\e[0m"
 
@@ -214,7 +194,12 @@ boundary()
 #        ((yox=(y)*(INDENTX + PANELX-INDENTX) + (x/2) ))
 #        ((yox=y*PANELX + x/2 ))
 
+
         yox=$(xy2map $y $x)
+        
+#        echo "yox $yox"  
+        
+
 #        ((yox=(x-INDENTY-1)*PANELX+y/2-INDENTY))  
 
         ((map[yox]=1)) # collision detection
@@ -223,6 +208,8 @@ boundary()
 #        pam[yox]="${colbox}" # TODO
 
     done
+
+#    echo "${map[*]}"
 
     ## target
 # TODO rm
@@ -368,7 +355,7 @@ repaint()
 isblocked()
 {
 #set -x
-    local y=$1 x=$2 xoy
+    local y=$1 x=$2 xoy res mapidx
 
     ((xoy=(x-INDENTY-1)*PANELX+y/2-INDENTY))
     (( xoy < 0 )) && echo -n "1" && return
@@ -378,25 +365,25 @@ isblocked()
     booly="y > 2*PANELX+INDENTX || y <= INDENTX"
     (( boolx || booly )) && echo -n "1" && return
 
-#     ## 
-#      if (( map[xoy] == 1 )); then
-#          if (( smu == 2 )); then
-#              for((j=PANELY+INDENTY; j>x; --j)); do
-# # #                (( map[(j-INDENTY-1)*PANELX+y/2-INDENTY] == 0 )) && return 0
-#                  (( map[(j-INDENTY-1)*PANELX+y/2-INDENTY] == 0 )) && echo "0" && return
-#              done
-#          fi
-#          echo -n "1"
-# #         return 1
-#      fi
+    (( mapidx=((y-INDENTY-1) * PANELX) + (x-1-INDENTX-1) ));
+    res=0
+    (( map[ $mapidx ] != 0 )) && res=1 || res=0
+    echo -n "$res";
 
+                 
+#    echo "y '$y' - x '$x' - mapidx '$mapidx' - res '$res'" >> ./out.log   
+    # idx=0 # TODO rm
+    # for ((idx=0; idx<100; ++idx)); do
+    #      echo "idx: '$idx' - map '${map[$idx]}'" >> ./map.log
+    #      echo
+    # done
+                 
 
-#    if (( y < 4 )); then echo -n "1"; return; fi
-#    if (( x < 7 )); then echo -n "1"; return; fi
-#    if (( y > 40 )); then echo -n "1"; return; fi
-#    if (( x > 20 )); then echo -n "1"; return; fi
-    (( map[(x-INDENTY-1)*PANELX+y/2-INDENTY] != 0 )) && echo -n "1" || echo -n "0"
+#    foo=$(xy2map $y $x)  
+#   (( 1 == foo )) && echo -n "1" || echo -n "0"  
 
+#    (( map[(x-INDENTY-1) * PANELX + y/2-INDENTY] != 0 )) && echo -n "1" || echo -n "0"
+    return
 }
 
 direction()
@@ -442,49 +429,49 @@ direction()
     ## check for blocking
     item=""
     for item in ${headings[*]}; do
-        echo $item  
+#        echo $item  
         HEADING=$item
         if [[ "up" == $item ]]; then
             ((heady=currxy[0]-1))
             ((headx=currxy[1]))
-            echo $heady $headx  
-            blocked=$(isblocked heady headx)
-            echo $blocked  
+#            echo $heady $headx  
+            blocked=$(isblocked $heady $headx)
+#            echo $blocked  
 
         elif [[ "down" == $item ]]; then
             ((heady=currxy[2]+1))
             ((headx=currxy[3]))
-            echo $heady $headx  
-            blocked=$(isblocked heady headx)
-            echo $blocked  
+#            echo $heady $headx  
+            blocked=$(isblocked $heady $headx)
+#            echo $blocked  
 
         elif [[ "left" == $item ]]; then
             ((heady=currxy[0]))
             ((headx=currxy[1]-2))
-            echo $heady $headx  
-            blocked=$(isblocked heady headx)
-            echo $blocked  
+#            echo $heady $headx  
+            blocked=$(isblocked $heady $headx)
+#            echo $blocked  
             ((0 != $blocked)) && continue
 
             ((heady=currxy[2]))
             ((headx=currxy[3]-2))
-            echo $heady $headx  
-            blocked=$(isblocked heady headx)
-            echo $blocked  
+#            echo $heady $headx   
+            blocked=$(isblocked $heady $headx)
+#            echo $blocked   
 
         elif [[ "right" == $item ]]; then
             ((heady=currxy[0]))
             ((headx=currxy[1]+2))
-            echo $heady $headx  
+#            echo $heady $headx   
             blocked=$(isblocked $heady $headx)
-            echo $blocked  
+#            echo $blocked  
             ((0 != $blocked)) && continue
 
             ((heady=currxy[2]))
             ((headx=currxy[3]+2))
-            echo $heady $headx  
+#            echo $heady $headx   
             blocked=$(isblocked $heady $headx)
-            echo $blocked   
+#            echo $blocked   
         fi
         if (( 0 == $blocked )); then
             break;
@@ -500,6 +487,8 @@ move()
         "up" ) echo -n "-1 0"; ;;
         "left" ) echo -n "0 -2"; ;;
         "right" ) echo -n "0 2"; ;;
+
+# TODO TRACKYX
 # TODO default action
     esac
 }
@@ -540,7 +529,6 @@ gameloop()
 # - go up, if not possible - do bugfix, go left, then.. something
 
         ## go 
-#        echo $pose
         direction
         transform $(move)
 
