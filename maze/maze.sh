@@ -72,34 +72,34 @@ resume()
 }
 
                              
-## TODO - check not used??
-invocation loop
-loop()
-{
-    local i j
-    for((i=INDENTY+1; i<=PANELY+INDENTY; ++i))
-    do
-        for((j=INDENTX+1; j<=2*(PANELX-1)+INDENTX+1; j+=2))
-        do
-            ## first arg, per field (col)
-            ${1}
-        done
-        ## sec arg, per row
-        ${2}
-    done
-}
+# ## TODO - check not used??
+# invocation loop
+# loop()
+# {
+#     local i j
+#     for((i=INDENTY+1; i<=PANELY+INDENTY; ++i))
+#     do
+#         for((j=INDENTX+1; j<=2*(PANELX-1)+INDENTX+1; j+=2))
+#         do
+#             ## first arg, per field (col)
+#             ${1}
+#         done
+#         ## sec arg, per row
+#         ${2}
+#     done
+# }
 
-## init of "map" and "pam" structs
-initialization()
-{
-    local rsyx
-    ((rsyx=(i-INDENTY-1)*PANELX+j/2-INDENTY)) ## TODO - not used?
+# ## init of "map" and "pam" structs
+# initialization()
+# {
+#     local rsyx
+#     ((rsyx=(i-INDENTY-1)*PANELX+j/2-INDENTY)) ## TODO - not used?
 
-    ## map of fields
-    ((map[rsyx]=0)) # TODO - not used?
+#     ## map of fields
+#     ((map[rsyx]=0)) # TODO - not used?
 
-#    ((pam[rsyx]=0)) # TODO rm
-}
+# #    ((pam[rsyx]=0)) # TODO rm
+# }
                                 
 
 ## generate game area
@@ -197,12 +197,6 @@ boundary()
 
 
         yox=$(xy2map $y $x)
-        
-#        echo "yox $yox"  
-        
-
-#        ((yox=(x-INDENTY-1)*PANELX+y/2-INDENTY))  
-
         ((map[yox]=1)) # collision detection
 
 #        echo $(map[xy2map 4 8 ] )
@@ -210,12 +204,14 @@ boundary()
 
     done
 
-#    echo "${map[*]}"
+    ## DEBUG - dump map
+    # local dbgidx=0
+    # echo "" > ./map.log
+    # for ((dbgidx=0; dbgidx<200; ++dbgidx)); do
+    #     echo "idx '$dbgidx' - map '${map[$dbgidx]}'" >> ./map.log
+    # done
 
     ## target
-# TODO rm
-#    x=38
-#    y=18
     echo -e "${wallcol}\e[1;33m\e[$((INDENTY+1+GOALY));$((INDENTX+1+GOALX))HGO\e[$((INDENTY+2+GOALY));$((INDENTX+1+GOALX))HAL\e[0m"
 }
 
@@ -259,8 +255,7 @@ Quit()
 {
     case $# in
         0 ) ;;
-        1) echo "XXX ${TRACKING[*]}"
-#            set -x
+        1)
 #            kill -15 ${pid};
             sendkill
             resume ;;
@@ -354,57 +349,145 @@ repaint()
 }
 
 chckposup(){
+    local heady headx currxy blocked position
+    echo "chckposup" >> ./debug.log   
+    currxy=($pose)
+    blocked=0
+
+    ((heady=currxy[0]-1))
+    position="${heady}_"
+    ((headx=currxy[1]))
+    position="${position}${headx}_"
+    blocked=$(isblocked $heady $headx)
+    ((1 == $blocked)) && echo -n "1" && return;
+
+    ((heady=currxy[2]-1))
+    position="${position}${heady}_"
+    ((headx=currxy[3]))
+    position="${position}${headx}_"
+
+    ## find position in backtrack
+#    [[ "1"==$(findinbacktrack "${position}") ]] && echo -n "1" && return;
+    blocked=$(findinbacktrack "${position}")
+    echo "position ${position//_/ } - blocked $blocked" >> ./debug.log 
+    ((1 == blocked )) && echo -n "1" && return;
+
     echo -n "0";
 }
+
 chckposdown(){
+    local heady headx currxy blocked position
+    echo "chckposdown" >> ./debug.log   
+    currxy=($pose)
+    blocked=0
+
+    ((heady=currxy[0]+1))
+    position="${heady}_"
+#    ((headx=currxy[1]))
+    ((headx=currxy[1]+1))  
+    position="${position}${headx}_"
+
+    ((heady=currxy[2]+1))
+    position="${position}${heady}_"
+#    ((headx=currxy[3]))
+    ((headx=currxy[3]+1))  
+    position="${position}${headx}_"
+    blocked=$(isblocked $heady $headx)
+
+    echo "position ${position//_/ } - blocked $blocked" >> ./debug.log 
+    ((1==blocked)) && echo -n "1" && return;
+
+    ## find position in backtrack
+    blocked=$(findinbacktrack "${position}")
+    (( 1 == $blocked)) && echo -n "1" && return;
+
     echo -n "0";
 }
+
 chckposleft(){
+    local heady headx currxy blocked position
+    echo "chckposleft" >> ./debug.log   
+    currxy=($pose)
+    blocked=0
+
+    ((heady=currxy[0]))
+    position="${heady}_"
+    ((headx=currxy[1]-2))
+    position="${position}${headx}_"
+    blocked=$(isblocked $heady $headx)
+    echo "position ${position//_/ } - blocked $blocked" >> ./debug.log 
+    ((1 == $blocked)) && echo -n "1" && return;
+
+    ((heady=currxy[2]))
+    position="${position}${heady}_"
+    ((headx=currxy[3]-2))
+    position="${position}${headx}_"
+
+    blocked=$(isblocked $heady $headx)
+    echo "position ${position//_/ } - blocked $blocked" >> ./debug.log 
+    ((1 == $blocked)) && echo -n "1" && return;
+
+    ## find position in backtrack
+    blocked=$(findinbacktrack "${position}")
+    ((1 == blocked )) && echo -n "1" && return;
+#    [[ "1"==$(findinbacktrack "${position}") ]] && echo -n "1" && return;
+
     echo -n "0";
 }
 
 
 chckposright(){
     local heady headx currxy blocked position
+    echo "chckposright" >> ./debug.log   
     currxy=($pose)
     blocked=0
 
     ((heady=currxy[0]))
     position="${heady}_"
-    ((headx=currxy[1]+2))
+# XXX
+#    ((headx=currxy[1]+2)) 
+    ((headx=currxy[1]+1))
     position="${position}${headx}_"
     blocked=$(isblocked $heady $headx)
-    ((0 != $blocked)) && echo -n "1" && return;
+    ((1 == $blocked)) && echo -n "1" && return;
 
     ((heady=currxy[2]))
-    position="${heady}_"
-    ((headx=currxy[3]+2))
+    position="${position}${heady}_"
+#    ((headx=currxy[3]+2)) 
+    ((headx=currxy[3]+1))
     position="${position}${headx}_"
     blocked=$(isblocked $heady $headx)
-    ((0 != $blocked)) && echo -n "1" && return;
+    echo "position ${position//_/ } - blocked $blocked" >> ./debug.log 
+    ((1 == $blocked)) && echo -n "1" && return;
 
     ## find position in backtrack
-    [[ 1==$(findinbacktrack "${position}") ]] && echo -n "1" && return;
+    blocked=$(findinbacktrack "${position}")
+    echo "position ${position//_/ } - blocked $blocked" >> ./debug.log 
+    (( 1 == blocked )) && echo -n "1" && return;
 
     ## default: ok
     echo -n "0";
 }
 
-
+## check if specified field has a block entry in map
 isblocked()
 {
     local y=$1 x=$2 xoy res mapidx
+    echo "y '$y' x '$x'" >> ./debug.log   
 
-    ((xoy=(x-INDENTY-1)*PANELX+y/2-INDENTY))
-    (( xoy < 0 )) && echo -n "1" && return
+#    ((xoy=(x-INDENTY-1)*PANELX+y/2-INDENTY))
+#    (( xoy < 0 )) && echo -n "1" && return
 
+    ## boundaries
     boolx="x <= INDENTY || x > PANELY+INDENTY"
     booly="y > 2*PANELX+INDENTX || y <= INDENTX"
     (( boolx || booly )) && echo -n "1" && return
 
-    (( mapidx=((y-INDENTY-1) * PANELX) + (x-1-INDENTX-1) ));
-    res=0
-    (( map[ $mapidx ] != 0 )) && res=1 || res=0
+#    (( mapidx=((y-INDENTY-1) * PANELX) + (x-1-INDENTX-1) ));
+    (( mapidx=((y-INDENTY-1) * PANELX) + (x-2-INDENTX) ));
+    echo "mapidx $mapidx" >> ./debug.log   
+
+    res=0; (( map[ $mapidx ] != 0 )) && res=1 || res=0
     echo -n "$res";
 }
 
@@ -447,53 +530,26 @@ direction()
     fi
 
     ## check for blocking
+    echo " " >> ./debug.log    
     item=""
     for item in ${headings[*]}; do
-#        echo $item  
+        echo $item  >> ./debug.log    
         HEADING=$item
-        if [[ "up" == $item ]]; then
-            ((heady=currxy[0]-1))
-            ((headx=currxy[1]))
-#            echo $heady $headx  
-            blocked=$(isblocked $heady $headx)
-#            echo $blocked  
+        if [[ "up" == "$item" ]]; then
+            ((1==$(chckposup))) && continue
+            blocked=0
 
-        elif [[ "down" == $item ]]; then
-            ((heady=currxy[2]+1))
-            ((headx=currxy[3]))
-#            echo $heady $headx  
-            blocked=$(isblocked $heady $headx)
-#            echo $blocked  
+        elif [[ "down" == "$item" ]]; then
+            ((1==$(chckposdown))) && continue
+            blocked=0
 
-        elif [[ "left" == $item ]]; then
-            ((heady=currxy[0]))
-            ((headx=currxy[1]-2))
-#            echo $heady $headx  
-            blocked=$(isblocked $heady $headx)
-#            echo $blocked  
-            ((0 != $blocked)) && continue
+        elif [[ "left" == "$item" ]]; then
+            ((1==$(chckposleft))) && continue
+            blocked=0
 
-            ((heady=currxy[2]))
-            ((headx=currxy[3]-2))
-#            echo $heady $headx   
-            blocked=$(isblocked $heady $headx)
-#            echo $blocked   
-
-        elif [[ "right" == $item ]]; then
+        elif [[ "right" == "$item" ]]; then
             ((1==$(chckposright))) && continue
-            
-#             ((heady=currxy[0]))
-#             ((headx=currxy[1]+2))
-# #            echo $heady $headx   
-#             blocked=$(isblocked $heady $headx)
-# #            echo $blocked  
-#             ((0 != $blocked)) && continue
-
-#             ((heady=currxy[2]))
-#             ((headx=currxy[3]+2))
-# #            echo $heady $headx   
-#             blocked=$(isblocked $heady $headx)
-# #            echo $blocked   
+            blocked=0
 
         fi
         if (( 0 == $blocked )); then
@@ -522,6 +578,7 @@ move()
 findinbacktrack()
 {
     local item position="$1"
+#    echo "TRACKING - ${TRACKING[*]}"   
     for item in ${TRACKING[*]}; do
         [[ "${item}" == "${position}" ]] && echo -n "1" && return;
     done
@@ -531,10 +588,11 @@ findinbacktrack()
 ## history of positions
 backtrack()
 {
-    local item
-    TRACKING=( ${TRACKING[*]} "${pose// /_}" )
-    ((TRACKIDX+=1))
+    local item position="${pose// /_}"
+    [[ "1" == $(findinbacktrack "$position") ]] && return
 
+    TRACKING=( ${TRACKING[*]} "${position}" )
+    ((TRACKIDX+=1))
 ## DEBUG TRACKING
 #    echo $TRACKIDX
 #    echo ${TRACKING[*]}
@@ -543,7 +601,8 @@ backtrack()
 #    done
 
 ## DEBUG find
-#    res=$(findinbacktrack "${pose// /_}")
+##    position="5_6_6_6_" # negative test: 0  
+#    res=$(findinbacktrack "${position}")
 #    echo "$res"
 }
 
