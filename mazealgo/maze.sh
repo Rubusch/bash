@@ -600,33 +600,21 @@ gameloop()
 transform()
 {
     local dx dy cursor numofcoords
-#    dx=${1}
-#    dy=${2}
     dy=${1}
     dx=${2}
 
-    moveon
-#    (( $# == 2 )) && moveon
-}
+    (( $# != 2 )) && return
 
-
-## move the avatar within the boundaries
-moveon()
-{
+    ## move the AVATAR within boundaries
     if movement globxypos; then
-        echo -e "${oldbox//[]/  }\e[0m"
 
-#        hdbox # TODO rm
-#        (( numofcoords == 2 )) && across ## TODO rm
-        
-#        increment # TODO rm
-        
+        ## remove artefact trails
+        echo -e "${oldbox//${AVATARICON}/ }\e[0m"
 
+# TODO refac
         local v
         for((v=0; v<${#box[*]}; v+=2))
         do
-#            ((box[v]+=dx))
-#            ((box[v+1]+=dy))
             ((box[v]+=dy))
             ((box[v+1]+=dx))
         done
@@ -646,25 +634,6 @@ moveon()
         # nbox=(${AVATARCOORDS[*]})
         # coordinate AVATARCOORDS[*] repaint
         # AVATARCOORDS=(${nbox[*]})
-
-
-# TODO collision detection
-#             ((map[yox]=1))  
-
-#  loop check mapbox
-
-
-# TODO not chocking with x_walls y_walls
-# if lower bottom, tetris handling, etc
-#    else
-#        echo "XXX" 
-#        (( dx == 1 )) && {  
-#        offset # calculate score, update panel (remove pieces)
-
-#            drawbox
-
-#        showbox # preview
-#        }
     fi
 }
 
