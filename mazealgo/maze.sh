@@ -3,25 +3,21 @@
 ## @author: Lothar Rubusch
 ## @email: L.Rubusch@gmx.ch
 ## @license: GPLv3
-##
-## resources:
-## advanced bash scripting guide, bash manual and
-## YongYe <expertshell@gmail.com> BeiJing China
-##
-## game panel (maze), and navigation demo
 
-AVATARCOORDS=(4 6 5 6) # avatar coordinates (y x y x y x)
+## TODO coords
+
+AVATARCOORDS=(4 6) # avatar coordinates (y x y x y x)
 #AVATARCOORDS=(6 6 7 6) # avatar coordinates (y x y x y x)   
-AVATARICON=[] # avatar icon
+AVATARICON="L" # avatar icon
 
 INDENTY=3 # indentation of the top area
 INDENTX=5 # indentation of the left area
-PANELY=20 # num y coords of the game area
 PANELX=20 # num x coords of the game area
+PANELY=10 # num y coords of the game area
 COLTAB=(1\;{30..37}\;{40..47}m) # color definition of the pieces
 
-GOALX=38
-GOALY=18
+GOALX=19
+GOALY=9
 
 TRACKING=()
 TRACKIDX=0
@@ -121,88 +117,59 @@ boundary()
         echo -e "${wallcol}\e[${i};$((INDENTX-1))H##\e[${i};$((2*PANELX+INDENTX+1))H##\e[0m"
     done
 
-#    x_walls=( 0 0 0 0 0 0 0 )  
-#    y_walls=( 0 1 2 3 4 5 6 )  
+# DEBUG
+#    x_walls=( 0 )  
+#    y_walls=( 0 )  
 
     ## maze
     ## left, upper wall
-    x_walls=( 2 3 2 3 2 3 2 3 2 3 2 3 2 3 2 3 2 3 2 3  2  3  2  3  2  3  2  3  2  3  2  3 )
-    y_walls=( 0 0 1 1 2 2 3 3 4 4 5 5 6 6 7 7 8 8 9 9 10 10 11 11 12 12 13 13 14 14 15 15 )
-
+    x_walls=( 1 1 1 1 1 1 1 1 )
+    y_walls=( 0 1 2 3 4 5 6 7 )
 
     ## left, bottom wall
-    x_walls=( ${x_walls[*]}  8  9  8  9  8  9  8  9  8  9  8  9  8  9  8  9  8  9  8  9 )
-    y_walls=( ${y_walls[*]} 10 10 11 11 12 12 13 13 14 14 15 15 16 16 17 17 18 18 19 19 )
-
+    x_walls=( ${x_walls[*]} 4 4 4 4 4 )
+    y_walls=( ${y_walls[*]} 5 6 7 8 9 )
 
     ## L shaped wall
-    x_walls=( ${x_walls[*]} 10 11 10 11 10 11 10 11 12 13 12 13 )
-    y_walls=( ${y_walls[*]}  4  4  5  5  6  6  7  7  6  6  7  7 )
-
+    x_walls=( ${x_walls[*]} 5 5 6 )
+    y_walls=( ${y_walls[*]} 2 3 3 )
 
     ## C shaped wall pt.1
-    x_walls=( ${x_walls[*]} 16 17 16 17 16 17 16 17 16 17 16 17 18 19 18 19 20 21 20 21 22 23 22 23 24 25 24 25 )
-    y_walls=( ${y_walls[*]}  0  0  1  1  2  2  3  3  6  6  7  7  6  6  7  7  6  6  7  7  6  6  7  7  6  6  7  7 )
+    x_walls=( ${x_walls[*]} 9 8 8 8 9 10 11 12 12 12 12 12 12 12 11 10 9 8 8 8 9 )
+    y_walls=( ${y_walls[*]} 5 5 4 3 3  3  3  3  4  5  6  7  8  9  9  9 9 9 8 7 7 )
 
-
-    ## pt.2
-    x_walls=( ${x_walls[*]} 16 17 16 17 16 17 16 17 18 19 18 19 24 25 24 25 24 25 24 25 24 25 24 25 24 25 24 25 24 25 )
-    y_walls=( ${y_walls[*]}  8  8  9  9 10 10 11 11 10 10 11 11  8  8  9  9 10 10 11 11 12 12 13 13 14 14 15 15 16 16 )
-
-    x_walls=( ${x_walls[*]} 24 25 16 17 16 17 18 19 18 19 20 21 20 21 22 23 22 23 24 25 24 25 16 17 16 17 16 17 16 17 )
-    y_walls=( ${y_walls[*]} 17 17 18 18 19 19 18 18 19 19 18 18 19 19 18 18 19 19 18 18 19 19 18 18 19 19 16 16 17 17 )
-
-
-    ## pt.3
-    x_walls=( ${x_walls[*]} 16 17 16 17 18 19 18 19 30 31 30 31 )
-    y_walls=( ${y_walls[*]} 14 14 15 15 14 14 15 15  0  0  1  1 )
-
+    ## mini wall, top
+    x_walls=( ${x_walls[*]} 8 8 )
+    y_walls=( ${y_walls[*]} 0 1 )
 
     ## I block wall, right
-    x_walls=( ${x_walls[*]} 30 31 30 31 30 31 30 31 30 31 30 31 30 31 30 31 30 31 30 31 )
-    y_walls=( ${y_walls[*]}  4  4  5  5  6  6  7  7  8  8  9  9 10 10 11 11 12 12 13 13 )
-
+    x_walls=( ${x_walls[*]} 15 15 15 15 15 15 )
+    y_walls=( ${y_walls[*]}  0  1  2  3  4  5 )
 
     ## right, bottom wall
-    x_walls=( ${x_walls[*]} 34 35 34 35 34 35 34 35 34 35 34 35 34 35 34 35 34 35 34 35 )
-    y_walls=( ${y_walls[*]} 10 10 11 11 12 12 13 13 14 14 15 15 16 16 17 17 18 18 19 19 )
-
+    x_walls=( ${x_walls[*]} 17 18 19 )
+    y_walls=( ${y_walls[*]}  3  3  3 )
 
     ## horizontal small wall, right
-    x_walls=( ${x_walls[*]} 34 35 34 35 36 37 36 37 38 39 38 39 )
-    y_walls=( ${y_walls[*]}  6  6  7  7  6  6  7  7  6  6  7  7 )
-
+    x_walls=( ${x_walls[*]} 17 17 17 17 17 )
+    y_walls=( ${y_walls[*]}  5  6  7  8  9 )
 
     for ((idx=0; idx<${#x_walls[*]}; ++idx)) ; do
         x=${x_walls[idx]}
         y=${y_walls[idx]}
 
-#        echo "x '$x' y '$y'"   
-
-
-## draw walls
-#        echo -e "${wallcol}\e[$((INDENTY+1+y));$((INDENTX+1+x))H##\e[0m"
+        ## draw single wall pieces
         echo -e "${wallcol}\e[$((INDENTY+1+y));$((INDENTX+1+x))H#\e[0m"
 
-
-## colision detection
-# TODO wall( x, y )
-
+        ## colision detection array
+        ##
         ## 2d-array conversion: "map" contains 400 elements
         ## for blockings (walls) contains 1, rest 0
         ## x=0, y=0 -> map[0]
         ## x=1, y=0 -> map[20]
         ## x=19, y=19 -> map[399]; max field
-
-#        ((yox=(y)*(INDENTX + PANELX-INDENTX) + (x/2) ))
-#        ((yox=y*PANELX + x/2 ))
-
-
         yox=$(xy2map $y $x)
-        ((map[yox]=1)) # collision detection
-
-#        echo $(map[xy2map 4 8 ] )
-#        pam[yox]="${colbox}" # TODO
+        ((map[yox]=1))
 
     done
 
