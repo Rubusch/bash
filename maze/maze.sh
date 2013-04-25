@@ -393,12 +393,10 @@ chckposright(){
 
 isblocked()
 {
-#set -x
     local y=$1 x=$2 xoy res mapidx
 
     ((xoy=(x-INDENTY-1)*PANELX+y/2-INDENTY))
     (( xoy < 0 )) && echo -n "1" && return
-#    echo "xoy $xoy"
 
     boolx="x <= INDENTY || x > PANELY+INDENTY"
     booly="y > 2*PANELX+INDENTX || y <= INDENTX"
@@ -408,21 +406,6 @@ isblocked()
     res=0
     (( map[ $mapidx ] != 0 )) && res=1 || res=0
     echo -n "$res";
-
-                 
-#    echo "y '$y' - x '$x' - mapidx '$mapidx' - res '$res'" >> ./out.log   
-    # idx=0 # TODO rm
-    # for ((idx=0; idx<100; ++idx)); do
-    #      echo "idx: '$idx' - map '${map[$idx]}'" >> ./map.log
-    #      echo
-    # done
-                 
-
-#    foo=$(xy2map $y $x)  
-#   (( 1 == foo )) && echo -n "1" || echo -n "0"  
-
-#    (( map[(x-INDENTY-1) * PANELX + y/2-INDENTY] != 0 )) && echo -n "1" || echo -n "0"
-    return
 }
 
 direction()
@@ -431,9 +414,7 @@ direction()
     sizegoalx=2
     sizegoaly=2
 
-    ## GOALX - current x
     currxy=( $pose )
-#    echo "$pose"
 
     ((dx=GOALX/2+1+sizegoalx - currxy[3]/2))
     ((dy=GOALY+1+2*sizegoaly - currxy[2]))
