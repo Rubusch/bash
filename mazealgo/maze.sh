@@ -4,9 +4,9 @@
 ## @email: L.Rubusch@gmx.ch
 ## @license: GPLv3
 
-## global coords
-AVATARSTART=(4 6) # TODO rm??
-AVATARCOORDS=(4 6) # avatar coordinates (y x y x y x)
+# FIXME artefarcts when trail is turned off
+
+AVATARCOORDS=(4 6) # avatar global coordinates (y x)
 AVATARICON="2" # avatar icon
 
 INDENTY=3 # indentation of the top area
@@ -21,9 +21,6 @@ GOALY=9
 TRACKING=( "0_0_" )
 TRACKIDX=0
 
-# TODO
-#FORKLIST=()   
-#FORKLISTIDX=-1
 GOBACKTO=""
 
 HEADING="right"
@@ -36,35 +33,32 @@ for signal in Left Right Down Up Exit ; do
 done
 
                                                                                 
-## tools (inline functions)
-
+## regular stack implementation, with BP and SP for around 100 elements
 BP=100
 SP=$BP
-Data=
-declare -a stack
+DATA=declare -a STACK
 push()
 {
     [[ -z "$1" ]] && return;
-    let "SP -= 1"
-    stack[$SP]=$1
+    ((SP -= 1))
+    STACK[$SP]=$1
     return
 }
 
 pop()
 {
-    local res
-    Data=
+    DATA=
     [[ "$SP" -eq "$BP" ]] && return;
-    Data=${stack[$SP]}
-    let "SP += 1"
-    echo -n "$Data";
+    DATA=${STACK[$SP]}
+    ((SP += 1))
+    echo -n "$DATA";
 }
 
-                                                                 
+                                                                                
+## further functions
 
-sendkill(){ kill -15 ${pid}; } # signal transfer for exit
-#setavatar(){ box=(${!1}); } # current block definition
-setavatar(){ AVATARCOORDS=(${!1}); } # current block definition  
+sendkill(){ kill -15 ${pid} > /dev/null; } # signal transfer for exit
+setavatar(){ AVATARCOORDS=(${!1}); } # current block definition
 getpanely(){
     local panely=$1
     ((panely=panely-INDENTY-1))
@@ -89,34 +83,6 @@ map2y(){
     echo -n $y;
 }
 
-# TODO rm
-## takes pos which has possibility to fork, in form 'y_x_'
-#forklistappend(){
-#    FORKLIST=( ${FORKLIST[*]} $1 )
-#    (( FORKLISTIDX+=1 ))
-#}
-
-## returns last position wich had possibility to fork
-#forklistpop()
-#{
-#    local pos=""
-# FIXME: remove last element
-#    (( 0 == ${#FORKLIST[*]} )) && return
-#    pos=${FORKLIST[$FORKLISTIDX]}
-#    unset FORKLIST[$FORKLISTIDX]
-#    (( FORKLISTIDX=FORKLISTIDX - 1 ))
-#    echo -n "$pos";
-#}
-
-## only save position, then check against where we've already been
-    # TODO rm
-    # for item in $@; do
-    #     [[ "up" == "$item" ]] && code+=1
-    #     [[ "right" == "$item" ]] && code+=2
-    #     [[ "down" == "$item" ]] && code+=4
-    #     [[ "left" == "$item" ]] && code+=8
-    # done
-
 ## function
 
 ## restore default stty settings
@@ -132,7 +98,6 @@ boundary()
 {
     clear
     local mapidx wallcol="\e[1;34m" x y
-#    local mapidx wallcol="\e[1;31m"
 
     ## top and bottom
     for((i=INDENTX; i<=PANELX+INDENTX+1; ++i)); do
@@ -144,10 +109,6 @@ boundary()
     for((i=INDENTY; i<=PANELY+INDENTY; ++i)); do
         echo -e "${wallcol}\e[${i};$((INDENTX))H#\e[${i};$((PANELX+INDENTX+1))H#\e[0m"
     done
-
-# DEBUG
-#    x_walls=( 0 )  
-#    y_walls=( 0 )  
 
     ## maze
     ## left, upper wall
@@ -198,12 +159,7 @@ boundary()
         fi
     done
 
-## DEBUG - dump map
-# local dbgidx=0
-# echo "" > ./map.log
-# for ((dbgidx=0; dbgidx<200; ++dbgidx)); do
-#     echo "idx '$dbgidx' - map '${map[$dbgidx]}'" >> ./map.log
-# done
+## DEBUG: dump map here
 
     ## draw a GOAL
     echo -e "${wallcol}\e[44m\e[1;31m\e[$((INDENTY+1+GOALY));$((INDENTX+1+GOALX))H3\e[0m"
@@ -249,10 +205,8 @@ Die()
 {
     case $# in
         0 ) ;;
-        1)
-#            kill -15 ${pid};
-            sendkill
-            resume ;;
+        1) sendkill
+           resume ;;
         2) resume ;;
     esac
     exit
@@ -276,13 +230,6 @@ drawbox()
         coordinate rmcbox[@] repaint
     }
     oldbox="${cursor}"
-
-    ## TODO rm - necessary? seems to be filled up tetris terminate condition
-    # if ! movement globxypos; then
-    #     kill -${sigExit} ${PPID}
-    #     sendkill
-    #     Die
-    # fi
 }
 
 ## detect if movement is possible
@@ -319,13 +266,6 @@ coordinate()
    local sup coords=(${!1})
    cursor="\e[${coords[0]};${coords[1]}H${AVATARICON}"
    sup="${coords[0]} ${coords[1]} "
-
-# TODO do something cleaner?
-   # panelx=$(getpanely ${coords[0]})
-   # panely=$(getpanelx ${coords[1]})
-   # cursor="\e[${panely};${panelx}H${AVATARICON}"
-   # sup="${panely} ${panelx} "
-
    ${2}
 }
 
@@ -334,11 +274,10 @@ coordinate()
 repaint()
 {
     ## repaint background - comment out for displaying the track
-#    oldbox="${cursor}"
+#    oldbox="${cursor}" # FIXME
 
     ## show cursor
     echo -e "\e[${colbox}${cursor}\e[0m"
-#    echo -e "\e[42m\e[31m${cursor}\e[0m"
 
     ## collision detection
     globxypos="${sup}"
@@ -391,7 +330,6 @@ chckposup(){
     ((1 == blocked)) && echo -n "1" && return;
 
     blocked=$(findinbacktrack ${position})
-#    echo "up: $blocked" >> ./debug.log   
     (( 1 == blocked )) && echo -n "1" || echo -n "0";
 }
 
@@ -415,17 +353,14 @@ chckposdown(){
 isblocked()
 {
     local y=$1 x=$2 mapidx
-    echo "y $y - x $x" >> ./debug.log   
 
     ## is blocked by panel boundaries?
     boolx="x < 0 || x >= PANELX"
     booly="y < 0 || y >= PANELY"
-    (( boolx || booly )) && echo "CHOC - boundaries" >> ./debug.log  
     (( boolx || booly )) && echo -n "1" && return
 
     ## is blocked by a wall?
     mapidx=$(xy2map $x $y)
-    echo "mapidx $mapidx" >> ./debug.log   
     (( map[$mapidx] == 1 )) && echo -n "1" || echo -n "0";
 }
 
@@ -468,8 +403,7 @@ direction()
     possibledirs=( $(peekaround) )
     if [[ "0" != ${#possibledirs} ]]; then
 
-    echo "AAA '${possibledirs[*]}'" >> ./debug.log    
-
+        ## DEBUG: print possible dirs here
 
         HEADING=""
         for dir in ${headings[*]}; do
@@ -483,39 +417,22 @@ direction()
             [[ ! -z "${HEADING}" ]] && break
         done
     else
-        ## go back to last fork in fork list
-#        GOBACKTO=$(forklistpop)
-
-        ## QUICKFIX: decresase stack here
-#        echo "${#FORKLIST[*]}" 
-
-#        [[ "0" == ${#FORKLIST[*]} ]] && return
-#        GOBACKTO=${FORKLIST[$FORKLISTIDX]}
-
-#        (( FORKLISTIDX = FORKLISTIDX - 1 ))
-#        echo "${FORKLISTIDX} ${FORKLIST[*]}" >> ./warp.log            
-#        [[ ! -z "${GOBACKTO}" ]] && echo "${GOBACKTO}"
-
-
         pop > /dev/null
         GOBACKTO=$(pop)
         GOBACKTO=$(pop)
 
         if [[ "${GOBACKTOBACKUP}" == "${GOBACKTO}" ]]; then
+            ## just accelerating a bit
             GOBACKTO=$(pop)
             GOBACKTO=$(pop)
             GOBACKTO=$(pop)
             GOBACKTO=$(pop)
         fi
         GOBACKTOBACKUP=GOBACKTO
-        echo "${stack[*]}" >> ./warp.log              
-        echo "GOBACKTO $GOBACKTO" >> ./debug.log    
-
-#        return;
+        ## DEBUG: print go back here
     fi
 
     ## more than one free direction (ahead)
-#    (( 1 < ${#possibledirs[*]} )) && forklistappend "${curry}_${currx}_"
     (( 1 < ${#possibledirs[*]} )) && push "${curry}_${currx}_"
 }
 
@@ -552,7 +469,6 @@ move()
 findinbacktrack()
 {
     local item position="$1"
-#    echo "TRACKING - ${TRACKING[*]}"   
     for item in ${TRACKING[*]}; do
         [[ "${item}" == "${position}" ]] && echo -n "1" && return;
     done
@@ -577,7 +493,7 @@ backtrack()
 #    done
 
 ## DEBUG find
-#    position="5_6_" # negative test: 0  
+#    position="5_6_" # negative test: 0
 #    res=$(findinbacktrack "${position}")
 #    echo "$res"
 }
@@ -589,7 +505,7 @@ gameloop()
     pid=${1}
 
     ## draw avatar and set old
-    setavatar AVATARSTART[*]
+    setavatar AVATARCOORDS[*]
     colbox="$(echo -n ${COLTAB[RANDOM/512]})"
     coordinate AVATARCOORDS[@] repaint
     oldbox="${cursor}"
@@ -619,10 +535,8 @@ gameloop()
         if [[ -n "${GOBACKTO}" ]]; then
             ## conversion
             GOBACKTO=(${GOBACKTO//_/ })
-#            ((curry=INDENTY+GOBACKTO[0]))
             ((curry=INDENTY+1+GOBACKTO[0]))
-            ((currx=INDENTX+1+GOBACKTO[1]))  
-#            ((currx=INDENTX+GOBACKTO[1]))
+            ((currx=INDENTX+1+GOBACKTO[1]))
             AVATARCOORDS=($curry $currx)
             GOBACKTO=""
         fi
@@ -633,10 +547,8 @@ gameloop()
 
         curry=$(getpanely ${AVATARCOORDS[0]})
         currx=$(getpanelx ${AVATARCOORDS[1]})
-
-        echo "$curry $currx" >> ./debug.log                  
         if (( curry == 9 && currx == 19 )); then
-            echo "DONE - Q to exit"
+            echo "DONE - Q to exit!"
             Die;
         fi
 
@@ -660,30 +572,14 @@ transform()
     if movement globxypos; then
 
         ## remove artefact trails
-#        echo -e "${oldbox//2/ }\e[0m"
         echo -e "${oldbox//${AVATARICON}/ }\e[0m"
 
-        local v
-        for((v=0; v<${#AVATARCOORDS[*]}; v+=2)); do
-            ((AVATARCOORDS[v]+=dy))
-            ((AVATARCOORDS[v+1]+=dx))
-        done
+        ((AVATARCOORDS[0]+=dy))
+        ((AVATARCOORDS[1]+=dx))
+
         nbox=(${AVATARCOORDS[*]})
         coordinate AVATARCOORDS[*] repaint
         AVATARCOORDS=(${nbox[*]})
-
-# TODO simplify?
-        # ((box[2]+=dx))
-        # ((box[1]+=dy))
-        # nbox=(${box[*]})
-        # coordinate box[*] repaint
-        # box=(${nbox[*]})
-
-        # ((AVATARCOORDS[2]+=dx))
-        # ((AVATARCOORDS[1]+=dy))
-        # nbox=(${AVATARCOORDS[*]})
-        # coordinate AVATARCOORDS[*] repaint
-        # AVATARCOORDS=(${nbox[*]})
     fi
 }
 
@@ -696,7 +592,7 @@ transform()
     gameloop $!
 
 } || {
-    echo "Run"
+#    echo "Run"
     ## restart/daemon trick to draw board
     bash $0 Run ${1} &
 
