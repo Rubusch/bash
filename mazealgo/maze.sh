@@ -20,13 +20,16 @@ COLTAB=(1\;{30..37}\;{40..47}m) # color definition of the pieces
 GOALX=19
 GOALY=9
 
-TRACKING=()
+TRACKING=( "0_0_" )
 TRACKIDX=0
 
 # TODO
 FORKLIST=()   
+FORKLISTIDX=-1
+GOBACKTO=""
 
 HEADING="right"
+
                                                                                 
 ## signal traps
 
@@ -63,6 +66,33 @@ map2y(){
     ((y=idx / PANELX))
     echo -n $y;
 }
+
+## takes pos which has possibility to fork, in form 'y_x_'
+forklistappend(){
+    FORKLIST=( ${FORKLIST[*]} $1 )
+    (( FORKLISTIDX+=1 ))
+}
+
+## returns last position wich had possibility to fork
+forklistpop()
+{
+    local pos=""
+# FIXME: remove last element
+    (( 0 == ${#FORKLIST[*]} )) && return
+    pos=${FORKLIST[$FORKLISTIDX]}
+    unset FORKLIST[$FORKLISTIDX]
+    (( FORKLISTIDX-=1 ))
+    echo -n "$pos";
+}
+
+## only save position, then check against where we've already been
+    # TODO rm
+    # for item in $@; do
+    #     [[ "up" == "$item" ]] && code+=1
+    #     [[ "right" == "$item" ]] && code+=2
+    #     [[ "down" == "$item" ]] && code+=4
+    #     [[ "left" == "$item" ]] && code+=8
+    # done
 
 ## function
 
@@ -292,7 +322,7 @@ coordinate()
 repaint()
 {
     ## repaint background - comment out for displaying the track
-    oldbox="${cursor}"
+#    oldbox="${cursor}"
 
     ## show cursor
 #    echo -e "\e[${colbox}${cursor}\e[0m"
@@ -471,12 +501,24 @@ direction()
 
     if [[ -z "${HEADING}" ]]; then
         ## time warp - go back to last fork in fork list
-                              
+        GOBACKTO=$(forklistpop)
+#        echo "XXX no HEADING - $GOBACKTO"  
+        ## QUICKFIX: decresase stack here
+        (( 0 == ${#FORKLIST[*]} )) && return
+        unset FORKLIST[$FORKLISTIDX]
+        (( FORKLISTIDX-=1 ))
+        
+#        echo "${FORKLISTIDX} ${FORKLIST[*]}" >> ./debug.log            
+#        [[ ! -z "${GOBACKTO}" ]] && echo "${GOBACKTO}"
         return; # TODO rm     
     fi
 
-    # TODO add to FORKLIST
-#    possibledirs - HEADING
+    ## more than one free direction (ahead)
+    (( 1 < ${#possibledirs[*]} )) && forklistappend "${curry}_${currx}_"
+
+    echo "${FORKLISTIDX} ${FORKLIST[*]}" >> ./debug.log    
+
+
 
 #    echo "BBB move $HEADING" >> ./debug.log   
 
@@ -595,11 +637,39 @@ gameloop()
 # - go up, if not possible - do bugfix, go left, then.. something
 
 # TODO uncomment                                                 
+
         ## go
+        local curry=0 currx=0
+        if [[ -n "${GOBACKTO}" ]]; then
+            ## conversion
+            GOBACKTO=(${GOBACKTO//_/ })
+#            echo "WARP to ${GOBACKTO[*]}"
+            ((curry=INDENTY+GOBACKTO[0]))
+            ((currx=INDENTX+1+GOBACKTO[1]))
+            AVATARCOORDS=($curry $currx)
+            GOBACKTO=""
+        fi
+
+#        echo "${AVATARCOORDS[*]}"   
+
+        ## in case no direction was found, skip further steps
         direction
+        [[ -z "$HEADING" ]] && continue
+
         transform $(move)
+
+        # TODO if... done                                
+
+        curry=$(getpanely ${coords[0]})
+        currx=$(getpanelx ${coords[1]})
+
+        echo "$curry $currx" >> ./debug.log
+        if (( curry == 9 && currx == 19 )); then
+            echo "DONE"
+            Die;
+        fi
+
         backtrack
-#        break   
     done
 }
 
