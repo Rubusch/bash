@@ -275,8 +275,14 @@ coordinate()
 #       cursor+="\e[${coords[i]};${coords[i+1]}H${AVATARICON}"
 #       sup+="${coords[i]} ${coords[i+1]} "
 #   done
+
    cursor="\e[${coords[0]};${coords[1]}H${AVATARICON}"
    sup="${coords[0]} ${coords[1]} "
+
+   # panelx=$(getpanely ${coords[0]})
+   # panely=$(getpanelx ${coords[1]})
+   # cursor="\e[${panely};${panelx}H${AVATARICON}"  
+   # sup="${panely} ${panelx} "
 
    ${2}
 }
@@ -307,17 +313,18 @@ chckposleft()
     ((panelx-=1)) ## it's just a jump to the left...
     position="${position}${panelx}_"
     blocked=$(isblocked $panely $panelx)
-#    ((1 == $blocked)) && echo -n "1" && return;
-    echo "left: '$blocked'" >> ./debug.log   
-    echo -n "$blocked";
+    ((1 == blocked)) && echo -n "1" && return;
 
-
+#    echo "left: '$blocked'" >> ./debug.log   
+#    echo -n "$blocked";
 # TODO                 
     ## find position in backtrack
 #    blocked=$(findinbacktrack "${position}")
 #    ((1 == blocked )) && echo -n "1" && return;
-#    [[ "1"==$(findinbacktrack "${position}") ]] && echo -n "1" && return;
-#    echo -n "0";
+
+#    [[ "1"==$(findinbacktrack "${position}") ]] && echo -n "1" ||  echo -n "0";
+    blocked=$(findinbacktrack ${position})
+    ((1 ==blocked )) && echo -n "1" || echo -n "0";
 }
 
 
@@ -331,19 +338,21 @@ chckposright()
     ((panelx+=1)) ## and then a step to the right...
     position="${position}${panelx}_"
     blocked=$(isblocked $panely $panelx)
-#    ((1 == $blocked)) && echo -n "1" && return;
-    echo "right: '$blocked'" >> ./debug.log   
-    echo -n "$blocked";
-
+    ((1 == $blocked)) && echo -n "1" && return;
+#    echo "right: '$blocked'" >> ./debug.log   
+#    echo -n "$blocked";
 
 # TODO                       
     ## find position in backtrack
 #    blocked=$(findinbacktrack "${position}")
 #    echo "position ${position//_/ } - blocked $blocked" >> ./debug.log 
 #    (( 1 == blocked )) && echo -n "1" && return;
-
     ## default: ok
 #    echo -n "0";
+#    [[ "1"==$(findinbacktrack "${position}") ]] && echo -n "1" ||  echo -n "0";
+    blocked=$(findinbacktrack ${position})
+    ((1 ==blocked )) && echo -n "1" || echo -n "0";
+
 }
 
 chckposup(){
@@ -355,9 +364,9 @@ chckposup(){
     panelx=$(getpanelx ${AVATARCOORDS[1]})
     position="${position}${panelx}_"
     blocked=$(isblocked $panely $panelx)
-#    ((1 == $blocked)) && echo -n "1" && return;
-    echo "up: '$blocked'" >> ./debug.log   
-    echo -n "$blocked";
+    ((1 == blocked)) && echo -n "1" && return;
+#    echo "up: '$blocked'" >> ./debug.log   
+#    echo -n "$blocked";
 
 
 # TODO                
@@ -366,6 +375,11 @@ chckposup(){
 #    ((1 == blocked )) && echo -n "1" && return;
 
 #    echo -n "0";
+#    [[ "1"==$(findinbacktrack "${position}") ]] && echo -n "1" ||  echo -n "0";
+
+
+    blocked=$(findinbacktrack ${position})
+    ((1 ==blocked )) && echo -n "1" || echo -n "0";
 }
 
 chckposdown(){
@@ -377,16 +391,11 @@ chckposdown(){
     panelx=$(getpanelx ${AVATARCOORDS[1]})
     position="${position}${panelx}_"
     blocked=$(isblocked $panely $panelx)
-    echo "down: '$blocked'" >> ./debug.log   
-    echo -n "$blocked"
-#    ((1 == $blocked)) && echo -n "1" && return;
+    ((1 == blocked)) && echo -n "1" && return;
 
-# TODO                 
-#    ## find position in backtrack
-#    blocked=$(findinbacktrack "${position}")
-#    (( 1 == $blocked)) && echo -n "1" && return;
-
-#    echo -n "0";
+    blocked=$(findinbacktrack ${position})
+#    echo "down: '$blocked'" >> ./debug.log       
+    ((1 ==blocked )) && echo -n "1" || echo -n "0";
 }
 
 
@@ -394,17 +403,17 @@ chckposdown(){
 isblocked()
 {
     local y=$1 x=$2 mapidx
-    echo "y $y - x $x" >> ./debug.log   
+#    echo "y $y - x $x" >> ./debug.log   
 
     ## is blocked by panel boundaries?
     boolx="x < 0 || x >= PANELX"
     booly="y < 0 || y >= PANELY"
-    (( boolx || booly )) && echo "CHOC - boundaries" >> ./debug.log  
+#    (( boolx || booly )) && echo "CHOC - boundaries" >> ./debug.log  
     (( boolx || booly )) && echo -n "1" && return
 
     ## is blocked by a wall?
     mapidx=$(xy2map $x $y)
-    echo "mapidx $mapidx" >> ./debug.log   
+#    echo "mapidx $mapidx" >> ./debug.log   
     (( map[$mapidx] == 1 )) && echo -n "1" || echo -n "0";
 }
 
@@ -446,6 +455,7 @@ direction()
     fi
 
     possibledirs=( $(peekaround) )
+#    echo "AAA ${possibledirs[*]}" >> ./debug.log    
     HEADING=""
 
     for dir in ${headings[*]}; do
@@ -454,9 +464,6 @@ direction()
                 ## possible direction
                 HEADING="$dir"
                 break
-
-                # TODO check backtrack, if so, continue
-                
             fi
         done
         [[ ! -z "${HEADING}" ]] && break
@@ -464,38 +471,14 @@ direction()
 
     if [[ -z "${HEADING}" ]]; then
         ## time warp - go back to last fork in fork list
+                              
         return; # TODO rm     
     fi
 
-    echo "move to $HEADING" >> ./debug.log   
+    # TODO add to FORKLIST
+#    possibledirs - HEADING
 
-    # ## check for blocking walls
-    # echo " " >> ./debug.log    
-    # local blocked item=""
-    # for item in ${headings[*]}; do
-    #     echo $item  >> ./debug.log    
-    #     HEADING=$item
-    #     if [[ "up" == "$item" ]]; then
-    #         ((1==$(chckposup))) && continue
-    #         blocked=0
-
-    #     elif [[ "down" == "$item" ]]; then
-    #         ((1==$(chckposdown))) && continue
-    #         blocked=0
-
-    #     elif [[ "left" == "$item" ]]; then
-    #         ((1==$(chckposleft))) && continue
-    #         blocked=0
-
-    #     elif [[ "right" == "$item" ]]; then
-    #         ((1==$(chckposright))) && continue
-    #         blocked=0
-
-    #     fi
-    #     if (( 0 == $blocked )); then
-    #         break;
-    #     fi
-    # done
+#    echo "BBB move $HEADING" >> ./debug.log   
 
 # TODO don't allow going back, only if everything is blocked -> going back -> crossing with tracked path -> continue at last fork
 # TODO follow this way in abnormal manner until some new possibilities arrive (don't go back!)
@@ -514,34 +497,6 @@ peekaround()
     (( 0==$(chckposright) )) && directions=( ${directions[*]} "right" )
 
     echo -n ${directions[*]};
-    return
-
-    # echo " " >> ./debug.log    
-    # local blocked item=""
-    # for item in ${headings[*]}; do
-    #     echo $item  >> ./debug.log    
-    #     HEADING=$item
-    #     if [[ "up" == "$item" ]]; then
-    #         ((1==$(chckposup))) && continue
-    #         blocked=0
-
-    #     elif [[ "down" == "$item" ]]; then
-    #         ((1==$(chckposdown))) && continue
-    #         blocked=0
-
-    #     elif [[ "left" == "$item" ]]; then
-    #         ((1==$(chckposleft))) && continue
-    #         blocked=0
-
-    #     elif [[ "right" == "$item" ]]; then
-    #         ((1==$(chckposright))) && continue
-    #         blocked=0
-
-    #     fi
-    #     if (( 0 == $blocked )); then
-    #         break;
-    #     fi
-    # done
 }
 
 
@@ -572,9 +527,14 @@ findinbacktrack()
 ## history of positions
 backtrack()
 {
-    local item position="${globxypos// /_}"
-    [[ "1" == $(findinbacktrack "$position") ]] && return
+#    local item position="${globxypos// /_}"
+    local item position
 
+#    panelx=$(getpanelx)
+#    panely=$(getpanely)
+    position="$(getpanely ${AVATARCOORDS[0]})_$(getpanelx ${AVATARCOORDS[1]})_"
+
+    [[ "1" == $(findinbacktrack "$position") ]] && return
     TRACKING=( ${TRACKING[*]} "${position}" )
     ((TRACKIDX+=1))
 ## DEBUG TRACKING
@@ -585,7 +545,7 @@ backtrack()
 #    done
 
 ## DEBUG find
-##    position="5_6_6_6_" # negative test: 0  
+#    position="5_6_" # negative test: 0  
 #    res=$(findinbacktrack "${position}")
 #    echo "$res"
 }
@@ -637,9 +597,9 @@ gameloop()
 # TODO uncomment                                                 
         ## go
         direction
-#        break    
         transform $(move)
         backtrack
+#        break   
     done
 }
 
@@ -682,7 +642,6 @@ transform()
         nbox=(${AVATARCOORDS[*]})
         coordinate AVATARCOORDS[*] repaint
         AVATARCOORDS=(${nbox[*]})
-
 
 # TODO why not possible?
         # ((box[2]+=dx))
