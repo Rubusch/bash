@@ -391,7 +391,7 @@ chckposup(){
     ((1 == blocked)) && echo -n "1" && return;
 
     blocked=$(findinbacktrack ${position})
-    echo "up: $blocked" >> ./debug.log   
+#    echo "up: $blocked" >> ./debug.log   
     (( 1 == blocked )) && echo -n "1" || echo -n "0";
 }
 
@@ -468,7 +468,9 @@ direction()
     possibledirs=( $(peekaround) )
     if [[ "0" != ${#possibledirs} ]]; then
 
-#    echo "AAA ${possibledirs[*]}" >> ./debug.log    
+    echo "AAA '${possibledirs[*]}'" >> ./debug.log    
+
+
         HEADING=""
         for dir in ${headings[*]}; do
             for possible in ${possibledirs[*]}; do
@@ -506,6 +508,9 @@ direction()
             GOBACKTO=$(pop)
         fi
         GOBACKTOBACKUP=GOBACKTO
+        echo "${stack[*]}" >> ./warp.log              
+        echo "GOBACKTO $GOBACKTO" >> ./debug.log    
+
 #        return;
     fi
 
@@ -614,9 +619,10 @@ gameloop()
         if [[ -n "${GOBACKTO}" ]]; then
             ## conversion
             GOBACKTO=(${GOBACKTO//_/ })
-            ((curry=INDENTY+GOBACKTO[0]))
-#            ((currx=INDENTX+1+GOBACKTO[1]))  
-            ((currx=INDENTX+GOBACKTO[1]))
+#            ((curry=INDENTY+GOBACKTO[0]))
+            ((curry=INDENTY+1+GOBACKTO[0]))
+            ((currx=INDENTX+1+GOBACKTO[1]))  
+#            ((currx=INDENTX+GOBACKTO[1]))
             AVATARCOORDS=($curry $currx)
             GOBACKTO=""
         fi
@@ -625,12 +631,10 @@ gameloop()
         direction
         transform $(move)
 
-        # TODO if... done                                
-
         curry=$(getpanely ${AVATARCOORDS[0]})
         currx=$(getpanelx ${AVATARCOORDS[1]})
 
-        echo "$curry $currx" >> ./debug.log
+        echo "$curry $currx" >> ./debug.log                  
         if (( curry == 9 && currx == 19 )); then
             echo "DONE - Q to exit"
             Die;
