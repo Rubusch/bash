@@ -23,6 +23,9 @@ GOALY=9
 TRACKING=()
 TRACKIDX=0
 
+# TODO
+FORKLIST=()   
+
 HEADING="right"
                                                                                 
 ## signal traps
@@ -266,6 +269,7 @@ coordinate()
 {
 #   local i sup coords
    local sup coords=(${!1})
+   
 #   for((i=0; i<${#coords[@]}; i+=2))
 #   do
 #       cursor+="\e[${coords[i]};${coords[i+1]}H${AVATARICON}"
@@ -292,154 +296,122 @@ repaint()
     globxypos="${sup}"
 }
 
-chckposup(){
-    local heady headx currxy blocked position
-#    echo "chckposup" >> ./debug.log   
-    currxy=($globxypos)
-    blocked=0
 
-    ((heady=currxy[0]-1))
-    position="${heady}_"
-    ((headx=currxy[1]))
-    position="${position}${headx}_"
-    blocked=$(isblocked $heady $headx)
-    ((1 == $blocked)) && echo -n "1" && return;
+chckposleft()
+{
+    local panely panelx blocked=0 position
 
-    # ((heady=currxy[2]-1))
-    # position="${position}${heady}_"
-    # ((headx=currxy[3]))
-    # position="${position}${headx}_"
+    panely=$(getpanely ${AVATARCOORDS[0]})
+    position="${panely}_"
+    panelx=$(getpanelx ${AVATARCOORDS[1]})
+    ((panelx-=1)) ## it's just a jump to the left...
+    position="${position}${panelx}_"
+    blocked=$(isblocked $panely $panelx)
+#    ((1 == $blocked)) && echo -n "1" && return;
+    echo "left: '$blocked'" >> ./debug.log   
+    echo -n "$blocked";
 
+
+# TODO                 
     ## find position in backtrack
+#    blocked=$(findinbacktrack "${position}")
+#    ((1 == blocked )) && echo -n "1" && return;
 #    [[ "1"==$(findinbacktrack "${position}") ]] && echo -n "1" && return;
+#    echo -n "0";
+}
 
-    blocked=$(findinbacktrack "${position}")
+
+chckposright()
+{
+    local panely panelx blocked=0 position
+
+    panely=$(getpanely ${AVATARCOORDS[0]})
+    position="${panely}_"
+    panelx=$(getpanelx ${AVATARCOORDS[1]})
+    ((panelx+=1)) ## and then a step to the right...
+    position="${position}${panelx}_"
+    blocked=$(isblocked $panely $panelx)
+#    ((1 == $blocked)) && echo -n "1" && return;
+    echo "right: '$blocked'" >> ./debug.log   
+    echo -n "$blocked";
+
+
+# TODO                       
+    ## find position in backtrack
+#    blocked=$(findinbacktrack "${position}")
 #    echo "position ${position//_/ } - blocked $blocked" >> ./debug.log 
-    ((1 == blocked )) && echo -n "1" && return;
+#    (( 1 == blocked )) && echo -n "1" && return;
 
-    echo -n "0";
+    ## default: ok
+#    echo -n "0";
+}
+
+chckposup(){
+    local panely panelx blocked=0 position
+
+    panely=$(getpanely ${AVATARCOORDS[0]})
+    ((panely-=1)) ## up
+    position="${panely}_"
+    panelx=$(getpanelx ${AVATARCOORDS[1]})
+    position="${position}${panelx}_"
+    blocked=$(isblocked $panely $panelx)
+#    ((1 == $blocked)) && echo -n "1" && return;
+    echo "up: '$blocked'" >> ./debug.log   
+    echo -n "$blocked";
+
+
+# TODO                
+#    blocked=$(findinbacktrack "${position}")
+#    echo "position ${position//_/ } - blocked $blocked" >> ./debug.log 
+#    ((1 == blocked )) && echo -n "1" && return;
+
+#    echo -n "0";
 }
 
 chckposdown(){
-    local heady headx currxy blocked position
-#    echo "chckposdown" >> ./debug.log   
-    currxy=($globxypos)
-    blocked=0
+    local panely panelx blocked=0 position
 
-    ((heady=currxy[0]+1))
-    position="${heady}_"
-#    ((headx=currxy[1]))
-    ((headx=currxy[1]+1))  
-    position="${position}${headx}_"
-
-#     ((heady=currxy[2]+1))
-#     position="${position}${heady}_"
-# #    ((headx=currxy[3]))
-#     ((headx=currxy[3]+1))  
-#     position="${position}${headx}_"
-
-    blocked=$(isblocked $heady $headx)
-
-#    echo "position ${position//_/ } - blocked $blocked" >> ./debug.log 
-    ((1==blocked)) && echo -n "1" && return;
-
-    ## find position in backtrack
-    blocked=$(findinbacktrack "${position}")
-    (( 1 == $blocked)) && echo -n "1" && return;
-
-    echo -n "0";
-}
-
-chckposleft(){
-    local heady headx currxy blocked position
-#    echo "chckposleft" >> ./debug.log   
-    currxy=($globxypos)
-    blocked=0
-
-    ((heady=currxy[0]))
-    position="${heady}_"
-    ((headx=currxy[1]-2))
-    position="${position}${headx}_"
-    blocked=$(isblocked $heady $headx)
-#    echo "position ${position//_/ } - blocked $blocked" >> ./debug.log 
-    ((1 == $blocked)) && echo -n "1" && return;
-
-    # ((heady=currxy[2]))
-    # position="${position}${heady}_"
-    # ((headx=currxy[3]-2))
-    # position="${position}${headx}_"
-#    blocked=$(isblocked $heady $headx)
-#    echo "position ${position//_/ } - blocked $blocked" >> ./debug.log 
+    panely=$(getpanely ${AVATARCOORDS[0]})
+    ((panely+=1)) ## and down
+    position="${panely}_"
+    panelx=$(getpanelx ${AVATARCOORDS[1]})
+    position="${position}${panelx}_"
+    blocked=$(isblocked $panely $panelx)
+    echo "down: '$blocked'" >> ./debug.log   
+    echo -n "$blocked"
 #    ((1 == $blocked)) && echo -n "1" && return;
 
-    ## find position in backtrack
-    blocked=$(findinbacktrack "${position}")
-    ((1 == blocked )) && echo -n "1" && return;
-#    [[ "1"==$(findinbacktrack "${position}") ]] && echo -n "1" && return;
+# TODO                 
+#    ## find position in backtrack
+#    blocked=$(findinbacktrack "${position}")
+#    (( 1 == $blocked)) && echo -n "1" && return;
 
-    echo -n "0";
+#    echo -n "0";
 }
 
-
-chckposright(){
-# TODO headxy -> panelxy   
-    local heady headx currxy blocked position
-    echo "chckposright" >> ./debug.log   
-#    currxy=($globxypos)
-
-    blocked=0
-
-#    ((heady=currxy[0])) 
-#    ((heady=AVATARCOORDS[0]))
-    heady=$(getpanely ${AVATARCOORDS[0]})
-    position="${heady}_"
-
-#    ((headx=currxy[1]+1)) 
-#    ((headx=AVATARCOORDS[1]+1))
-    headx=$(getpanelx ${AVATARCOORDS[0]})
-    position="${position}${headx}_"
-
-    blocked=$(isblocked $heady $headx)
-#    echo "position ${position//_/ } - blocked $blocked" >> ./debug.log 
-    ((1 == $blocked)) && echo -n "1" && return;
-
-    ## find position in backtrack
-    blocked=$(findinbacktrack "${position}")
-#    echo "position ${position//_/ } - blocked $blocked" >> ./debug.log 
-    (( 1 == blocked )) && echo -n "1" && return;
-
-    ## default: ok
-    echo -n "0";
-}
 
 ## check if specified field has a block entry in map
 isblocked()
 {
-# TODO rm
-# TODO need to be panelxy!!!   
-#    echo "y '$y' x '$x'" >> ./debug.log   
-#    ((xoy=(x-INDENTY-1)*PANELX+y/2-INDENTY))
-#    (( xoy < 0 )) && echo -n "1" && return
-#    boolx="x <= INDENTY || x > PANELY+INDENTY"
-#    booly="y > 2*PANELX+INDENTX || y <= INDENTX"
-
     local y=$1 x=$2 mapidx
+    echo "y $y - x $x" >> ./debug.log   
 
     ## is blocked by panel boundaries?
     boolx="x < 0 || x >= PANELX"
     booly="y < 0 || y >= PANELY"
+    (( boolx || booly )) && echo "CHOC - boundaries" >> ./debug.log  
     (( boolx || booly )) && echo -n "1" && return
 
     ## is blocked by a wall?
     mapidx=$(xy2map $x $y)
-    echo "y $y - x $x - mapidx $mapidx" >> ./debug.log   
+    echo "mapidx $mapidx" >> ./debug.log   
     (( map[$mapidx] == 1 )) && echo -n "1" || echo -n "0";
 }
 
 direction()
 {
 #    local dx dy currxy sizegoalx sizegoaly headings idx headx heady blocked
-    local dx dy currx curry headings
+    local dx dy currx curry headings dir possible possibledirs
 
     curry=$(getpanely ${AVATARCOORDS[0]})
     currx=$(getpanelx ${AVATARCOORDS[1]})
@@ -473,36 +445,103 @@ direction()
         fi
     fi
 
+    possibledirs=( $(peekaround) )
+    HEADING=""
 
-    ## check for blocking walls
-#    echo " " >> ./debug.log    
-    local blocked item=""
-    for item in ${headings[*]}; do
-#        echo $item  >> ./debug.log    
-        HEADING=$item
-        if [[ "up" == "$item" ]]; then
-            ((1==$(chckposup))) && continue
-            blocked=0
+    for dir in ${headings[*]}; do
+        for possible in ${possibledirs[*]}; do
+            if [[ "$dir" == "$possible" ]]; then
+                ## possible direction
+                HEADING="$dir"
+                break
 
-        elif [[ "down" == "$item" ]]; then
-            ((1==$(chckposdown))) && continue
-            blocked=0
-
-        elif [[ "left" == "$item" ]]; then
-            ((1==$(chckposleft))) && continue
-            blocked=0
-
-        elif [[ "right" == "$item" ]]; then
-            ((1==$(chckposright))) && continue
-            blocked=0
-
-        fi
-        if (( 0 == $blocked )); then
-            break;
-        fi
+                # TODO check backtrack, if so, continue
+                
+            fi
+        done
+        [[ ! -z "${HEADING}" ]] && break
     done
+
+    if [[ -z "${HEADING}" ]]; then
+        ## time warp - go back to last fork in fork list
+        return; # TODO rm     
+    fi
+
+    echo "move to $HEADING" >> ./debug.log   
+
+    # ## check for blocking walls
+    # echo " " >> ./debug.log    
+    # local blocked item=""
+    # for item in ${headings[*]}; do
+    #     echo $item  >> ./debug.log    
+    #     HEADING=$item
+    #     if [[ "up" == "$item" ]]; then
+    #         ((1==$(chckposup))) && continue
+    #         blocked=0
+
+    #     elif [[ "down" == "$item" ]]; then
+    #         ((1==$(chckposdown))) && continue
+    #         blocked=0
+
+    #     elif [[ "left" == "$item" ]]; then
+    #         ((1==$(chckposleft))) && continue
+    #         blocked=0
+
+    #     elif [[ "right" == "$item" ]]; then
+    #         ((1==$(chckposright))) && continue
+    #         blocked=0
+
+    #     fi
+    #     if (( 0 == $blocked )); then
+    #         break;
+    #     fi
+    # done
+
 # TODO don't allow going back, only if everything is blocked -> going back -> crossing with tracked path -> continue at last fork
 # TODO follow this way in abnormal manner until some new possibilities arrive (don't go back!)
+}
+
+
+## direction code: up=1; rightt=2; down=4; left=8
+## needs local coords
+peekaround()
+{
+    local directions=()
+
+    (( 0==$(chckposup) )) && directions=( ${directions[*]} "up" )
+    (( 0==$(chckposdown) )) && directions=( ${directions[*]} "down" )
+    (( 0==$(chckposleft) )) && directions=( ${directions[*]} "left" )
+    (( 0==$(chckposright) )) && directions=( ${directions[*]} "right" )
+
+    echo -n ${directions[*]};
+    return
+
+    # echo " " >> ./debug.log    
+    # local blocked item=""
+    # for item in ${headings[*]}; do
+    #     echo $item  >> ./debug.log    
+    #     HEADING=$item
+    #     if [[ "up" == "$item" ]]; then
+    #         ((1==$(chckposup))) && continue
+    #         blocked=0
+
+    #     elif [[ "down" == "$item" ]]; then
+    #         ((1==$(chckposdown))) && continue
+    #         blocked=0
+
+    #     elif [[ "left" == "$item" ]]; then
+    #         ((1==$(chckposleft))) && continue
+    #         blocked=0
+
+    #     elif [[ "right" == "$item" ]]; then
+    #         ((1==$(chckposright))) && continue
+    #         blocked=0
+
+    #     fi
+    #     if (( 0 == $blocked )); then
+    #         break;
+    #     fi
+    # done
 }
 
 
@@ -598,8 +637,9 @@ gameloop()
 # TODO uncomment                                                 
         ## go
         direction
+#        break    
         transform $(move)
-#        backtrack
+        backtrack
     done
 }
 
