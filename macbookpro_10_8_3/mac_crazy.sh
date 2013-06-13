@@ -13,12 +13,6 @@ interval=0.02
 counter=1000
 for item in $(seq 1 300); do
 
-#    if (( 100 == $item )); then
-#        interval="0.$(( $RANDOM % 10 ))"
-#    elif (( 150 < $item )); then
-#        interval=0.03
-#    fi
-
     if (( 100 < $counter )); then
             counter=$(( $counter - 15 ))
             interval="0.$counter"
@@ -34,8 +28,11 @@ for item in $(seq 1 300); do
 
     if (( 255 == $( cat /sys/class/leds/smc\:\:kbd_backlight/brightness ) )); then
 	echo "0" | sudo tee /sys/class/leds/smc\:\:kbd_backlight/brightness > /dev/null
+
     else
 	echo "255" | sudo tee /sys/class/leds/smc\:\:kbd_backlight/brightness > /dev/null
+#       val=$(( $RANDOM % 255 ))
+#	echo "${val}" | sudo tee /sys/class/leds/smc\:\:kbd_backlight/brightness > /dev/null
         sleep "0.0$(( $RANDOM % 10 ))"
     fi
 done
