@@ -10,7 +10,7 @@ syndaemon -d -t -i 3
 echo "setting up synclient, local touchpad"
 synclient TapButton1=1
 synclient TapButton2=2
-synclient TapButton3=3
+#synclient TapButton3=3
 synclient FingerHigh=50
 synclient TapAndDragGesture=0
 synclient LBCornerButton=0
