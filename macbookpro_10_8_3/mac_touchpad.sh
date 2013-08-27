@@ -4,7 +4,7 @@
 ## -i 2 for 2 secs
 echo "setting up syndaemon"
 kill $( pidof syndaemon ) 2> /dev/null
-syndaemon -d -t -i 3
+syndaemon -d -t -i 2
 
 ## local touchpad settings
 echo "setting up synclient, local touchpad"
