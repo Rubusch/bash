@@ -9,11 +9,15 @@ fan_min: 3500
 temp_avg_floor: 41
 temp_avg_ceiling: 51
 
-temp_TC0P_floor: 40
-temp_TC0P_ceiling: 48
+#temp_TC0P_floor: 40
+temp_TC0P_floor: 45
+#temp_TC0P_ceiling: 48
+temp_TC0P_ceiling: 53
 
-temp_TG0P_floor: 38
-temp_TG0P_ceiling: 45
+#temp_TG0P_floor: 38
+temp_TG0P_floor: 45
+#temp_TG0P_ceiling: 45
+temp_TG0P_ceiling: 53
 
 # Add sensors to be excluded here, separated by space, i.e.
 # exclude: 1 7
