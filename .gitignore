@@ -1,2 +1,7 @@
 test
 *.log
+
+## backup files
+*.orig
+*~
+
