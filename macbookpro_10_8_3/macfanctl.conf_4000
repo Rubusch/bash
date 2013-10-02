@@ -3,16 +3,16 @@
 # Note: 0 < temp_X_floor < temp_X_ceiling
 #       0 < fan_min < 6200       
 
-fan_min: 3500
+fan_min: 2000
 
 temp_avg_floor: 41
 temp_avg_ceiling: 51
 
-temp_TC0P_floor: 45
-temp_TC0P_ceiling: 53
+temp_TC0P_floor: 40
+temp_TC0P_ceiling: 48
 
-temp_TG0P_floor: 45
-temp_TG0P_ceiling: 53
+temp_TG0P_floor: 38
+temp_TG0P_ceiling: 45
 
 # Add sensors to be excluded here, separated by space, i.e.
 # exclude: 1 7
