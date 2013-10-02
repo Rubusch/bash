@@ -439,9 +439,9 @@ date
 
 dirs
 	prints the directory stack
-popd    
+popd  > /dev/null
 	pops from the directory stack
-pushd   
+pushd . > /dev/null  
 	pushes on to the directory stack
 
 output
@@ -498,3 +498,12 @@ pattern operations:
 
       echo ${ARRAY[*]##t*}
       one one one four
+
+[[ ]] vs [ ] vs test
+	test uses /usr/bin/test as external tool
+	[ ] uses the shell's implemented version of test and thus, comes with the shell
+	[[ ]] is a bashism that is only available on bash, and extends [ ]'s 
+	functionality by further dealing with regular expressions etc. 
+	  
+	Where compatibility is a factor, [[ ]] should be avoided!
+
