@@ -8,23 +8,24 @@
 # TODO implement smart algorithm for long latencies
 # TODO implement smart algorithm for MISSes
 # TODO upper bounds for addition / subtractions shall be upper product of both
-                                                                                
+# TODO display picture
+# TODO display running time
 
 # DEBUG
 #set -x
 
 ## user settings
 OPERATIONS=(
-    "add"
-    "subtract"
+#    "add"
+#    "subtract"
     "multiply"
     "divide"
 )
-MAXNUMBER=10
+MAXNUMBER=100
 MAXTIME=0 # default max time in secs
 
 # e.g. 5 min
-let "MAXTIME=5*60"
+let "MAXTIME=1*60"
                                                                                 
 ## default settings
 PID=""
