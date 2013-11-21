@@ -7,21 +7,31 @@ RES=""
 
 sendkill()
 {
-    kill -15 ${PID} > /dev/null
+    ## don't wait on timeout -> 9
+    kill -9 ${PID} > /dev/null
     PID=""
 }
 
 die()
 {
-    echo "die"
-    echo $@
+    echo "$@"
+
+    ## terminate children, if there are..
+    if [ "${PID}" != "" ]; then
+        if [ "$(ps | grep ${PID})" != "" ]; then
+            sendkill
+        fi
+    fi
+
+    ## end
     exit
 }
 
 stop()
 {
-    echo "stop"
-    echo $RES  
+    echo "Timeout"
+    echo "hits: '$HIT', misses: '$MISS'"  
+#    echo $RES  
     exit
 }
 
@@ -31,28 +41,39 @@ stop()
 foreground()
 {
     PID=${1}
-    echo "foreground - child PID '$PID', own is $$"   
+#    echo "foreground - child PID '$PID', own is $$"   
 
     ## die by user (INT) or TERM
     trap "die" TERM INT
 
-    ## react on timeout
+    ## prepare for output for timeout
+    MISS=0
+    HIT=0
     trap "stop" HUP
 
+    while true; do
 
-    
-    calculate
-    
-#    read -s -n 1 key  
-    read key
-    echo $RES  
-    
+        calculate
 
-    ## end of game
-    if [ "${PID}" != "" ]; then  
-# TODO check if pid is still valid
-        sendkill
-    fi
+        local key=""
+        read key  
+        if [ "${key}" != "" ]; then
+            if (( ${key} == ${RES} )); then # FIXME compare 2 numbers... 
+                HIT=$(expr $HIT + 1)
+            else
+                echo "${RES} ###"
+                MISS=$(expr $MISS + 1)
+            fi
+        else
+            echo "${RES} ###"
+            MISS=$(expr $MISS + 1)
+        fi
+    done
+
+
+
+    ## regular termination
+    die "READY."
 }
 
                                                                                 
@@ -61,7 +82,6 @@ foreground()
 background()
 {
     PID=${1}
-#    echo "background - parent PID '$PID', own is $$"   
 
     trap "die" TERM
 
@@ -69,11 +89,6 @@ background()
     sleep 10 # 10 secs
     kill -HUP ${PID}
 # TODO communicate timeout   
-
-
-    ## full stop
-    sendkill
-    die
 }
 
                                                                                 
@@ -91,7 +106,6 @@ add()
     b=$2
     echo -n "${a} + ${b} = "
     RES=$(expr $a + $b)
-    echo
 }
 
 subtract()
@@ -120,7 +134,6 @@ divide()
 
 
                                                                                 
-echo "XXX '$1' '$2'"
 ## main
 if [ "x${1}" == "xRun" ]; then
     background $2
@@ -129,4 +142,3 @@ else
     foreground $!
 fi
 
-echo "READY."
