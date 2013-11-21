@@ -127,7 +127,7 @@ filedescriptor
 	exec fd_NUMBER< FILE - opens a file to read
 	exec fd_NUMBER>&-    - close the write file descripter again
 	exec fd_NUMBER<&-    - close the read file descripter again
-	
+
 	e.g.:
 	open a fd:
  	    exec 4 > result.txt
@@ -137,30 +137,41 @@ filedescriptor
 	    exec 4>&-
 
 if
-	if TESTEXPRESSION; then 
+	if [ TESTEXPRESSION ]; then
 	    DO_SOMETHING
 	fi
 
 	or
 
-	if TESTEXPRESSION; then 
+	if [ TESTEXPRESSION ]; then
 	        DO_SOMETHING
-	    elif TESTEXPRESSION; then 
-	        DO_SOMETHING 
-	    else 
+	elif TESTEXPRESSION; then
+	        DO_SOMETHING
+	else
+                DO_SOMETHING
 	fi
 
-	or 
-	
+	or
+
 	[ TESTEXPRESSION ] && DO_SOMETHING
-	
+
 	evaluation of the TESTEXPRESSION depends on flags, e.g. -lt
 	for lower than, -e for existance of file, -eq for equals etc and
 	parentheses, eg (( )) for logical expressions - often there
 	are more than one possibilities to do something
 
+        in BASH only, use the more powerfull (handles also REGEX), but this will
+        be less compatible!
 
-switch/case	
+        if [[ TESTEXPRESSION ]]; then
+                DO_SOMETHING
+        fi
+
+        for highest compatibility use an explicit call to 'test' in the test
+        expression
+
+
+switch/case
 	case TESTEXPRESSION in
 	    RESULT1)
 	        DO_SOMETHING
@@ -285,28 +296,28 @@ length of a variable
 
 
 function
-       function definition:
+       function definition (bash):
 
-       function FUNCTION { COMMANDS; }
+       function FUNCTIONNAME { COMMANDS; }
 
-       or
+       or (bash / sh):
 
-       FUNCTION () { COMMANDS; }
+       FUNCTIONNAME () { COMMANDS; }
 
        function call:
        functionname foo_parameter bar_paramenter
 
        $@, $1,2,3, etc for list of arguments or arguments by index,
        use "shift" to switch $1 to the next argument in the list and
-       $# for the size of the argument list. 
+       $# for the size of the argument list.
        $RETURN_VALUE provides an error code to be set for returns
-       (use $?). 
+       (use $?).
 
 
 Regular Expressions:
        .
        matches any single character
-	
+
        ?
        precedign item is optional and will be matched, at most, once
 
