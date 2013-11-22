@@ -6,7 +6,6 @@
 #
 # TODO implement smart algorithm for long latencies
 # TODO implement smart algorithm for MISSes
-# TODO upper bounds for addition / subtractions shall be upper product of both
 # TODO display picture
 # TODO display running time
 
@@ -14,16 +13,28 @@
 #set -x
 
 ## user settings
-OPERATIONS=(
+
+## 1. LEVEL
+#MAXNUMBER=10
+#OPERATIONS=(
 #    "add"
 #    "subtract"
+#    "multiply"
+#    "divide"
+#)
+
+## 2. LEVEL
+MAXNUMBER=100
+OPERATIONS=(
+    "add"
+    "subtract"
     "multiply"
     "divide"
 )
-MAXNUMBER=100
-MAXTIME=0 # default max time in secs
+
 
 # e.g. 5 min
+MAXTIME=0 # default max time in secs
 let "MAXTIME=5*60"
                                                                                 
 ## default settings
@@ -97,7 +108,7 @@ foreground()
         ## evaluate answer
         local guess=""
         read guess
-        if [ "${guess}" == "${RES}" ]; then
+        if test "${guess}" == "${RES}"; then
             let "HIT=${HIT}+1"
         else
             echo "WRONG, correct is: ${RES}"
@@ -132,25 +143,9 @@ background()
                                                                                 
 calculate()
 {
-#    # get two valid numbers
-#    local a=${OLDA} # no duplicates
-#    while test ${a} -eq ${OLDA}; do
-#        a=$(expr $RANDOM \% ${MAXNUMBER} ) # [0;9]
-#        let "a=${a}+1" # [1;10]
-#    done
-#    OLDA=${a}
-
-#    local b=${OLDB} # no duplicates
-#    while test ${b} -eq ${OLDB}; do
-#        b=$(expr $RANDOM \% ${MAXNUMBER} ) # [0;9]
-#        let "b=${b}+1" # [1;10]
-#    done
-#    OLDB=${b}
-
     # operation
     local nops=${#OPERATIONS[*]}
     local op=$(expr ${RANDOM} \% ${nops} )
-#    ${OPERATIONS[${op}]} $a $b
     ${OPERATIONS[${op}]}
 }
 
@@ -172,20 +167,20 @@ number()
 
 add()
 {
-#    local a=$1
-#    local b=$2
-    A=$(number ${A} ${MAXNUMBER})
-    B=$(number ${B} ${MAXNUMBER})
+    local max=0
+    let "max=${MAXNUMBER}*${MAXNUMBER}"
+    A=$(number ${A} ${max})
+    B=$(number ${B} ${max})
     echo -n "${A} + ${B} = "
     let "RES=${A}+${B}"
 }
 
 subtract()
 {
-#    local a=$1
-#    local b=$2
-    A=$(number ${A} ${MAXNUMBER})
-    B=$(number ${B} ${MAXNUMBER})
+    local max=0
+    let "max=${MAXNUMBER}*${MAXNUMBER}"
+    A=$(number ${A} ${max})
+    B=$(number ${B} ${max})
     if (( ${A} < ${B} )); then
         tmp=${A}
         A=${B}
@@ -197,30 +192,21 @@ subtract()
 
 multiply()
 {
-#    local a=$1
-#    local b=$2
-set -x
     A=$(number ${A} ${MAXNUMBER})
     B=$(number ${B} ${MAXNUMBER})
-die "XXX"
     echo -n "${A} * ${B} = "
     let "RES=${A}*${B}"
 }
 
 divide()
 {
-#    local a=$1
-#    local b=$2
     A=$(number ${A} ${MAXNUMBER})
     B=$(number ${B} ${MAXNUMBER})
-
     if [ ${A} == 0 ]; then
         die "divide() - denominator was 0"
     fi
-
     local c=0
     let "c=${A}*${B}"
-
     echo -n "${c} : ${B} = "
     RES=${A}
 }
