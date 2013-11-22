@@ -4,7 +4,6 @@
 # email: L.Rubusch@gmx.ch
 # 11/2013 - GPL v3
 #
-# TODO no duplicates
 # TODO implement smart algorithm for long latencies
 # TODO implement smart algorithm for MISSes
 # TODO upper bounds for addition / subtractions shall be upper product of both
@@ -25,10 +24,12 @@ MAXNUMBER=100
 MAXTIME=0 # default max time in secs
 
 # e.g. 5 min
-let "MAXTIME=1*60"
+let "MAXTIME=5*60"
                                                                                 
 ## default settings
 PID=""
+A=0
+B=0
 RES=""
 
                                                                                 
@@ -99,7 +100,7 @@ foreground()
         if [ "${guess}" == "${RES}" ]; then
             let "HIT=${HIT}+1"
         else
-            echo "### correct: ${RES} ###"
+            echo "WRONG, correct is: ${RES}"
             let "MISS=${MISS}+1"
         fi
     done
@@ -131,16 +132,39 @@ background()
                                                                                 
 calculate()
 {
-    # get two valid numbers
-    local a=$(expr $RANDOM \% ${MAXNUMBER} ) # [0;9]
-    let "a=${a}+1" # [1;10]
-    local b=$(expr $RANDOM \% ${MAXNUMBER} ) # [0;9]
-    let "b=${b}+1" # [1;10]
+#    # get two valid numbers
+#    local a=${OLDA} # no duplicates
+#    while test ${a} -eq ${OLDA}; do
+#        a=$(expr $RANDOM \% ${MAXNUMBER} ) # [0;9]
+#        let "a=${a}+1" # [1;10]
+#    done
+#    OLDA=${a}
+
+#    local b=${OLDB} # no duplicates
+#    while test ${b} -eq ${OLDB}; do
+#        b=$(expr $RANDOM \% ${MAXNUMBER} ) # [0;9]
+#        let "b=${b}+1" # [1;10]
+#    done
+#    OLDB=${b}
 
     # operation
     local nops=${#OPERATIONS[*]}
     local op=$(expr ${RANDOM} \% ${nops} )
-    ${OPERATIONS[${op}]} $a $b
+#    ${OPERATIONS[${op}]} $a $b
+    ${OPERATIONS[${op}]}
+}
+
+number()
+{
+    local old=${1}
+    local val=${old}
+    local max=${2}
+
+    while test ${val} -eq ${old}; do
+        val=$(expr $RANDOM \% ${max} ) # [0;9]
+        let "val=${val}+1" # [1;10]
+    done
+    echo ${val}
 }
 
                                                                                 
@@ -148,46 +172,57 @@ calculate()
 
 add()
 {
-    local a=$1
-    local b=$2
-    echo -n "${a} + ${b} = "
-    let "RES=${a}+${b}"
+#    local a=$1
+#    local b=$2
+    A=$(number ${A} ${MAXNUMBER})
+    B=$(number ${B} ${MAXNUMBER})
+    echo -n "${A} + ${B} = "
+    let "RES=${A}+${B}"
 }
 
 subtract()
 {
-    local a=$1
-    local b=$2
-    if (( ${a} < ${b} )); then
-        tmp=${a}
-        a=${b}
-        b=${tmp}
+#    local a=$1
+#    local b=$2
+    A=$(number ${A} ${MAXNUMBER})
+    B=$(number ${B} ${MAXNUMBER})
+    if (( ${A} < ${B} )); then
+        tmp=${A}
+        A=${B}
+        B=${tmp}
     fi
-    echo -n "${a} - ${b} = "
-    let "RES=${a}-${b}"
+    echo -n "${A} - ${B} = "
+    let "RES=${A}-${B}"
 }
 
 multiply()
 {
-    local a=$1
-    local b=$2
-    echo -n "${a} * ${b} = "
-    let "RES=${a}*${b}"
+#    local a=$1
+#    local b=$2
+set -x
+    A=$(number ${A} ${MAXNUMBER})
+    B=$(number ${B} ${MAXNUMBER})
+die "XXX"
+    echo -n "${A} * ${B} = "
+    let "RES=${A}*${B}"
 }
 
 divide()
 {
-    local a=$1
-    local b=$2
+#    local a=$1
+#    local b=$2
+    A=$(number ${A} ${MAXNUMBER})
+    B=$(number ${B} ${MAXNUMBER})
 
-    if [ ${a} == 0 ]; then
+    if [ ${A} == 0 ]; then
         die "divide() - denominator was 0"
     fi
-    local c=0
-    let "c=${a}*${b}"
 
-    echo -n "${c} : ${b} = "
-    RES=${a}
+    local c=0
+    let "c=${A}*${B}"
+
+    echo -n "${c} : ${B} = "
+    RES=${A}
 }
 
 

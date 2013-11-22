@@ -221,7 +221,7 @@ while
 
 
 until
-	unitl TEST-COMMAND; do 
+	until TEST-COMMAND; do 
 	    CONSEQUENT-COMMANDS; 
 	done
 	
@@ -312,6 +312,16 @@ function
        $# for the size of the argument list.
        $RETURN_VALUE provides an error code to be set for returns
        (use $?).
+
+       alternatively, trick to use return values:
+       return_values()
+       {
+            # return array (1 2)
+            echo "1 2"
+       }
+
+       call for the function
+       arr=$(return_values)
 
 
 Regular Expressions:
