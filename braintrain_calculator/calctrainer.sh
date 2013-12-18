@@ -24,7 +24,7 @@
 #)
 
 ## 2. LEVEL
-MAXNUMBER=100
+MAXNUMBER=99
 OPERATIONS=(
     "add"
     "subtract"
