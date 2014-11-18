@@ -3,7 +3,7 @@
 # Note: 0 < temp_X_floor < temp_X_ceiling
 #       0 < fan_min < 6200       
 
-fan_min: 3500
+fan_min: 2500
 
 temp_avg_floor: 41
 temp_avg_ceiling: 51

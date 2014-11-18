@@ -15,22 +15,22 @@
 ## user settings
 
 ## 1. LEVEL
-#MAXNUMBER=10
-#OPERATIONS=(
-#    "add"
-#    "subtract"
-#    "multiply"
-#    "divide"
-#)
-
-## 2. LEVEL
-MAXNUMBER=99
+MAXNUMBER=10
 OPERATIONS=(
     "add"
     "subtract"
     "multiply"
     "divide"
 )
+
+## 2. LEVEL
+#MAXNUMBER=99
+#OPERATIONS=(
+#    "add"
+#    "subtract"
+#    "multiply"
+#    "divide"
+#)
 
 
 # e.g. 5 min
