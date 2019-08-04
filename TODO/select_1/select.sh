@@ -7,10 +7,12 @@
 
 echo "select demo (type \"quit\" to exit)"
 
-select FILENAME in *;
-do 
+select FILENAME in *; do
   echo "you picked $FILENAME ($REPLY)"
-  if [ $REPLY == "quit" ]; then break; fi
+
+  if [ $REPLY == "quit" ]; then
+  	break
+  fi
 done
 
 echo "READY."
