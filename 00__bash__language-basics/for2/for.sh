@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -e
 ##
 ## @author: Lothar Rubusch
 ## @email: L.Rubusch@gmx.ch
