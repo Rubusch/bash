@@ -25,7 +25,7 @@ undo_move_from_exp_to_root()
     move_from_exp_to_root $2 $1 $3
 }
 
-### TODO generate here lists for "special layout": src_speciallayout and dst_speciallayout
+## lists for target layout
 do_function()
 {
     echo ">>> Creating special layout for ro/rw layout."
