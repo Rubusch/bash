@@ -25,8 +25,9 @@ ls *.txt > $tmplist
 
 ## for each element in that list (i = element in that list, NOT a number!!!)
 ## it also might be possible to put `ls *.txt` directly instead of `cat list`
-for i in `cat list`; do cp "$i" "$i".bak ; done
-
+for i in $(cat list); do
+    cp "$i" "$i".bak
+done
 
 ## remove list
 rm $tmplist
