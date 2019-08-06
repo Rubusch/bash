@@ -18,9 +18,9 @@ while true; do
 
     ## if output already is empty - break
     ##
-    ## this is the same like setting an 'if' in front 
+    ## this is the same like setting an 'if' in front
     ## and putting the '&&' part into the clause
-    [ -z "${TMP:-}" ] && break; 
+    [ -z "${TMP:-}" ] && break;
 
     ## get offsets
     OFFSET=${#TMP}
@@ -28,7 +28,7 @@ while true; do
     while true; do
 	TMP=${STRING:$STARTIDX:$OFFSET}
 	[ -z "${TMP:-}" ] && break;
-	
+
 	## formatting one or two tabs ;-)
 	if [ ${#TMP} -lt 3 ]; then
 	    echo -e "\${ $TMP :\t\t\t $STARTIDX : $OFFSET } = $TMP"
