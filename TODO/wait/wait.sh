@@ -13,7 +13,7 @@ baba ()
 
 bobo ()
 {
-    for b in $(seq 10); do
+    for b in $(seq 5); do
         echo "bobo '$b'"
         sleep 1
     done
