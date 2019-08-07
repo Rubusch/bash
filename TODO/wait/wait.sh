@@ -21,9 +21,12 @@ bobo ()
 
 
 echo "start"
+
+## start two threads in bash
 (baba) &
 (bobo) &
 
+## wait on end of both threads
 wait
 
 echo "READY."
