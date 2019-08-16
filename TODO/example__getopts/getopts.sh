@@ -5,7 +5,15 @@
 usage()
 {
 cat <<EOF
-Bla Blub
+usage: $0 <h|v|f|?>
+
+*: fallback (also anything else)
+-v <args>: verbose
+-f: force
+-h: help
+
+e.g.
+> $0 -f -v 3
 EOF
 }
 
@@ -26,7 +34,7 @@ do_force()
     echo "do_force()"
 }
 
-if [[ $# -eq 0 ]]; then usage; die; fi
+if (( $# == 0 )); then usage; die; fi
 
 ## ':' read out further arguments, e.g. "-v foo"
 while getopts hv:f cmd; do
@@ -35,10 +43,13 @@ while getopts hv:f cmd; do
         usage
         ;;
     v)
-        do_verbose $1
+        echo "verbose"
+	do_verbose $OPTARG
         ;;
 
-    f) do_force
+    f)
+	echo "force"
+        do_force
         ;;
 
     \?)
