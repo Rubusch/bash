@@ -1,7 +1,8 @@
 #!/bin/bash
+## FIXME
 
 ## check for number
-function checknumber()
+checknumber()
 {
     for item in $@; do
         if [[ "${item}" =~ [\d\d] ]]; then
@@ -18,9 +19,9 @@ do_regex()
     local target=$1
     ## for bash below version 3.2 put the regex in quotes, and use [[ ]] like here
     if [[ "${target}" =~ "^(/bin|/boot|/dev|/etc|/home|/lib|/mnt|/opt|/proc|/root|/sbin|/sys|/tmp|/usr|/var)/?$" ]]; then
-        echo "+++: '$target'"
+        echo "TRUE: '$target'"
     else
-        echo "---: '$target'"
+        echo "FALSE: '$target'"
     fi
 }
 
