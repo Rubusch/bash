@@ -1,5 +1,4 @@
-#!/bin/bash
-## FIXME
+#!/bin/bash -e
 
 ## check for number
 checknumber()
@@ -18,7 +17,7 @@ do_regex()
 {
     local target=$1
     ## for bash below version 3.2 put the regex in quotes, and use [[ ]] like here
-    if [[ "${target}" =~ "^(/bin|/boot|/dev|/etc|/home|/lib|/mnt|/opt|/proc|/root|/sbin|/sys|/tmp|/usr|/var)/?$" ]]; then
+    if [[ "${target}" =~ ^(/bin|/boot|/dev|/etc|/home|/lib|/mnt|/opt|/proc|/root|/sbin|/sys|/tmp|/usr|/var)/?$ ]]; then
         echo "TRUE: '$target'"
     else
         echo "FALSE: '$target'"
@@ -43,6 +42,8 @@ do_regex "/tmp"
 do_regex "/usr"
 do_regex "/var"
 do_regex "/usr/"
+echo
+
 echo "should be FALSE:"
 do_regex "usr"
 do_regex "usr/"
@@ -50,8 +51,10 @@ do_regex "/usrf"
 do_regex /home/usr
 do_regex "/var/bin/foo"
 do_regex "/usr/bin"
+echo
 
 checknumber 45 34 2 asdf
+echo
 
 echo "READY."
 echo ""
