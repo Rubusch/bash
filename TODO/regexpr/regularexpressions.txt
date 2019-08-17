@@ -54,6 +54,9 @@ characters:
 	ls -ld [a-cx-z]
 	list all, starting with 'a', 'b', 'c', 'x', 'y', 'z'
 
+NOTE: don't use double quotes: '"'
+
+
 TODO: doesn't work!!!
 	ls -ld [[:digit:]]*
 	list all, starting with a "digit" (or "alpha", "ascii",
