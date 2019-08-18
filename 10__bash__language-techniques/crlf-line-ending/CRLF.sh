@@ -5,6 +5,13 @@
 ## @license: GPLv3
 ##
 ## find CRLF (dos) lineendings
+##
+## simple approach, to show dos lineendings: vi -b <filename>
+## in general use 'dos2unix <filename>', in case in combination with find to
+## avoid converting binary files
+##
+## this code snippet shows how to grep for "invisible characters" in files, 
+## e.g. the '\r' in files
 
 ## get \r
 CR="$(printf "\r")"
