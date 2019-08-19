@@ -11,7 +11,8 @@ echo "trap example"
 
 trap "echo Booh!" SIGINT SIGTERM
 
-echo "own pid is $$"
+echo "own pid is $$, stop script with:"
+echo "$> kill -9 $$"
 
 while :
 do
