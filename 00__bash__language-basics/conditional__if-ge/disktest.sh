@@ -7,7 +7,7 @@
 ## disktest.sh
 ##
 ## prints the space of the disk
-##
+## demonstrates 'test -ge', and 'if -ge', respectively
 
 space=`df -h | awk '{print $5}' | grep % | grep -v Use | sort -n | tail -1 | cut -d "%" -f1 -`
 alertvalue="80"
