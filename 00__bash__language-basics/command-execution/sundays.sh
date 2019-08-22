@@ -4,23 +4,24 @@
 ## @email: L.Rubusch@gmx.ch
 ## @license: GPLv3
 ##
-## sundays
-## calculates if the weeknumber is even
+## demonstrates execution of commands and calculation
+##
 ## then prints a message
 
-## calculate
+
+## 1. execute calculation: '$[' and ']'
 WEEKOFFSET=$[ $(date +"%V") % 2 ]
 
-## week number
-echo "week number:"
-echo $(date +"%V")
+## 2. execute command: '$(' and ')'
+WEEKNUMBER=$(date +"%V")
 
+
+## demo code....
+echo "week number:"
+echo ${WEEKNUMBER}
 echo "weekoffset:"
 echo $WEEKOFFSET
-
 if [ $WEEKOFFSET -eq "0" ]; then
     echo "sunday evening: put down the garbage cans, week's even"
-## | mail -s "garbage cans out" you@yourdomain.org
 fi
-
 echo "READY."
