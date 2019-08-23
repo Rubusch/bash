@@ -24,11 +24,11 @@ case $space in
 	;;
 
     99)
-        message="I'm drowing here! There's a partition at $space %!"
+        Message="I'm drowing here! There's a partition at $space %!"
 	;;
 
     *)
-	Message="I seem to be running with an nonexistent amount of disk space..."
+        Message="I seem to be running with an nonexistent amount of disk space..."
 	;;
 esac
 
