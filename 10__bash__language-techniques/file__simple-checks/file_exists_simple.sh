@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -e
 ##
 ## @author: Lothar Rubusch
 ## @email: L.Rubusch@gmx.ch
@@ -10,7 +10,7 @@
 echo "checking..."
 
 ## checking existence of regular file: -f
-if [ -f /data/programmieren/bash/notes.txt ]; then
+if [[ -f /data/programmieren/bash/notes.txt ]]; then
     echo "file exists"
 fi
 echo
@@ -18,7 +18,7 @@ echo
 echo "checking if globbing is set:"
 
 ## checking variable set: -o
-if [ -o noglobber ]; then
+if [[ -o noglobber ]]; then
     echo "files are protected against accidental overwriting using redirection"
 fi
 echo
@@ -26,7 +26,7 @@ echo
 echo "compare variables:"
 
 ## comparing variables: -eq
-if [ $? -eq 0 ]; then
+if [[ $? -eq 0 ]]; then
     echo "that was easy"
 fi
 echo
