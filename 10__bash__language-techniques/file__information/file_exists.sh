@@ -1,12 +1,13 @@
-#!/bin/bash
+#!/bin/bash -e
 ##
 ## @author: Lothar Rubusch
 ## @email: L.Rubusch@gmx.ch
 ## @license: GPLv3
-
+##
 ## check if a given file (as argument $1) exists
+## provide some file information
 
-if [ ! $# -eq 1 ] ; then
+if (( $# != 1 )) ; then
     echo "filename missing error"
     echo "Usage ./fileexits.sh <filename>"
     exit 1;
@@ -14,7 +15,7 @@ fi
 
 FILENAME="$1"
 
-if [ -f $FILENAME ] ; then
+if [[ -f $FILENAME ]] ; then
     echo "size is $(ls -lh $FILENAME | awk '{ print $5 }' )"
     echo "type is $(file $FILENAME | cut -d":" -f2 -)"
     echo "inode number is $(ls -i $FILENAME | cut -d" " -f1 -)"
