@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -e
 ##
 ## @author: Lothar Rubusch
 ## @email: L.Rubusch@gmx.ch
@@ -12,11 +12,11 @@ echo "tests in a clumsy way for a leap year"
 
 year=`date +%Y`
 
-if [ $[$year % 400] -eq "0" ]; then
+if [[ $[$year % 400] -eq "0" ]]; then
     echo "this is a leap year, february has 29 days (outer control)"
 
-elif [ $[$year % 4] -eq 0 ]; then
-   if [ $[$year % 100] -ne 0 ]; then
+elif [[ $[$year % 4] -eq 0 ]]; then
+   if [[ $[$year % 100] -ne 0 ]]; then
        echo "this is a leap year, february has 29 days (inner control)"
    else
        echo "this is not a leap year, february has 28 days (inner control)"
