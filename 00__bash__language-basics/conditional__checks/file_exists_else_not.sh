@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -e
 ##
 ## @author: Lothar Rubusch
 ## @email: L.Rubusch@gmx.ch
@@ -10,20 +10,19 @@
 echo "checking..."
 
 ## checking existence of regular file: -f
-if [ -f /data/foobar.txt ]; then
+if [[ -f /data/foobar.txt ]]; then
     echo "file exists"
-
-    else
+else
     echo "file foobar does not exist"
 fi
 echo
 
 echo "checking if globbing is set:"
 
-## checking variable set: -o
-if [ -o noglobber ]; then
+## checking variable 'noglobber' is set: -o
+if [[ -o noglobber ]]; then
     echo "files are protected against accidental overwriting using redirection"
-    else
+else
     echo "files are NOT protected against accidental overwriting using redirection"
 fi
 echo
@@ -31,8 +30,8 @@ echo
 echo "compare variables:"
 
 ## comparing variables: -eq
-if [ $? -eq 0 ]
-    then echo "that was easy"
+if [[ $? -eq 0 ]]; then 
+	echo "that was easy"
 fi
 echo
 
