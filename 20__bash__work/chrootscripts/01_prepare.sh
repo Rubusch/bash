@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -e
 #
 # logs in as user, mounts all necessary fils - in case remounts them
 #
