@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -e
 ##
 ## just chroots into the system, in case an additional tty is going to 
 ## enter a already mounted and configured system

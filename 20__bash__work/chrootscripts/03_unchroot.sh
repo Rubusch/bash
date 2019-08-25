@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -e
 CHROOTSYS="$@"
 if [[ -z $CHROOTSYS ]]; then
     echo "usage: $0 <folder>"
