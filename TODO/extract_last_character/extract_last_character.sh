@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -e
 ##
 ## @author: Lothar Rubusch
 ## @email: L.Rubusch@gmx.ch
@@ -8,21 +8,20 @@
 
 FOO="ASDF77"
 echo "string: '$FOO'"
-echo ""
+echo
 
 ## sed
 echo "using sed"
 echo $FOO | sed 's/^.*\(..\)$/\1/'
-echo ""
+echo
 
 ## awk
 echo "using awk"
 echo $FOO | awk '{ print substr( $0, length($0)-1, length($0)) }'
-echo ""
+echo
 
 ## in context
 result=$(echo $FOO | sed 's/^.*\(..\)$/\1/' )
 echo "result: '$result'"
 
 echo "READY."
-echo ""
