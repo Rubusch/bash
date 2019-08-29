@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -e
 ##
 ## script to generate etags code tags file for emacs and c/c++ code files
 ## exuberant-ctags plugin needs to be installed to emacs, running the script
@@ -36,7 +36,7 @@ exit 1
 }
 
 ## entry check
-if [[ $# -eq 0 ]]; then usage; die "### FAiLED ###"; fi
+if (( $# == 0 )); then usage; die "### FAiLED ###"; fi
 BASEPATH=$1
 
 ## get dir list
@@ -44,7 +44,7 @@ BASEPATH=$1
 DIRLIST=( $(find $BASEPATH -maxdepth 1 -type d -exec basename {} \; | egrep ^[^\.]) )
 
 for item in ${DIRLIST[*]}; do
-    echo "item '$item'" ## XXX
+    echo "item '$item'"
 
     ## generate folder for each dirlist entry
     [[ ! -d $item ]] && mkdir ./$item
@@ -53,7 +53,7 @@ for item in ${DIRLIST[*]}; do
     [[ -f ./TAGS ]] && mv ./TAGS ./TAGS.orig
 
     ## run etags command and create TAGS file
-    [[ -d $BASEPATH$item ]] && find $BASEPATH$item -regex ".*\.\(cpp\|c\|h\|hpp\)$" -exec etags -a {} \;
+    [[ -d $BASEPATH$item ]] && find $BASEPATH$item -regex ".*\.\(cc\|cpp\|c\|h\|hpp\)$" -exec etags -a {} \;
     cd -
 done
 
