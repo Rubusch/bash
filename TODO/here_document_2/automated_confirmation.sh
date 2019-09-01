@@ -4,7 +4,8 @@
 ## @email: L.Rubusch@gmx.ch
 ## @license: GPLv3
 ##
-## demonstrates automated confirmation using "here documents"
+## demonstrates automated passing input to a tool
+## e.g. here confirmation using "here documents"
 ##
 
 if [ $# -lt 1 ]; then
