@@ -12,7 +12,7 @@ furrymonster="blue"
 
 printf "cavemonster: '%s', furrymonster: '%s'\n" $cavemonster $furrymonster
 
-
+echo "compare cavemonster and furrymonster with awk"
 echo "res, before: '$?'"
 awk -v v1="$cavemonster" -v v2="$furrymonster" 'BEGIN { exit !(v1 "" < "" v2) }'
 echo "res, after: '$?'"
