@@ -29,12 +29,12 @@ ENABLE=$2
 if [ "${ENABLE}" != "+" ] && [ "${ENABLE}" != "-" ]; then usage; die; fi
 
 OPTS=$3
-if [ -z "`echo ${OPTS} | grep "p\|m\|f\|l"`" ]; then usage; die; fi
+if [ -z "$(echo ${OPTS} | grep "p\|m\|f\|l")" ]; then usage; die; fi
 
 if [ ! -f /sys/kernel/debug/dynamic_debug/control ]; then
     mount -t debugfs nodev /sys/kernel/debug
 fi
-FILES=`grep -i "${PATTERN}" /sys/kernel/debug/dynamic_debug/control | awk -F : '{ print $1 }' | uniq`
+FILES=$(grep -i "${PATTERN}" /sys/kernel/debug/dynamic_debug/control | awk -F : '{ print $1 }' | uniq)
 
 for item in ${FILES}; do
     echo "\t$item"
@@ -53,7 +53,7 @@ echo
 for item in ${FILES}; do
     set -x
     echo "file ${item} ${ENABLE}${OPTS}" > /sys/kernel/debug/dynamic_debug/control
-    set +x
+    { set +x ; } 2> /dev/null
     echo
 done
 
