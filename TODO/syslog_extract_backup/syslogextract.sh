@@ -20,7 +20,9 @@ sudo logger "Testsuite $TestsuiteMarker ended"
 ## testsuite failed - extract log information
 sudo sh -c 'awk -v testsuite=$TestsuiteMarker -f extractTestLogs.awk < /var/log/syslog > ./extracted_syslog.log || die "awk failed, $! "'
 
+
 echo "RESULT:"
+sudo chown $(whoami).$(whoami) ./extracted_syslog.log
 nl ./extracted_syslog.log
 
 echo
