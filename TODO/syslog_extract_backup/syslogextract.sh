@@ -1,4 +1,7 @@
-#!/bin/bash
+#!/bin/bash -e
+##
+## needs sudo permissions
+##
 
 function die()
 {
@@ -8,15 +11,18 @@ function die()
 
 ## set marker
 TestsuiteMarker="Testsuite1234567"
-logger "Testsuite $TestsuiteMarker started"
-
-logger "some test tututututu.."
+sudo logger "Testsuite $TestsuiteMarker started"
+sudo logger "some test tututututu.."
 
 ## set marker
-logger "Testsuite $TestsuiteMarker ended"
+sudo logger "Testsuite $TestsuiteMarker ended"
 
 ## testsuite failed - extract log information
-awk -v testsuite="$TestsuiteMarker" -f extractTestLogs.awk < /var/log/syslog > ./extracted.syslog || die "awk failed, $! "
+sudo sh -c 'awk -v testsuite=$TestsuiteMarker -f extractTestLogs.awk < /var/log/syslog > ./extracted_syslog.log || die "awk failed, $! "'
 
+echo "RESULT:"
+nl ./extracted_syslog.log
+
+echo
 echo "READY."
 
