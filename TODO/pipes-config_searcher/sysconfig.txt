@@ -1,7 +1,0 @@
-your root account info: 
-root:x:0:0:root:/root:/bin/bash
-asdf
-your local host configuration: 
-127.0.0.1 localhost 
-127.0.1.1 machine 
-asdf
