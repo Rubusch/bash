@@ -7,6 +7,7 @@
 ##
 
 CONFIG=./sysconfig.txt
+touch $CONFIG
 
 ## reset
 rm "$CONFIG" 2>/dev/null
