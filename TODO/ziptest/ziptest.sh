@@ -4,6 +4,7 @@
 
 
 dir="./dir"
+mkdir -p $dir
 
 
 ## !!! go into the folder - important for zip to work !!!
