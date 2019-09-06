@@ -1,10 +1,9 @@
-#!/bin/bash
+#!/bin/bash -e
 ##
 ## demonstrates the redirection of streams into files
 ##
-## makes an index of important config files, buts them 
-## together in a backup file and allows for adding comment 
-## for each file
+## makes an index of important config files,
+## puts them together in a backup file and allows for adding comment for each file
 ##
 
 CONFIG=./sysconfig.txt
