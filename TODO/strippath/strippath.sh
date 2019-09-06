@@ -1,5 +1,5 @@
-#!/bin/bash
-## 
+#!/bin/bash -e
+##
 ## strippath
 ##
 ## TODO
@@ -28,16 +28,16 @@ strippath () {
     echo -e "\tstrippath checks if the first element is equal to the path variable"
     [ "$MY_PATH" == "$1" ] && return;
 
-    ## 
-    for p in "$@"; do
-	echo -e "\tcheck parameters in list for:\"$p\""
-	found=`expr "$MY_PATH" : "\ ($p/\?:\ )"` && MY_PATH=${MY_PATH#$found} || 
+    ## search for pattern in MY_PATH
+    for pattern in "$@"; do
+	echo -e "\tcheck parameters in list for:\"$pattern\""
+	found=`expr "$MY_PATH" : "\ ($pattern/\?:\ )"` && MY_PATH=${MY_PATH#$found} ||
 	echo -e "\t\t1. found = $found\n\t\tMY_PATH = $MY_PATH"
 
-	found=`expr "$MY_PATH" : ".*\ (:$p/\?:\ )"` && MY_PATH=${MY_PATH//${found%:}} || 
+	found=`expr "$MY_PATH" : ".*\ (:$pattern/\?:\ )"` && MY_PATH=${MY_PATH//${found%:}} ||
 	echo -e "\t\t2. found = $found\n\t\tMY_PATH = $MY_PATH"
 
-	found=`expr "$MY_PATH" : ".*\ (:$p/\?$\ )"` && MY_PATH=${MY_PATH%$found}
+	found=`expr "$MY_PATH" : ".*\ (:$pattern/\?$\ )"` && MY_PATH=${MY_PATH%$found}
 	echo -e "\t\t3. found = $found\n\t\tMY_PATH = $MY_PATH"
 	echo
     done
@@ -55,4 +55,3 @@ echo -e "\tMY_PATH\t= $MY_PATH"
 echo -e "\tfound  \t= $found"
 echo
 echo "READY."
-
