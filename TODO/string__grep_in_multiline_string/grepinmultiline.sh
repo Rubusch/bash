@@ -1,13 +1,13 @@
-#!/bin/bash
+#!/bin/bash -e
 ##
 ## how to grep in a multiline variable
-
+##
 
 OUTPUT=`cat /proc/stat`
 echo "OUTPUT '$OUTPUT'"
 echo
 
-CPU=$(printf "%s\n" "$OUTPUT" | grep "cpu ")
-echo "LINE '$CPU'"
+CPU=$(printf "%s\n" "$OUTPUT" | grep "intr ")
+echo "grepped LINE '$CPU'"
 
 echo "READY."
