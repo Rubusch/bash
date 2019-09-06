@@ -1,4 +1,5 @@
-#!/bin/bash
+#!/bin/bash -e
+##
 ## a not 100% safe apporach to ensure a script has only one (or few) instance
 ## running :)
 ##
@@ -16,7 +17,7 @@
 ## root!)
 ##
 ## as quick'n dirty solution, where the worst case scenarios aren't dangerous,
-## e.g. sufficient to reduce fireworks on incron jobs...
+## e.g. sufficient to reduce fireworks on cron jobs...
 ##
 ## anyway for safer approaches check out flock
 set -C # do not overwrite existing files, using > or use >| to force overwriting
@@ -24,11 +25,11 @@ set -C # do not overwrite existing files, using > or use >| to force overwriting
 LOCKFILE=/var/lock/$(basename ${0}).lock
 
 ## keep active for how many secs?
-SLEEP=10
+SLEEP=3
 
 
 # DEBUG
-#set -x    
+#set -x
 
 die ()
 {
@@ -68,30 +69,34 @@ sendkill()
     done
 }
 
-## trap SIGINT, SIGTERM, SIGEXIT - will fail on SIGKILL!!
+
+### START ###
+
+
+## trap SIGINT, SIGTERM, SIGEXIT - will fail on SIGKILL (9) of course
 trap "reset; exit" INT TERM EXIT
 
 ## arg: empty -> EXIT
-if [ "${1}" == "" ]; then
+if (( $# != 1 )); then
     usage
-    exit
+    die
 fi
 
 ## arg: RESET -> EXIT and reset
 arg="$(echo "${1}" | tr '[A-Z]' '[a-z]')"
-if [ "reset" == "${arg}" ]; then
+if [[ "reset" == "${arg}" ]]; then
     RUNNING="running"
     sendkill "$(ps -e | grep "$(basename ${0})" | awk '{ print $1}')"
     exit
 fi
 
 ## check lock
-if [ -e ${LOCKFILE} ]; then
+if [[ -e ${LOCKFILE} ]]; then
     exit
 fi
 
 ## arg: not run -> EXIT
-if [ "run" != "${arg}" ]; then
+if [[ "run" != "${arg}" ]]; then
     usage
     exit
 fi
@@ -107,7 +112,7 @@ RUNNING="running"
 sleep ${SLEEP}
 
 ## execution at the end
-echo "TODO" # TODO   
+echo "TODO: now execute a program or the like..."
 
 ## unlock
 reset
